@@ -332,10 +332,11 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .art-phone svg, .art-key svg { width: 96px; height: 96px; stroke-width: 1.3; }
 .art-phone { color: #3a3a3c; }
 .art-key { color: #9ccb8c; }
-.ic-sync, .ic-sheet, .ic-cal, .ic-moon { width: 56px; height: 56px; margin-bottom: 18px; }
-.bt.row .ic-cal, .bt.row .ic-moon { margin: 0; flex: none; }
+.ic-sync, .ic-sheet, .ic-cal, .ic-moon, .ic-photo, .ic-bldg, .ic-cloud { width: 56px; height: 56px; margin-bottom: 18px; }
+.bt.row .ic-cal, .bt.row .ic-moon, .bt.row .ic-photo, .bt.row .ic-bldg, .bt.row .ic-cloud { margin: 0; flex: none; }
+.ic-photo { color: #e58aa6; } .ic-bldg { color: #7fb3c9; } .ic-cloud { color: var(--green); }
 .ic-sync { color: var(--green); } .ic-sheet { color: #8aa9e8; } .ic-cal { color: #e0a84c; } .ic-moon { color: #8e8ee8; }
-.ic-sync svg, .ic-sheet svg, .ic-cal svg, .ic-moon svg { width: 100%; height: 100%; }
+.ic-sync svg, .ic-sheet svg, .ic-cal svg, .ic-moon svg, .ic-photo svg, .ic-bldg svg, .ic-cloud svg { width: 100%; height: 100%; }
 .ic-one { width: 52px; height: 52px; border-radius: 50%; border: 2px solid #c7cbe8; color: #7b82c9; display: grid; place-items: center; font-weight: 600; font-size: 22px; margin-bottom: 18px; box-shadow: 0 0 18px rgba(123,130,201,.25); }
 .ic-csv { flex: none; font-weight: 700; font-size: 13px; letter-spacing: .08em; color: #1d6f42; border: 2px solid #9bd0ae; border-radius: 10px; padding: 8px 10px; }
 .bars { display: flex; align-items: center; gap: 5px; height: 48px; margin-bottom: 18px; }
