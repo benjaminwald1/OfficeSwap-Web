@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg"}
 </script>
@@ -119,17 +119,6 @@
   </div>
 </section>
 
-<section class="band" id="compare">
-  <div class="container">
-    <h2 class="h2 center reveal">Before and <em>after.</em></h2>
-    <p class="lede reveal">Sharing offices usually means a group email and a spreadsheet. It doesn't have to.</p>
-    <div class="vs reveal">
-      <div class="vs-col before"><h3>Without OfficeSwap</h3><ul><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>An email to the whole floor asking who's out.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>A spreadsheet someone forgets to update.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>Whoever replies fastest gets the office.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>Plans change and nobody hears about it.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>Offices sit empty while people squeeze into the kitchen.</li></ul></div>
-      <div class="vs-col after"><h3>With OfficeSwap</h3><ul><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Owners tap Offer My Office. Done.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i>One live schedule on every phone.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i>First come, first served, automatically.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Cancel anytime. The office goes to the next person.</li><li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Every open office gets used.</li></ul></div>
-    </div>
-  </div>
-</section>
-
 <section class="band" id="details">
   <div class="container">
     <h2 class="h2 center reveal">Every detail, <em>considered.</em></h2>
@@ -212,22 +201,27 @@
   </div>
 </section>
 
-<section class="band gray" id="calculator">
+<section class="band" id="calculator">
   <div class="container">
     <h2 class="h2 center reveal">How much space <em>sits empty?</em></h2>
-    <p class="lede reveal">Move the sliders to match your team. Everything is worked out right here in your browser.</p>
-    <div class="calc reveal">
-      <div class="calc-inputs">
-        <label class="slider"><span><b>Offices with an owner</b><output id="c-offices">20</output></span>
-          <input type="range" id="r-offices" min="1" max="200" value="20" aria-describedby="c-offices"></label>
-        <label class="slider"><span><b>Days each owner is away per month</b><output id="c-away">4</output></span>
-          <input type="range" id="r-away" min="0" max="20" value="4" aria-describedby="c-away"></label>
+    <p class="lede reveal">Move the sliders to match your team. It's all worked out here in your browser.</p>
+    <div class="calc2 reveal">
+      <div class="calc2-left">
+        <label class="sl2"><span><b>Offices with an owner</b><output id="c-offices">20</output></span>
+          <input type="range" id="r-offices" min="1" max="200" value="20"></label>
+        <label class="sl2"><span><b>Days each owner is away a month</b><output id="c-away">4</output></span>
+          <input type="range" id="r-away" min="0" max="20" value="4"></label>
+        <div class="stats2">
+          <div><b id="c-days">80</b><span>office-days sit empty every month</span></div>
+          <div><b id="c-offices-eq">3.8</b><span>full-time offices' worth of space</span></div>
+        </div>
       </div>
-      <div class="calc-out">
-        <div class="big"><b id="c-days">80</b><span>office-days a month sit empty today</span></div>
-        <div class="big"><b id="c-offices-eq">3.8</b><span>full-time offices' worth of space, every month</span></div>
-        <p class="fine">Estimate: offices times days away, with a month counted as 21 working days. OfficeSwap can hand every one of those days to someone who needs it.</p>
+      <div class="calc2-right">
+        <div class="mx-head"><span>One month</span><span class="mx-key"><i class="k-open"></i>Owner away<i class="k-in"></i>Owner in</span></div>
+        <div class="mx" id="mx" role="img" aria-label="Grid of offices by workday; green dots are days the owner is away"></div>
+        <p class="mx-more" id="mx-more"></p>
       </div>
+      <p class="calc2-note">Estimate: offices times days away, with a month counted as 21 workdays. Each dot is one office on one workday. OfficeSwap can hand every green one to someone who needs it.</p>
     </div>
   </div>
 </section>
@@ -438,13 +432,56 @@
   (function () {
     var ro = document.getElementById("r-offices"), ra = document.getElementById("r-away");
     if (!ro) return;
+    var mx = document.getElementById("mx"), more = document.getElementById("mx-more");
+    var ROWS = 14, COLS = 21, dots = [];
+    for (var r = 0; r < ROWS; r++) {
+      var row = document.createElement("div"); row.className = "mx-row";
+      for (var c = 0; c < COLS; c++) { var d = document.createElement("i"); row.appendChild(d); dots.push(d); }
+      mx.appendChild(row);
+    }
+    // A fixed pseudo-random order of workdays for each office, so the same office always
+    // goes green on the same days as the slider moves.
+    function order(seed) {
+      var a = [], x = seed * 9301 + 49297;
+      for (var i = 0; i < COLS; i++) a.push(i);
+      for (var j = COLS - 1; j > 0; j--) { x = (x * 9301 + 49297) % 233280; var k = Math.floor(x / 233280 * (j + 1)); var t = a[j]; a[j] = a[k]; a[k] = t; }
+      return a;
+    }
+    var orders = []; for (var o = 0; o < ROWS; o++) orders.push(order(o + 3));
+    var shownDays = 0, shownEq = 0, raf;
+    var settle;
+    function finish(toDays, toEq) {
+      cancelAnimationFrame(raf); shownDays = toDays; shownEq = toEq;
+      document.getElementById("c-days").textContent = Math.round(toDays).toLocaleString();
+      document.getElementById("c-offices-eq").textContent = toEq.toFixed(toEq < 10 ? 1 : 0);
+    }
+    function animate(toDays, toEq) {
+      cancelAnimationFrame(raf);
+      clearTimeout(settle); settle = setTimeout(function () { finish(toDays, toEq); }, 420);
+      var fromD = shownDays, fromE = shownEq, t0 = performance.now();
+      (function step(t) {
+        var p = Math.min(1, (t - t0) / 350), e = 1 - Math.pow(1 - p, 3);
+        shownDays = fromD + (toDays - fromD) * e; shownEq = fromE + (toEq - fromE) * e;
+        document.getElementById("c-days").textContent = Math.round(shownDays).toLocaleString();
+        document.getElementById("c-offices-eq").textContent = shownEq.toFixed(toEq < 10 ? 1 : 0);
+        if (p < 1) raf = requestAnimationFrame(step);
+      })(t0);
+    }
     function upd() {
-      var o = +ro.value, a = +ra.value, d = o * a;
+      var o = +ro.value, a = +ra.value;
       document.getElementById("c-offices").textContent = o;
       document.getElementById("c-away").textContent = a;
-      document.getElementById("c-days").textContent = d.toLocaleString();
-      document.getElementById("c-offices-eq").textContent = (d / 21).toFixed(d / 21 < 10 ? 1 : 0);
       [ro, ra].forEach(function (r) { r.style.setProperty("--p", ((r.value - r.min) / (r.max - r.min)) * 100 + "%"); });
+      for (var r = 0; r < ROWS; r++) {
+        var green = {}; orders[r].slice(0, a).forEach(function (c) { green[c] = 1; });
+        for (var c = 0; c < COLS; c++) {
+          var d = dots[r * COLS + c];
+          d.className = r >= o ? "off" : (green[c] ? "open" : "");
+        }
+      }
+      more.textContent = o > ROWS ? "Showing " + ROWS + " of " + o + " offices" : "";
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { shownDays = o * a; shownEq = o * a / 21; animate(shownDays, shownEq); }
+      else animate(o * a, o * a / 21);
     }
     ro.addEventListener("input", upd); ra.addEventListener("input", upd); upd();
   })();
