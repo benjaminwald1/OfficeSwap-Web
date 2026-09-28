@@ -423,27 +423,35 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .ov { position: absolute; inset: 0; z-index: 6; pointer-events: none; --pt: calc(100cqw / 402); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Helvetica Neue", Arial, sans-serif; color: #000; letter-spacing: -0.01em; }
 .ov[hidden] { display: none; }
 .ov button { font: inherit; color: inherit; border: 0; background: none; padding: 0; margin: 0; -webkit-tap-highlight-color: transparent; }
-.cal { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * var(--top)); height: calc(var(--pt) * 375); background: #fff; border-radius: calc(var(--pt) * 26); }
-.cal-head { position: absolute; left: calc(var(--pt) * 28); right: calc(var(--pt) * 18); top: calc(var(--pt) * 38); height: calc(var(--pt) * 24); display: flex; align-items: center; gap: calc(var(--pt) * 6); }
-.cal-head b { font-size: calc(var(--pt) * 17); font-weight: 600; }
-.cal-small { color: #9c6e21; width: calc(var(--pt) * 7); height: calc(var(--pt) * 12); display: inline-grid; }
-.cal-small svg { width: 100%; height: 100%; }
-.ov .cal-nav { position: absolute; top: 0; width: calc(var(--pt) * 30); height: calc(var(--pt) * 24); display: grid; place-items: center; color: #9c6e21; cursor: pointer; }
-.cal-nav svg { width: calc(var(--pt) * 10); height: calc(var(--pt) * 17); }
-.ov .cal-nav:disabled { color: #c5c5c7; cursor: default; }
-.cal-nav.prev { right: calc(var(--pt) * 46); } .cal-nav.next { right: calc(var(--pt) * 1); }
-.cal-dow, .cal-grid { position: absolute; left: calc(var(--pt) * 16); width: calc(var(--pt) * 336); display: grid; grid-template-columns: repeat(7, 1fr); }
-.cal-dow { top: calc(var(--pt) * 84); }
-.cal-dow span { text-align: center; font-size: calc(var(--pt) * 13); font-weight: 600; color: #8a8a8e; }
-.cal-grid { top: calc(var(--pt) * 104); grid-auto-rows: calc(var(--pt) * 48); }
-.day { display: grid; place-items: center; font-size: calc(var(--pt) * 20); cursor: pointer; position: relative; }
-.day::before { content: ""; position: absolute; width: calc(var(--pt) * 44); height: calc(var(--pt) * 44); border-radius: 50%; background: transparent; z-index: -1; transition: background-color .15s; }
-.day { z-index: 0; }
-.day:hover:not(:disabled)::before { background: #f7f4ee; }
-.day.today { color: #9c6e21; }
-.day.on { color: #9c6e21; font-weight: 600; }
-.day.on::before, .day.on:hover::before { background: #f3eee4; }
-.day.past { color: #dddddf; cursor: default; }
+.cal { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * var(--top)); height: calc(var(--pt) * 435); background: #fff; border-radius: calc(var(--pt) * 26); }
+.cal-head { position: absolute; left: calc(var(--pt) * 16); right: calc(var(--pt) * 16); top: calc(var(--pt) * 22); height: calc(var(--pt) * 30); display: flex; align-items: center; }
+.cal-head b { font-size: calc(var(--pt) * 17); font-weight: 600; flex: 1; }
+.cal-month { font-size: calc(var(--pt) * 15); color: #8a8a8e; margin-right: calc(var(--pt) * 10); }
+.ov .cal-nav { position: static; width: calc(var(--pt) * 30); height: calc(var(--pt) * 30); display: grid; place-items: center; color: #000; cursor: pointer; }
+.ov .cal-nav + .cal-nav { margin-left: calc(var(--pt) * 10); }
+.ov .cal-nav svg { width: calc(var(--pt) * 9); height: calc(var(--pt) * 15); }
+.ov .cal-nav:disabled { color: #c7c7cc; cursor: default; }
+.cal-dow, .cal-grid { position: absolute; left: calc(var(--pt) * 16); width: calc(var(--pt) * 338); display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-dow { top: calc(var(--pt) * 64); }
+.cal-dow span { text-align: center; font-size: calc(var(--pt) * 12); color: #8a8a8e; }
+.cal-grid { top: calc(var(--pt) * 83.7); grid-auto-rows: calc(var(--pt) * 40); row-gap: calc(var(--pt) * 4); column-gap: calc(var(--pt) * 4); }
+.ov .day { display: grid; place-items: center; font-size: calc(var(--pt) * 17); border-radius: calc(var(--pt) * 10); cursor: pointer; color: #000; font-variant-numeric: tabular-nums; transition: background-color .12s; }
+.ov .day::before { content: none; }
+.ov .day:hover:not(.off):not(.on) { background: #f2f2f5; }
+.ov .day.today { color: #9c6e21; font-weight: 600; }
+.ov .day.off { color: #e5e5e7; cursor: default; }
+.ov .day.other { color: #ededee; }
+.ov .day.on { background: #1c294a; color: #fff; font-weight: 600; }
+.cal-divider { position: absolute; left: calc(var(--pt) * 16); right: calc(var(--pt) * 16); top: calc(var(--pt) * 316); height: 1px; background: #c6c6c8; }
+.cal-sel { position: absolute; left: calc(var(--pt) * 16); right: calc(var(--pt) * 16); top: calc(var(--pt) * 330); display: flex; justify-content: space-between; font-size: calc(var(--pt) * 15); }
+.cal-sel b { font-weight: 600; } .cal-sel span { color: #8a8a8e; }
+.cal-chips { position: absolute; left: calc(var(--pt) * 16); right: 0; top: calc(var(--pt) * 368); display: flex; gap: calc(var(--pt) * 8); overflow: hidden; }
+.chip-day { flex: none; display: inline-flex; align-items: center; gap: calc(var(--pt) * 10); height: calc(var(--pt) * 40); padding: 0 calc(var(--pt) * 12); border-radius: calc(var(--pt) * 12); background: #fff; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.chip-day > span { display: flex; flex-direction: column; line-height: 1.15; }
+.chip-day b { font-size: calc(var(--pt) * 15); font-weight: 600; }
+.chip-day i { font-style: normal; font-size: calc(var(--pt) * 12); color: #8a8a8e; }
+.ov .chip-day button { display: grid; place-items: center; color: #8a8a8e; cursor: pointer; width: calc(var(--pt) * 16); height: calc(var(--pt) * 16); }
+.chip-day button svg { width: calc(var(--pt) * 11); height: calc(var(--pt) * 11); }
 .cal-submit { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * 788); height: calc(var(--pt) * 52); border-radius: calc(var(--pt) * 26) !important; background: #fff !important; color: #9c6e21 !important; font-size: calc(var(--pt) * 17) !important; font-weight: 600 !important; cursor: pointer; }
 .cal-submit:disabled { color: #b6b6bb !important; cursor: default; }
 .cal-submit:active:not(:disabled) { background: #f1f1f4 !important; }

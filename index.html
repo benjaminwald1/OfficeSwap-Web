@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=17">
+<link rel="stylesheet" href="styles.css?v=18">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg"}
 </script>
@@ -56,9 +56,9 @@
     </div>
   </div>
   <div class="phones" aria-hidden="false">
-    <div class="iphone p-left"><img src="images/waitlist.jpg" alt="The Waitlist tab in OfficeSwap" width="720" height="1565"></div>
-    <div class="iphone p-center"><img src="images/board.jpg?v=3" alt="The Board tab in OfficeSwap, showing open offices and visitors for the day" width="720" height="1565"></div>
-    <div class="iphone p-right"><img src="images/plans.jpg" alt="The Plans tab in OfficeSwap, listing requests and the office each person got" width="720" height="1565"></div>
+    <div class="iphone p-left"><img src="images/waitlist.jpg?v=4" alt="The Waitlist tab in OfficeSwap" width="720" height="1565"></div>
+    <div class="iphone p-center"><img src="images/board.jpg?v=4" alt="The Board tab in OfficeSwap, showing open offices and visitors for the day" width="720" height="1565"></div>
+    <div class="iphone p-right"><img src="images/plans.jpg?v=4" alt="The Plans tab in OfficeSwap, listing requests and the office each person got" width="720" height="1565"></div>
   </div>
 </section>
 
@@ -100,16 +100,16 @@
     <div class="stage reveal">
       <div class="iphone lg">
         <div class="screen" id="screen">
-          <img class="on" src="images/board.jpg?v=3" alt="Board tab" width="720" height="1565">
-          <img src="images/waitlist.jpg" alt="Waitlist tab" width="720" height="1565" loading="lazy">
-          <img src="images/plans.jpg" alt="Plans tab" width="720" height="1565" loading="lazy">
-          <img src="images/export.jpg?v=2" alt="Export tab" width="720" height="1565" loading="lazy">
-          <img src="images/settings.jpg" alt="Settings tab" width="720" height="1565" loading="lazy">
-          <img src="images/flow-request-form.jpg" alt="Request an Office form, filled in" width="720" height="1565" loading="lazy">
-          <img src="images/flow-request-done.jpg" alt="You have an office confirmation" width="720" height="1565" loading="lazy">
-          <img src="images/flow-offer-form.jpg" alt="Offer My Office form, filled in" width="720" height="1565" loading="lazy">
-          <img src="images/flow-offer-done.jpg" alt="Board after offering an office" width="720" height="1565" loading="lazy">
-          <img src="images/waitlist-open.jpg" alt="Waitlist with Grace Liu's request expanded" width="720" height="1565" loading="lazy">
+          <img class="on" src="images/board.jpg?v=4" alt="Board tab" width="720" height="1565">
+          <img src="images/waitlist.jpg?v=4" alt="Waitlist tab" width="720" height="1565" loading="lazy">
+          <img src="images/plans.jpg?v=4" alt="Plans tab" width="720" height="1565" loading="lazy">
+          <img src="images/export.jpg?v=4" alt="Export tab" width="720" height="1565" loading="lazy">
+          <img src="images/settings.jpg?v=4" alt="Settings tab" width="720" height="1565" loading="lazy">
+          <img src="images/flow-request-form.jpg?v=4" alt="Request an Office form, filled in" width="720" height="1565" loading="lazy">
+          <img src="images/flow-request-done.jpg?v=4" alt="You have an office confirmation" width="720" height="1565" loading="lazy">
+          <img src="images/flow-offer-form.jpg?v=4" alt="Offer My Office form, filled in" width="720" height="1565" loading="lazy">
+          <img src="images/flow-offer-done.jpg?v=4" alt="Board after offering an office" width="720" height="1565" loading="lazy">
+          <img src="images/waitlist-open.jpg?v=4" alt="Waitlist with Grace Liu's request expanded" width="720" height="1565" loading="lazy">
           <div class="hots" id="hots"></div>
           <div class="ov" id="ov-cal" hidden></div>
           <div class="ov" id="ov-result" hidden></div>
@@ -162,7 +162,7 @@
         <h3>First come, first served</h3><p>The earliest request wins.</p>
       </div>
       <div class="bt hero-tile reveal" style="grid-area:c">
-        <div class="iphone"><img src="images/plans.jpg" alt="The Plans tab in OfficeSwap" width="720" height="1565" loading="lazy"></div>
+        <div class="iphone"><img src="images/plans.jpg?v=4" alt="The Plans tab in OfficeSwap" width="720" height="1565" loading="lazy"></div>
       </div>
       <div class="bt reveal" style="grid-area:d">
         <div class="ic-sheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg></div>
@@ -296,14 +296,14 @@
     return TAB_NAMES.map(function (n, i) { return { r: [0.05 + i * 0.18, 0.895, 0.18, 0.08], go: i, label: "Show the " + n + " tab" }; });
   }
   var boardCards = [
-    { r: [0.04, 0.19, 0.92, 0.145], go: 5, label: "Request an office" },
-    { r: [0.04, 0.35, 0.92, 0.12], go: 7, label: "Offer my office" }
+    { r: [0.04, 0.277, 0.92, 0.144], go: 5, label: "Request an office" },
+    { r: [0.04, 0.436, 0.92, 0.121], go: 7, label: "Offer my office" }
   ];
   var MAP = {
     0: tabs().concat(boardCards),
-    1: tabs().concat([{ r: [0.04, 0.19, 0.92, 0.075], go: 9, label: "Show Grace Liu's request details" }]),
+    1: tabs().concat([{ r: [0.04, 0.193, 0.92, 0.092], go: 9, label: "Show Grace Liu's request details" }]),
     2: tabs(), 3: tabs(), 4: tabs(),
-    9: tabs().concat([{ r: [0.04, 0.19, 0.92, 0.175], go: 1, label: "Hide Grace Liu's request details" }]),
+    9: tabs().concat([{ r: [0.04, 0.193, 0.92, 0.172], go: 1, label: "Hide Grace Liu's request details" }]),
     5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
     6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done" }],
     7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
@@ -347,7 +347,7 @@
     5: state({ "2026-8-28": new Date(2026, 8, 28), "2026-8-29": new Date(2026, 8, 29) }),
     7: state({ "2026-8-29": new Date(2026, 8, 29), "2026-8-30": new Date(2026, 8, 30) })
   };
-  var CARD_TOP = { 5: 349, 7: 240 };           // calendar card position, in iPhone points
+  var CARD_TOP = { 5: 306, 7: 181 };           // calendar card position, in iPhone points
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   var ovCal = document.getElementById("ov-cal"), ovRes = document.getElementById("ov-result");
@@ -357,33 +357,49 @@
       .sort(function (a, b) { return a - b; });
   }
   var CHEV_L = '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2L2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var XMARK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
   var CHEV_R = '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M2 2l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Mirrors the app's calendar: month grid with the neighbouring months' days
+  // greyed out, weekdays from "today" on can be picked, picks show as navy
+  // squares and as removable chips under "Selected days".
   function renderCal(i) {
     var st = cal[i], m = st.month, y = m.getFullYear(), mo = m.getMonth();
     var first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
     var canPrev = m > FIRST_MONTH, canNext = m < LAST_MONTH;
     var h = '<div class="cal" style="--top:' + CARD_TOP[i] + '">';
-    h += '<div class="cal-head"><b>' + MONTHS[mo] + " " + y + '</b><span class="cal-small">' + CHEV_R + '</span>';
-    h += '<button type="button" class="cal-nav prev" ' + (canPrev ? "" : "disabled") + ' aria-label="Previous month">' + CHEV_L + '</button>';
-    h += '<button type="button" class="cal-nav next" ' + (canNext ? "" : "disabled") + ' aria-label="Next month">' + CHEV_R + '</button></div>';
-    h += '<div class="cal-dow">' + DOW.map(function (d) { return "<span>" + d.toUpperCase() + "</span>"; }).join("") + "</div><div class=\"cal-grid\">";
-    for (var b = 0; b < first; b++) h += "<span></span>";
-    for (var d = 1; d <= days; d++) {
-      var dt = new Date(y, mo, d), k = key(dt), past = dt < TODAY, on = !!st.sel[k], today = k === key(TODAY);
-      h += '<button type="button" data-k="' + k + '" class="day' + (past ? " past" : "") + (on ? " on" : "") + (today ? " today" : "") + '"' +
-           (past ? " disabled" : "") + ' aria-pressed="' + on + '" aria-label="' + dt.toDateString() + '">' + d + "</button>";
-    }
-    h += "</div></div>";
-    var n = weekdays(st.sel).length;
+    h += '<div class="cal-head"><b>Select your days</b><span class="cal-month">' + SHORT_MON[mo] + " " + y + "</span>";
+    h += '<button type="button" class="cal-nav prev" ' + (canPrev ? "" : "disabled") + ' aria-label="Previous month">' + CHEV_L + "</button>";
+    h += '<button type="button" class="cal-nav next" ' + (canNext ? "" : "disabled") + ' aria-label="Next month">' + CHEV_R + "</button></div>";
+    h += '<div class="cal-dow">' + DOW.map(function (d) { return "<span>" + d + "</span>"; }).join("") + '</div><div class="cal-grid">';
+    var cells = [];
+    for (var b = first; b > 0; b--) cells.push({ d: new Date(y, mo, 1 - b), inMonth: false });
+    for (var d = 1; d <= days; d++) cells.push({ d: new Date(y, mo, d), inMonth: true });
+    while (cells.length % 7) cells.push({ d: new Date(y, mo, days + cells.length - first - days + 1), inMonth: false });
+    cells.forEach(function (c) {
+      var dt = c.d, k = key(dt), wd = dt.getDay();
+      var pickable = c.inMonth && wd !== 0 && wd !== 6 && dt >= TODAY;
+      var on = c.inMonth && !!st.sel[k], today = k === key(TODAY);
+      h += '<button type="button" data-k="' + k + '" class="day' + (c.inMonth ? "" : " other") + (pickable ? "" : " off") + (on ? " on" : "") + (today ? " today" : "") + '"' +
+           (pickable ? "" : " disabled") + ' aria-pressed="' + on + '" aria-label="' + dt.toDateString() + '">' + dt.getDate() + "</button>";
+    });
+    h += "</div>";
+    var picked = weekdays(st.sel), n = picked.length;
+    h += '<div class="cal-divider"></div><div class="cal-sel"><b>Selected days</b><span>' + (n === 0 ? "None yet" : n + (n === 1 ? " day" : " days")) + "</span></div>";
+    h += '<div class="cal-chips">' + picked.map(function (dt) {
+      return '<span class="chip-day"><span><b>' + SHORT_DOW[dt.getDay()] + "</b><i>" + SHORT_MON[dt.getMonth()] + " " + dt.getDate() + '</i></span><button type="button" data-rm="' + key(dt) + '" aria-label="Remove ' + dt.toDateString() + '">' + XMARK + "</button></span>";
+    }).join("") + "</div></div>";
     var label = n === 0 ? "Pick your days above" : (i === 5 ? "Request an office for " : "Offer my office for ") + n + (n === 1 ? " day" : " days");
     h += '<button type="button" class="cal-submit"' + (n === 0 ? " disabled" : "") + ">" + label + "</button>";
     ovCal.innerHTML = h;
-    ovCal.querySelectorAll(".day").forEach(function (btn) {
+    ovCal.querySelectorAll(".day:not(.off)").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var k = btn.dataset.k, p = k.split("-");
         if (st.sel[k]) delete st.sel[k]; else st.sel[k] = new Date(+p[0], +p[1], +p[2]);
         renderCal(i);
       });
+    });
+    ovCal.querySelectorAll("[data-rm]").forEach(function (btn) {
+      btn.addEventListener("click", function () { delete st.sel[btn.dataset.rm]; renderCal(i); });
     });
     ovCal.querySelector(".prev").addEventListener("click", function () { st.month = new Date(y, mo - 1, 1); renderCal(i); });
     ovCal.querySelector(".next").addEventListener("click", function () { st.month = new Date(y, mo + 1, 1); renderCal(i); });
