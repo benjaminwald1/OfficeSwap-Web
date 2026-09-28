@@ -280,3 +280,11 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .appstore svg { width: 22px; height: 22px; flex: none; }
 .appstore small { display: block; font-size: 10px; font-weight: 500; letter-spacing: .02em; opacity: .9; }
 .appstore strong { display: block; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+
+/* Role cards with photos */
+.card.photo { background: #222; }
+.card.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.card.photo:hover img { transform: scale(1.04); }
+.card.photo .txt { background: linear-gradient(transparent, rgba(0,0,0,.55)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.card.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.35)); pointer-events: none; }
+.card.photo .txt { z-index: 1; }
