@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=19">
+<link rel="stylesheet" href="styles.css?v=20">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -55,10 +55,8 @@
       <a class="ghost-btn" href="#how">See how it works</a>
     </div>
   </div>
-  <div class="phones" aria-hidden="false">
-    <div class="iphone p-left"><img src="images/waitlist.jpg?v=4" alt="The Waitlist tab in OfficeSwap" width="720" height="1565"></div>
-    <div class="iphone p-center"><img src="images/board.jpg?v=4" alt="The Board tab in OfficeSwap, showing open offices and visitors for the day" width="720" height="1565"></div>
-    <div class="iphone p-right"><img src="images/plans.jpg?v=4" alt="The Plans tab in OfficeSwap, listing requests and the office each person got" width="720" height="1565"></div>
+  <div class="hero-video">
+    <div class="iphone"><video src="video/request-flow.mp4?v=1" poster="video/request-flow.jpg?v=1" width="604" height="1312" autoplay muted loop playsinline preload="auto" aria-label="A five-second video of someone requesting an office in OfficeSwap: they tap Request an Office, pick Tuesday and Wednesday, and get an office for both days."></video></div>
   </div>
 </section>
 
@@ -281,6 +279,8 @@
 
 <script>
 (function () {
+  var reel = document.querySelector(".hero-video video");
+  if (reel && window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) { reel.removeAttribute("autoplay"); reel.pause(); reel.controls = true; }
   // Reveal on scroll
   var els = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {

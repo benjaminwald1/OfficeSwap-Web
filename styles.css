@@ -97,7 +97,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
     0 22px 40px -22px rgba(0,0,0,.3),
     0 2px 4px rgba(0,0,0,.12);
 }
-.iphone > img, .iphone .screen {
+.iphone > img, .iphone > video, .iphone .screen {
   display: block; width: 100%; height: auto; box-sizing: border-box;
   border: calc(var(--w) * 0.03) solid #050506;
   border-radius: calc(var(--w) * 0.174);
@@ -141,6 +141,9 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 .phones .p-center { --w: clamp(250px, 26vw, 330px); transform: translateX(-50%); z-index: 3; }
 .phones .p-left { --w: clamp(210px, 22vw, 280px); transform: translateX(-128%) translateY(70px) rotate(-6deg); z-index: 2; }
 .phones .p-right { --w: clamp(210px, 22vw, 280px); transform: translateX(28%) translateY(70px) rotate(6deg); z-index: 2; }
+.hero-video { display: flex; justify-content: center; margin-top: 64px; padding-bottom: 24px; }
+.hero-video .iphone { --w: clamp(260px, 28vw, 340px); }
+.iphone > video { aspect-ratio: 604 / 1312; object-fit: cover; }
 .phones::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(transparent, var(--bg)); z-index: 4; }
 @media (max-width: 700px) {
   .phones { height: 560px; }
