@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 <header class="topnav">
@@ -129,17 +129,65 @@
   </div>
 </section>
 
-<section class="band gray" id="glance">
+<section class="band" id="specs">
   <div class="container">
-    <h2 class="h2 center reveal">OfficeSwap <em>at a glance.</em></h2>
-    <div class="specs reveal">
-      <div class="spec"><b>0</b><span>accounts to create</span></div>
-      <div class="spec"><b>1 tap</b><span>to offer your office</span></div>
-      <div class="spec"><b>30 sec</b><span>for every open phone to catch up</span></div>
-      <div class="spec"><b>5 tabs</b><span>Board, Waitlist, Plans, Export, Settings</span></div>
-      <div class="spec"><b>CSV</b><span>export for Excel or Numbers</span></div>
-      <div class="spec"><b>iPhone</b><span>built natively in SwiftUI</span></div>
+    <h2 class="h2 center reveal">OfficeSwap, <em>in detail.</em></h2>
+    <div class="bento-top">
+      <div class="bt wide reveal">
+        <div class="art-phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.6"/><path d="M10.5 5h3"/></svg></div>
+        <div class="bt-copy"><h3>Built for iPhone</h3><p>Native SwiftUI. Nothing in a browser.</p></div>
+      </div>
+      <div class="bt wide reveal">
+        <div class="bt-copy"><h3>Zero accounts</h3><p>One access code. No passwords.</p></div>
+        <div class="art-key"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l8-8M16 7l2.4 2.4M13.8 9.2l2 2"/></svg></div>
+      </div>
     </div>
+    <div class="bento">
+      <div class="bt reveal" style="grid-area:a">
+        <div class="ic-sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 01-14.3 4.9M4 12a8 8 0 0114.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg></div>
+        <h3>30 seconds</h3><p>Every open phone catches up.</p>
+      </div>
+      <div class="bt reveal" style="grid-area:b">
+        <div class="ic-one">1</div>
+        <h3>First come, first served</h3><p>The earliest request wins.</p>
+      </div>
+      <div class="bt hero-tile reveal" style="grid-area:c">
+        <div class="iphone"><img src="images/plans.jpg" alt="The Plans tab in OfficeSwap" width="720" height="1565" loading="lazy"></div>
+      </div>
+      <div class="bt reveal" style="grid-area:d">
+        <div class="ic-sheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 4.5v15"/></svg></div>
+        <h3>Live Google Sheet</h3><p>Mirrors every change.</p>
+      </div>
+      <div class="bt reveal" style="grid-area:e">
+        <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <h3>Automatic waitlist</h3><p>Filled the moment an office opens.</p>
+      </div>
+    </div>
+    <div class="bento-bottom">
+      <div class="bt row reveal"><div class="ic-cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div><h3>Weekdays only</h3><p>Weekends are skipped.</p></div></div>
+      <div class="bt row reveal"><div><h3>CSV export</h3><p>For Excel or Numbers.</p></div><div class="ic-csv">CSV</div></div>
+      <div class="bt row reveal"><div><h3>Light and dark</h3><p>Follows your iPhone.</p></div><div class="ic-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="works-with">
+  <div class="container">
+    <h2 class="h2 center reveal">Your schedule, <em>everywhere.</em></h2>
+    <p class="lede reveal">The schedule lives in a Google Sheet, and the Export tab sends it anywhere your iPhone can share a file.</p>
+    <div class="orbs reveal">
+      <div class="orb"><span style="color:#1e8e3e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 9h8M8 13h8M8 17h8M12 9v8"/></svg></span><em>Google Sheets</em></div>
+      <div class="orb"><span style="color:#1d6f42"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M9 8l6 8M15 8l-6 8"/></svg></span><em>Excel</em></div>
+      <div class="orb"><span style="color:#2e9e4f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V11M10 20V7M14 20v-6M18 20V4"/></svg></span><em>Numbers</em></div>
+      <div class="orb"><span style="color:#1a73e8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg></span><em>Mail</em></div>
+      <div class="orb"><span style="color:#34c759"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4c4.9 0 8.5 3.1 8.5 7s-3.6 7-8.5 7c-1 0-2-.1-2.9-.4L5 19.5l1.2-3.3C4.5 14.9 3.5 13 3.5 11c0-3.9 3.6-7 8.5-7z"/></svg></span><em>Messages</em></div>
+      <div class="orb"><span style="color:#0a84ff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1.8"/><path d="M8.2 15.8a5.4 5.4 0 117.6 0M5.4 18.6a9.3 9.3 0 1113.2 0"/></svg></span><em>AirDrop</em></div>
+      <div class="orb"><span style="color:#1a6ff2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 012-2h4l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg></span><em>Files</em></div>
+      <div class="orb"><span style="color:#f4b400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 4h7l5 8.5-3.5 6h-10L3.5 12.5z"/><path d="M8.5 4l5 8.5M20.5 12.5h-10M7 18.5l5-8.5"/></svg></span><em>Google Drive</em></div>
+      <div class="orb"><span style="color:#611f69"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5v9M15 11.5v9M3.5 15h9M11.5 9h9"/></svg></span><em>Slack</em></div>
+      <div class="orb"><span style="color:#5059c9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="16.5" cy="6.5" r="2.2"/><rect x="3.5" y="8" width="11" height="11" rx="2"/><path d="M7 11h4M9 11v5"/></svg></span><em>Teams</em></div>
+    </div>
+    <p class="fine reveal">Apps appear in the share sheet when they're installed on your iPhone.</p>
   </div>
 </section>
 
