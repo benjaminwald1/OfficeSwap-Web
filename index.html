@@ -88,8 +88,16 @@
           <img src="images/plans.jpg" alt="Plans tab" width="720" height="1565" loading="lazy">
           <img src="images/export.jpg" alt="Export tab" width="720" height="1565" loading="lazy">
           <img src="images/settings.jpg" alt="Settings tab" width="720" height="1565" loading="lazy">
+          <div class="tapbar" aria-label="App tabs">
+            <button type="button" data-i="0" aria-label="Show the Board tab"></button>
+            <button type="button" data-i="1" aria-label="Show the Waitlist tab"></button>
+            <button type="button" data-i="2" aria-label="Show the Plans tab"></button>
+            <button type="button" data-i="3" aria-label="Show the Export tab"></button>
+            <button type="button" data-i="4" aria-label="Show the Settings tab"></button>
+          </div>
         </div>
       </div>
+      <p class="try">Try it: tap the tabs on the phone.</p>
       <div class="seg" role="tablist" aria-label="App screens">
         <button role="tab" aria-selected="true" data-i="0">Board</button>
         <button role="tab" aria-selected="false" data-i="1">Waitlist</button>
@@ -196,18 +204,30 @@
     els.forEach(function (el) { io.observe(el); });
   } else { els.forEach(function (el) { el.classList.add("in"); }); }
 
-  // Screen switcher
+  // Screen switcher: the phone's own tab bar works, and so do the pills below it.
+  // It plays on its own until someone taps, then it's theirs to drive.
   var imgs = document.querySelectorAll("#screen img");
   var tabs = document.querySelectorAll(".seg button");
-  var cur = 0, timer;
+  var taps = document.querySelectorAll(".tapbar button");
+  var cur = 0, timer = null, prevTimer = null;
   function show(i) {
+    if (i === cur) return;
+    imgs.forEach(function (im) { im.classList.remove("prev"); });
+    imgs[cur].classList.remove("on");
+    imgs[cur].classList.add("prev");
+    imgs[i].classList.add("on");
+    clearTimeout(prevTimer);
+    prevTimer = setTimeout(function () { imgs.forEach(function (im) { im.classList.remove("prev"); }); }, 400);
     cur = i;
-    imgs.forEach(function (im, k) { im.classList.toggle("on", k === i); });
     tabs.forEach(function (t, k) { t.setAttribute("aria-selected", String(k === i)); });
   }
-  function auto() { clearInterval(timer); timer = setInterval(function () { show((cur + 1) % imgs.length); }, 3500); }
-  tabs.forEach(function (t) { t.addEventListener("click", function () { show(+t.dataset.i); auto(); }); });
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) auto();
+  function stopAuto() { clearInterval(timer); timer = null; }
+  function pick(i) { stopAuto(); show(i); }
+  tabs.forEach(function (t) { t.addEventListener("click", function () { pick(+t.dataset.i); }); });
+  taps.forEach(function (t) { t.addEventListener("click", function () { pick(+t.dataset.i); }); });
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    timer = setInterval(function () { show((cur + 1) % imgs.length); }, 3500);
+  }
 
   // Card rail arrows
   var rail = document.getElementById("rail");
