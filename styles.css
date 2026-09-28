@@ -409,3 +409,11 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
   .orb, .orb span { width: 96px; } .orb span { height: 96px; }
   .orb .app { width: 48px; height: 48px; border-radius: 11px; } .orb .app img { width: 31px; height: 31px; }
 }
+
+/* Tappable areas laid over the phone's screen (built by script per screen) */
+.hots { position: absolute; inset: 0; z-index: 5; }
+.hots button { position: absolute; border: 0; padding: 0; background: transparent; cursor: pointer; border-radius: 14px; -webkit-tap-highlight-color: transparent; transition: background-color .15s; }
+.hots button:hover { background: rgba(0,0,0,.05); }
+.hots button:active { background: rgba(0,0,0,.1); }
+.hots button:focus-visible { outline: 2px solid #1a6ff2; outline-offset: -2px; }
+.hots button.card-hot:hover { background: rgba(255,255,255,.08); box-shadow: 0 0 0 2px rgba(156,110,33,.35); }

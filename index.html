@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=9">
+<link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
 <header class="topnav">
@@ -89,13 +89,11 @@
           <img src="images/plans.jpg" alt="Plans tab" width="720" height="1565" loading="lazy">
           <img src="images/export.jpg" alt="Export tab" width="720" height="1565" loading="lazy">
           <img src="images/settings.jpg" alt="Settings tab" width="720" height="1565" loading="lazy">
-          <div class="tapbar" aria-label="App tabs">
-            <button type="button" data-i="0" aria-label="Show the Board tab"></button>
-            <button type="button" data-i="1" aria-label="Show the Waitlist tab"></button>
-            <button type="button" data-i="2" aria-label="Show the Plans tab"></button>
-            <button type="button" data-i="3" aria-label="Show the Export tab"></button>
-            <button type="button" data-i="4" aria-label="Show the Settings tab"></button>
-          </div>
+          <img src="images/flow-request-form.jpg" alt="Request an Office form, filled in" width="720" height="1565" loading="lazy">
+          <img src="images/flow-request-done.jpg" alt="You have an office confirmation" width="720" height="1565" loading="lazy">
+          <img src="images/flow-offer-form.jpg" alt="Offer My Office form, filled in" width="720" height="1565" loading="lazy">
+          <img src="images/flow-offer-done.jpg" alt="Board after offering an office" width="720" height="1565" loading="lazy">
+          <div class="hots" id="hots"></div>
         </div>
       </div>
     </div>
@@ -245,12 +243,39 @@
     els.forEach(function (el) { io.observe(el); });
   } else { els.forEach(function (el) { el.classList.add("in"); }); }
 
-  // Screen switcher: the phone's own tab bar works, and so do the pills below it.
-  // It plays on its own until someone taps, then it's theirs to drive.
+  // Interactive phone. Screens: 0-4 are the app's tabs, 5-8 are the request and offer flows.
+  // Each screen lists its tappable areas as [left, top, width, height] fractions of the screen.
   var imgs = document.querySelectorAll("#screen img");
-  var tabs = document.querySelectorAll(".seg button");
-  var taps = document.querySelectorAll(".tapbar button");
+  var hots = document.getElementById("hots");
+  var TAB_NAMES = ["Board", "Waitlist", "Plans", "Export", "Settings"];
+  function tabs() {
+    return TAB_NAMES.map(function (n, i) { return { r: [0.05 + i * 0.18, 0.895, 0.18, 0.08], go: i, label: "Show the " + n + " tab" }; });
+  }
+  var boardCards = [
+    { r: [0.04, 0.19, 0.92, 0.145], go: 5, label: "Request an office" },
+    { r: [0.04, 0.35, 0.92, 0.12], go: 7, label: "Offer my office" }
+  ];
+  var MAP = {
+    0: tabs().concat(boardCards),
+    1: tabs(), 2: tabs(), 3: tabs(), 4: tabs(),
+    5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }, { r: [0.04, 0.9, 0.92, 0.065], go: 6, label: "Request an office for 2 days" }],
+    6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done" }],
+    7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }, { r: [0.04, 0.9, 0.92, 0.065], go: 8, label: "Offer my office for 2 days" }],
+    8: tabs().concat(boardCards)
+  };
   var cur = 0, timer = null, prevTimer = null;
+  function buildHots(i) {
+    hots.innerHTML = "";
+    (MAP[i] || []).forEach(function (h) {
+      var b = document.createElement("button");
+      b.type = "button"; b.setAttribute("aria-label", h.label);
+      b.style.left = h.r[0] * 100 + "%"; b.style.top = h.r[1] * 100 + "%";
+      b.style.width = h.r[2] * 100 + "%"; b.style.height = h.r[3] * 100 + "%";
+      if (h.go >= 5 && (i === 0 || i === 8)) b.className = "card-hot";
+      b.addEventListener("click", function () { stopAuto(); show(h.go); });
+      hots.appendChild(b);
+    });
+  }
   function show(i) {
     if (i === cur) return;
     imgs.forEach(function (im) { im.classList.remove("prev"); });
@@ -260,14 +285,12 @@
     clearTimeout(prevTimer);
     prevTimer = setTimeout(function () { imgs.forEach(function (im) { im.classList.remove("prev"); }); }, 400);
     cur = i;
-    tabs.forEach(function (t, k) { t.setAttribute("aria-selected", String(k === i)); });
+    buildHots(i);
   }
   function stopAuto() { clearInterval(timer); timer = null; }
-  function pick(i) { stopAuto(); show(i); }
-  tabs.forEach(function (t) { t.addEventListener("click", function () { pick(+t.dataset.i); }); });
-  taps.forEach(function (t) { t.addEventListener("click", function () { pick(+t.dataset.i); }); });
+  buildHots(0);
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    timer = setInterval(function () { show((cur + 1) % imgs.length); }, 3500);
+    timer = setInterval(function () { show((cur + 1) % 5); }, 3500);
   }
 
   // Card rail arrows
