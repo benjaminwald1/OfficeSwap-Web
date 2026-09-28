@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=22">
+<link rel="stylesheet" href="styles.css?v=25">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -56,7 +56,8 @@
     </div>
   </div>
   <div class="hero-video">
-    <div class="iphone"><video src="video/request-flow.mp4?v=2" poster="video/request-flow.jpg?v=1" width="604" height="1312" autoplay muted playsinline preload="auto" aria-label="A five-second video of someone requesting an office in OfficeSwap: they tap Request an Office, pick Tuesday and Wednesday, and get an office for both days."></video></div>
+    <div class="iphone"><video src="video/request-flow.mp4?v=3" poster="video/request-flow.jpg?v=3" width="604" height="1312" autoplay muted playsinline preload="auto" aria-label="A short video of someone requesting an office in OfficeSwap: they tap Request an Office, pick Tuesday and Wednesday, and get an office for both days."></video></div>
+    <div class="hand" aria-hidden="true"><img src="images/hand/hand.webp?v=1" alt="" width="900" height="778"><i class="ripple"></i></div>
     <button type="button" class="replay" hidden aria-label="Play the video again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4.5H8"/></svg></button>
   </div>
 </section>
@@ -276,21 +277,77 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
   </div>
+  <p class="mr-wrap foot-credit">Hand photo: <a href="https://commons.wikimedia.org/wiki/File:Eken_M003_with_hand_and_pointing_(4644288532).jpg" rel="noopener">VIA Gallery</a>, <a href="https://creativecommons.org/licenses/by/2.0/" rel="noopener">CC BY 2.0</a>, cropped.</p>
 </footer>
 
 <script>
 (function () {
   // Hero video: plays once, stops on its last frame (the filled-in request), then offers a replay.
+  // A hand moves over the phone in step with the video and presses each button as the app responds.
   var reel = document.querySelector(".hero-video video"), replay = document.querySelector(".hero-video .replay");
+  var hand = document.querySelector(".hero-video .hand"), wrap = document.querySelector(".hero-video");
   if (reel && replay) {
-    reel.addEventListener("ended", function () { replay.hidden = false; requestAnimationFrame(function () { replay.classList.add("in"); }); });
+    // Where the fingertip is, as fractions of the phone screen: t (seconds), x, y, lift (0 = touching), o (opacity).
+    var KEYS = [
+      [0.0, 1.30, 1.40, 1, 0], [1.0, 0.78, 0.70, 1, 1], [1.95, 0.51, 0.37, 1, 1],
+      [2.15, 0.497, 0.351, 0, 1], [2.35, 0.497, 0.351, 0, 1], [2.75, 0.58, 0.56, 1, 1],
+      [3.65, 0.39, 0.955, 1, 1], [3.85, 0.381, 0.948, 0, 1], [4.05, 0.381, 0.948, 0, 1],
+      [4.4, 0.44, 0.93, 1, 1], [4.7, 0.505, 0.955, 1, 1], [4.85, 0.50, 0.948, 0, 1], [5.05, 0.50, 0.948, 0, 1],
+      [5.45, 0.60, 0.90, 1, 1], [5.85, 0.62, 0.86, 0, 1], [6.0, 0.62, 0.84, 0, 1], [6.4, 0.62, 0.56, 0, 1],
+      [6.7, 0.66, 0.62, 1, 1], [7.2, 0.505, 0.94, 1, 1], [7.4, 0.497, 0.931, 0, 1], [7.6, 0.497, 0.931, 0, 1],
+      [8.2, 0.80, 1.08, 1, 1], [9.0, 1.30, 1.45, 1, 0]
+    ];
+    var TAPS = [2.15, 3.85, 4.85, 7.4];
+    var TIP = [0.0381, 0.0342];        // fingertip pad, as fractions of the hand image
+    var HAND_W = 2.4;                  // hand image width, in phone-screen widths
+    function smooth(u) { return u * u * (3 - 2 * u); }
+    function at(t) {
+      if (t <= KEYS[0][0]) return KEYS[0];
+      for (var i = 1; i < KEYS.length; i++) {
+        var a = KEYS[i - 1], b = KEYS[i];
+        if (t <= b[0]) {
+          var u = smooth((t - a[0]) / (b[0] - a[0]));
+          return [t, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u, a[3] + (b[3] - a[3]) * u, a[4] + (b[4] - a[4]) * u];
+        }
+      }
+      return KEYS[KEYS.length - 1];
+    }
+    function place() {
+      if (!hand) return;
+      var t = reel.currentTime, k = at(t);
+      var v = reel.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+      var inset = v.width * 0.03;                    // the phone's black border around the screen
+      var sx = v.left - w.left + inset, sy = v.top - w.top + inset, sw = v.width - inset * 2, sh = v.height - inset * 2;
+      var hw = sw * HAND_W, hh = hw * 778 / 900;
+      var lift = k[3];
+      var x = sx + k[1] * sw + lift * sw * 0.035, y = sy + k[2] * sh + lift * sw * 0.05;
+      var img = hand.firstElementChild;
+      img.style.width = hw + "px";
+      img.style.transformOrigin = (TIP[0] * 100) + "% " + (TIP[1] * 100) + "%";
+      img.style.transform = "scale(" + (1 + lift * 0.06) + ")";
+      img.style.filter = "drop-shadow(" + (6 + lift * 22) + "px " + (10 + lift * 34) + "px " + (10 + lift * 22) + "px rgba(0,0,0," + (0.28 - lift * 0.1) + "))";
+      hand.style.transform = "translate(" + (x - TIP[0] * hw) + "px," + (y - TIP[1] * hh) + "px)";
+      hand.style.opacity = k[4];
+      var rip = hand.lastElementChild, since = -1;
+      TAPS.forEach(function (tp) { if (t >= tp && t < tp + 0.45) since = t - tp; });
+      rip.style.left = TIP[0] * hw + "px"; rip.style.top = TIP[1] * hh + "px";
+      rip.style.opacity = since < 0 ? 0 : (1 - since / 0.45) * 0.55;
+      rip.style.transform = "translate(-50%,-50%) scale(" + (since < 0 ? 0.4 : 0.6 + since * 2.2) + ")";
+    }
+    var raf = 0;
+    function loop() { place(); raf = reel.paused || reel.ended ? 0 : requestAnimationFrame(loop); }
+    reel.addEventListener("play", function () { if (!raf) raf = requestAnimationFrame(loop); });
+    reel.addEventListener("seeked", place);
+    addEventListener("resize", place);
+    place();
+    reel.addEventListener("ended", function () { place(); replay.hidden = false; requestAnimationFrame(function () { replay.classList.add("in"); }); });
     replay.addEventListener("click", function () {
       replay.classList.remove("in"); replay.hidden = true;
       reel.currentTime = 0; var p = reel.play(); if (p && p.catch) p.catch(function () {});
     });
     if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
       reel.removeAttribute("autoplay"); reel.pause();
-      reel.poster = "video/request-flow-end.jpg?v=1";
+      reel.poster = "video/request-flow-end.jpg?v=3";
       replay.hidden = false; replay.classList.add("in");
     }
   }
