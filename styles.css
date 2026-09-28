@@ -132,3 +132,17 @@ section.block > .sub { color: var(--muted); font-size: 18px; margin: 0 0 32px; m
   .steps, .shots, .features { grid-template-columns: 1fr; }
   .shots .phone { max-width: 280px; }
 }
+
+/* ---------- FAQ ---------- */
+details.qa { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; }
+details.qa summary {
+  cursor: pointer; list-style: none; padding: 14px 44px 14px 18px; font-weight: 600; position: relative;
+}
+details.qa summary::-webkit-details-marker { display: none; }
+details.qa summary::after {
+  content: "+"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+  color: var(--brass); font-size: 22px; font-weight: 400; line-height: 1;
+}
+details.qa[open] summary::after { content: "\2212"; }
+details.qa > div { padding: 0 18px 4px; color: var(--muted); }
+details.qa > div p { color: var(--muted); margin: 0 0 12px; }
