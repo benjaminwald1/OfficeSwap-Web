@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 <header class="topnav">
@@ -93,6 +93,7 @@
           <img src="images/flow-request-done.jpg" alt="You have an office confirmation" width="720" height="1565" loading="lazy">
           <img src="images/flow-offer-form.jpg" alt="Offer My Office form, filled in" width="720" height="1565" loading="lazy">
           <img src="images/flow-offer-done.jpg" alt="Board after offering an office" width="720" height="1565" loading="lazy">
+          <img src="images/waitlist-open.jpg" alt="Waitlist with Grace Liu's request expanded" width="720" height="1565" loading="lazy">
           <div class="hots" id="hots"></div>
           <div class="ov" id="ov-cal" hidden></div>
           <div class="ov" id="ov-result" hidden></div>
@@ -259,7 +260,9 @@
   ];
   var MAP = {
     0: tabs().concat(boardCards),
-    1: tabs(), 2: tabs(), 3: tabs(), 4: tabs(),
+    1: tabs().concat([{ r: [0.04, 0.19, 0.92, 0.075], go: 9, label: "Show Grace Liu's request details" }]),
+    2: tabs(), 3: tabs(), 4: tabs(),
+    9: tabs().concat([{ r: [0.04, 0.19, 0.92, 0.175], go: 1, label: "Hide Grace Liu's request details" }]),
     5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
     6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done" }],
     7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
