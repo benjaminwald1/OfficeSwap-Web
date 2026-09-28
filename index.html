@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OfficeSwap · Share offices when people are away</title>
-<meta name="description" content="OfficeSwap lets office owners offer their office on days they're away and automatically gives it to someone who needs one. First come, first served.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OfficeSwap · Every office, in use</title>
+<meta name="description" content="OfficeSwap lets office owners offer their office on days they're away and gives it automatically to someone who needs one. First come, first served.">
 <meta property="og:title" content="OfficeSwap">
-<meta property="og:description" content="Share offices when people are away. Requests are matched to open offices automatically.">
+<meta property="og:description" content="Every office, in use. Requests are matched to open offices automatically.">
 <meta property="og:image" content="https://benjaminwald1.github.io/officeswap-legal/images/board.jpg">
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
@@ -15,95 +15,147 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="home">
-<div class="wrap">
-<header class="site">
-  <img src="logo.png" alt="">
-  <a class="brand" href="./">OfficeSwap</a>
-  <nav>
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="faq/">FAQ</a>
-    <a href="support/">Support</a>
-  </nav>
+<body>
+<header class="topnav">
+  <div class="topnav-in">
+    <a class="brand" href="./"><img src="logo.png" alt=""> OfficeSwap</a>
+    <nav class="pills" aria-label="Main">
+      <a href="#how" class="active">How it works</a>
+      <a href="#made-for">Made for you</a>
+      <a href="faq/">FAQ</a>
+      <a href="support/">Support</a>
+    </nav>
+    <a class="pill-btn" href="#download">Get the app</a>
+  </div>
 </header>
 
 <main>
-<section class="hero">
-  <div>
-    <p class="eyebrow">For iPhone</p>
-    <h1>No office sits empty while someone needs one.</h1>
-    <p class="lede">Owners offer their office on the days they're away. OfficeSwap hands it to the next person who needs a place to work, automatically.</p>
+<section class="hero" id="top">
+  <div class="container">
+    <h1 class="display">Every office, in use.<br>Nobody has to ask twice.</h1>
+    <p class="lede">Owners offer their office on the days they're away. OfficeSwap hands it to the next person who needs one, automatically.</p>
     <div class="cta-row">
-      <a class="btn primary" href="#how">See how it works</a>
-      <a class="btn secondary" href="support/">Get in touch</a>
+      <a class="pill-btn lg" href="#download">Get the app</a>
+      <a class="ghost-btn" href="#how">See how it works</a>
     </div>
-    <p class="soon">Coming soon to the App Store.</p>
   </div>
-  <div class="phone"><img src="images/board.jpg" alt="The OfficeSwap Board showing open offices, visitors and people in the office for the day" width="603" height="1311"></div>
-</section>
-
-<section class="block" id="how">
-  <h2>How it works</h2>
-  <p class="sub">Three steps, and nobody has to coordinate anything by email.</p>
-  <div class="steps">
-    <div class="step">
-      <h3>Owners offer their office</h3>
-      <p>Going to be away? Pick the days in Offer My Office and add a note if you like. You keep your office on every other day.</p>
-    </div>
-    <div class="step">
-      <h3>Others request one</h3>
-      <p>Need a place to work? Pick your days in Request an Office. If one is free, it's yours right away.</p>
-    </div>
-    <div class="step">
-      <h3>OfficeSwap matches them</h3>
-      <p>Nothing free yet? You join the waitlist and get an office the moment one opens up on your days. No need to check back.</p>
-    </div>
+  <div class="phones" aria-hidden="false">
+    <div class="iphone p-left"><img src="images/waitlist.jpg" alt="The Waitlist tab in OfficeSwap" width="720" height="1565"></div>
+    <div class="iphone p-center"><img src="images/board.jpg" alt="The Board tab in OfficeSwap, showing open offices and visitors for the day" width="720" height="1565"></div>
+    <div class="iphone p-right"><img src="images/plans.jpg" alt="The Plans tab in OfficeSwap, listing requests and the office each person got" width="720" height="1565"></div>
   </div>
 </section>
 
-<section class="block">
-  <h2>Everything in one place</h2>
-  <p class="sub">Everyone in your organization sees the same up-to-date schedule on their own phone.</p>
-  <div class="shots">
-    <figure>
-      <div class="phone"><img src="images/board.jpg" alt="The Board tab" width="603" height="1311" loading="lazy"></div>
-      <figcaption><strong>Board</strong><span>Open offices, visitors and who's in, for any day.</span></figcaption>
-    </figure>
-    <figure>
-      <div class="phone"><img src="images/waitlist.jpg" alt="The Waitlist tab" width="603" height="1311" loading="lazy"></div>
-      <figcaption><strong>Waitlist</strong><span>Who's still waiting, in order, and for which days.</span></figcaption>
-    </figure>
-    <figure>
-      <div class="phone"><img src="images/plans.jpg" alt="The Plans tab" width="603" height="1311" loading="lazy"></div>
-      <figcaption><strong>Plans</strong><span>Every request and offer, with the office each person got.</span></figcaption>
-    </figure>
+<section class="activity" aria-label="Things OfficeSwap takes care of">
+  <div class="lane " aria-hidden="true"><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Office assigned</b><span>Priya Shah's office, Mon to Tue</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg></div><div><b>Office offered</b><span>Marcus Chen away Wed to Fri</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.4"/><path d="M4 20c1-3.3 3.5-5 6-5 1.3 0 2.5.4 3.5 1.1M18 14v6M15 17h6"/></svg></div><div><b>Request received</b><span>Ben Adler, 3 days</span></div><i style="--p:64%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9"/></svg></div><div><b>Next in line</b><span>Grace gets Thursday</span></div><i style="--p:38%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></svg></div><div><b>Sheet updated</b><span>Synced just now</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10v10M19 10v10M5 15h14"/><rect x="8" y="4" width="8" height="6" rx="1"/></svg></div><div><b>Guest desk booked</b><span>Hot desk 2, Thursday</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Office assigned</b><span>Priya Shah's office, Mon to Tue</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg></div><div><b>Office offered</b><span>Marcus Chen away Wed to Fri</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.4"/><path d="M4 20c1-3.3 3.5-5 6-5 1.3 0 2.5.4 3.5 1.1M18 14v6M15 17h6"/></svg></div><div><b>Request received</b><span>Ben Adler, 3 days</span></div><i style="--p:64%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9"/></svg></div><div><b>Next in line</b><span>Grace gets Thursday</span></div><i style="--p:38%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></svg></div><div><b>Sheet updated</b><span>Synced just now</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10v10M19 10v10M5 15h14"/><rect x="8" y="4" width="8" height="6" rx="1"/></svg></div><div><b>Guest desk booked</b><span>Hot desk 2, Thursday</span></div><i style="--p:100%"></i></div></div>
+  <div class="lane rev" aria-hidden="true"><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V4h10v16M4 20h16"/><circle cx="13" cy="12" r=".6" fill="currentColor"/></svg></div><div><b>Same office all week</b><span>No moving desks</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7L5 11l4 4"/><path d="M5 11h9a5 5 0 010 10h-2"/></svg></div><div><b>Offer withdrawn</b><span>Omar back in line at #1</span></div><i style="--p:52%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/></svg></div><div><b>Note left</b><span>Monitor cable is in the top drawer</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Waitlist cleared</b><span>Everyone has an office</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div><b>Week planned</b><span>5 visitors, 0 waiting</span></div><i style="--p:86%"></i></div><div class="chip"><div class="ic gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="10" height="18" rx="1.5"/><path d="M15 9h4v12h-4M8 7h1M11 7h1M8 11h1M11 11h1M8 15h1M11 15h1"/></svg></div><div><b>Office added</b><span>14 offices on the board</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V4h10v16M4 20h16"/><circle cx="13" cy="12" r=".6" fill="currentColor"/></svg></div><div><b>Same office all week</b><span>No moving desks</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7L5 11l4 4"/><path d="M5 11h9a5 5 0 010 10h-2"/></svg></div><div><b>Offer withdrawn</b><span>Omar back in line at #1</span></div><i style="--p:52%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/></svg></div><div><b>Note left</b><span>Monitor cable is in the top drawer</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Waitlist cleared</b><span>Everyone has an office</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div><b>Week planned</b><span>5 visitors, 0 waiting</span></div><i style="--p:86%"></i></div><div class="chip"><div class="ic gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="10" height="18" rx="1.5"/><path d="M15 9h4v12h-4M8 7h1M11 7h1M8 11h1M11 11h1M8 15h1M11 15h1"/></svg></div><div><b>Office added</b><span>14 offices on the board</span></div><i style="--p:100%"></i></div></div>
+  <div class="lane slow" aria-hidden="true"><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.9-3.2 3.3-4.8 6-4.8s5.1 1.6 6 4.8"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.4c2.2.2 3.8 1.6 4.5 4.1"/></svg></div><div><b>Team joined</b><span>One access code, no sign-ups</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></div><div><b>Request cancelled</b><span>Friday freed for the next person</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.4-6-11a6 6 0 0112 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg></div><div><b>Location filter</b><span>New York</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></svg></div><div><b>CSV exported</b><span>Ready for Excel</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 01-14.3 4.9M4 12a8 8 0 0114.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg></div><div><b>Every phone in sync</b><span>Same schedule for everyone</span></div><i style="--p:72%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Office assigned</b><span>Elena Rossi's office, Monday</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.9-3.2 3.3-4.8 6-4.8s5.1 1.6 6 4.8"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.4c2.2.2 3.8 1.6 4.5 4.1"/></svg></div><div><b>Team joined</b><span>One access code, no sign-ups</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></div><div><b>Request cancelled</b><span>Friday freed for the next person</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.4-6-11a6 6 0 0112 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg></div><div><b>Location filter</b><span>New York</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></svg></div><div><b>CSV exported</b><span>Ready for Excel</span></div><i style="--p:100%"></i></div><div class="chip"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 01-14.3 4.9M4 12a8 8 0 0114.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/></svg></div><div><b>Every phone in sync</b><span>Same schedule for everyone</span></div><i style="--p:72%"></i></div><div class="chip"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><div><b>Office assigned</b><span>Elena Rossi's office, Monday</span></div><i style="--p:100%"></i></div></div>
+</section>
+<div class="tada container">
+  <h2 class="h2 center reveal">From request to <em>reserved.</em></h2>
+  <a class="pill-btn lg" href="#download">Get the app</a>
+</div>
+
+<section class="band" id="made-for">
+  <div class="container">
+    <h2 class="h2 center reveal">Made for <em>your team.</em></h2>
+    <p class="lede reveal">Nobody's week looks the same. OfficeSwap fits around who's in, who's out and who just needs a door that closes.</p>
+  </div>
+  <div class="rail-wrap reveal">
+    <div class="rail" id="rail"><article class="card g1"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5h6v2M3 12h18"/></svg></div><div class="txt"><h3>The consultant</h3><p>On site Tuesday to Thursday. Gets a door that closes, not a corner of the kitchen.</p></div></article><article class="card g2"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div class="txt"><h3>The part-timer</h3><p>In two days a week, with a real office on both of them.</p></div></article><article class="card g3"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg></div><div class="txt"><h3>The owner on leave</h3><p>Out for a week. Their office keeps working while they are gone.</p></div></article><article class="card g4"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg></div><div class="txt"><h3>The new hire</h3><p>Starts Monday. Has somewhere to sit on day one.</p></div></article><article class="card g5"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l18-7-5 14-3-6z"/><path d="M13 14l8-8"/></svg></div><div class="txt"><h3>The visitor</h3><p>In from another office? Request before the flight lands.</p></div></article><article class="card g6"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 11h6M9 15h4"/></svg></div><div class="txt"><h3>The office manager</h3><p>No more spreadsheet juggling. The waitlist runs itself.</p></div></article><article class="card g7"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.9-3.2 3.3-4.8 6-4.8s5.1 1.6 6 4.8"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.4c2.2.2 3.8 1.6 4.5 4.1"/></svg></div><div class="txt"><h3>The team lead</h3><p>Sees who is in, who is visiting and what is open at a glance.</p></div></article><article class="card g8"><div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10v10M19 10v10M5 15h14"/><rect x="8" y="4" width="8" height="6" rx="1"/></svg></div><div class="txt"><h3>The hot-desker</h3><p>Guest desks with no owner are always up for grabs.</p></div></article></div>
+    <div class="rail-nav"><button type="button" data-dir="-1" aria-label="Previous">&#8249;</button><button type="button" data-dir="1" aria-label="Next">&#8250;</button></div>
   </div>
 </section>
 
-<section class="block" id="features">
-  <h2>Fair, automatic, and simple</h2>
-  <p class="sub">Built for teams who share a floor, not for IT departments.</p>
-  <div class="features">
-    <div class="feature"><h3>First come, first served</h3><p>The earliest request always gets the next open office.</p></div>
-    <div class="feature"><h3>Fewer moves</h3><p>If you need several days, OfficeSwap keeps you in as few different offices as possible.</p></div>
-    <div class="feature"><h3>No accounts</h3><p>No sign-ups and no passwords. Everyone joins with your organization's access code.</p></div>
-    <div class="feature"><h3>Set up in minutes</h3><p>Register your organization with its name and address, then paste in your offices and who owns each one.</p></div>
-    <div class="feature"><h3>Guest desks</h3><p>Desks with no owner are always open to be assigned.</p></div>
-    <div class="feature"><h3>Live spreadsheet</h3><p>The schedule is kept in a Google Sheet anyone with the link can view, and exports to CSV for Excel or Numbers.</p></div>
-    <div class="feature"><h3>Several locations</h3><p>Filter the board by location if your organization has more than one.</p></div>
-    <div class="feature"><h3>No ads, no tracking</h3><p>OfficeSwap only stores the schedule your team enters. Read the <a href="privacy/">Privacy Policy</a>.</p></div>
+<section class="band gray" id="how">
+  <div class="container split">
+    <div class="copy">
+      <h2 class="h2 reveal">Just pick <em>your days.</em></h2>
+      <p class="lede reveal">Tap, choose, done. There's nothing to set up and nobody to email.</p>
+      <ul class="points reveal">
+        <li><span class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.4"/><path d="M4 20c1-3.3 3.5-5 6-5 1.3 0 2.5.4 3.5 1.1M18 14v6M15 17h6"/></svg></span>Choose your name and the days you'll be in.</li>
+        <li><span class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg></span>Away? Offer your office for just those days.</li>
+        <li><span class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span>Get an office right away, or a spot in line.</li>
+        <li><span class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7L5 11l4 4"/><path d="M5 11h9a5 5 0 010 10h-2"/></svg></span>Cancel anytime. It goes to the next person.</li>
+      </ul>
+      <a class="pill-btn lg reveal" href="#download">Get the app</a>
+    </div>
+    <div class="stage reveal">
+      <div class="iphone lg">
+        <div class="screen" id="screen">
+          <img class="on" src="images/board.jpg" alt="Board tab" width="720" height="1565">
+          <img src="images/waitlist.jpg" alt="Waitlist tab" width="720" height="1565" loading="lazy">
+          <img src="images/plans.jpg" alt="Plans tab" width="720" height="1565" loading="lazy">
+          <img src="images/export.jpg" alt="Export tab" width="720" height="1565" loading="lazy">
+          <img src="images/settings.jpg" alt="Settings tab" width="720" height="1565" loading="lazy">
+        </div>
+      </div>
+      <div class="seg" role="tablist" aria-label="App screens">
+        <button role="tab" aria-selected="true" data-i="0">Board</button>
+        <button role="tab" aria-selected="false" data-i="1">Waitlist</button>
+        <button role="tab" aria-selected="false" data-i="2">Plans</button>
+        <button role="tab" aria-selected="false" data-i="3">Export</button>
+        <button role="tab" aria-selected="false" data-i="4">Settings</button>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="closing">
-  <h2>Put every empty office to work.</h2>
-  <p>OfficeSwap is coming soon to the App Store. Questions, or want it for your team? We'd love to hear from you.</p>
-  <a class="btn" href="support/">Contact us</a>
+<section class="band" id="details">
+  <div class="container">
+    <h2 class="h2 center reveal">Every detail, <em>considered.</em></h2>
+    <div class="panel"><div class="grid3"><div class="tile reveal"><div class="ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div><h3>First come, first served</h3><p>The earliest request always gets the next open office. No favorites, no politics.</p></div><div class="tile reveal"><div class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V4h10v16M4 20h16"/><circle cx="13" cy="12" r=".6" fill="currentColor"/></svg></div><h3>Fewer moves</h3><p>Need several days? You stay in as few different offices as possible.</p></div><div class="tile reveal"><div class="ic amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div><h3>No accounts</h3><p>No sign-ups and no passwords. Your team joins with one access code.</p></div><div class="tile reveal"><div class="ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/></svg></div><h3>Notes for the next person</h3><p>Leave a line about the monitor cable or the thermostat when you offer your office.</p></div><div class="tile reveal"><div class="ic pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.4-6-11a6 6 0 0112 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg></div><h3>Several locations</h3><p>Running more than one site? Filter the board by location.</p></div><div class="tile reveal"><div class="ic gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></svg></div><h3>Live spreadsheet</h3><p>The schedule mirrors to a Google Sheet and exports to CSV for Excel or Numbers.</p></div></div></div>
+  </div>
+</section>
+
+<section class="band" id="privacy">
+  <div class="container">
+    <h2 class="h2 center reveal">Private <em>by design.</em></h2>
+    <p class="lede reveal">OfficeSwap only knows what your team types in. Read the <a href="privacy/">Privacy Policy</a>.</p>
+    <div class="privacy-grid">
+      <div class="priv reveal"><b>No ads. No tracking.</b><p>No analytics, no advertising and nothing sold. Ever.</p></div>
+      <div class="priv reveal"><b>No accounts.</b><p>No emails, phone numbers or passwords to hand over.</p></div>
+      <div class="priv reveal"><b>Only the schedule.</b><p>Names, offices, dates and optional notes. That's it.</p></div>
+      <div class="priv reveal"><b>Yours to remove.</b><p>Cancel entries anytime, or ask us to delete your organization's data.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band gray" id="glance">
+  <div class="container">
+    <h2 class="h2 center reveal">OfficeSwap <em>at a glance.</em></h2>
+    <div class="specs reveal">
+      <div class="spec"><b>0</b><span>accounts to create</span></div>
+      <div class="spec"><b>1 tap</b><span>to offer your office</span></div>
+      <div class="spec"><b>30 sec</b><span>for every open phone to catch up</span></div>
+      <div class="spec"><b>5 tabs</b><span>Board, Waitlist, Plans, Export, Settings</span></div>
+      <div class="spec"><b>CSV</b><span>export for Excel or Numbers</span></div>
+      <div class="spec"><b>iPhone</b><span>built natively in SwiftUI</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="faq">
+  <div class="container">
+    <h2 class="h2 center reveal">Questions? <em>Answered.</em></h2>
+    <div class="qa-list"><details class="q reveal"><summary>How do I get an office?</summary><p>On the Board, tap Request an Office, choose your name and pick the days you'll be in. If an office is free on those days, it's assigned to you right away.</p></details><details class="q reveal"><summary>What happens if nothing is free?</summary><p>You join the waitlist. As soon as someone offers an office on one of your days, it's assigned to you automatically. No need to check back.</p></details><details class="q reveal"><summary>Do I lose my office when I offer it?</summary><p>No. It's only shared on the days you pick. You keep it on every other day.</p></details><details class="q reveal"><summary>Who gets an office first?</summary><p>First come, first served. The earliest request always gets the next open office.</p></details><details class="q reveal"><summary>Do we need accounts or passwords?</summary><p>No. Everyone joins with your organization's access code.</p></details><details class="q reveal"><summary>Who can see our schedule?</summary><p>Anyone with your organization's access code can see and change it. The schedule is also kept in a Google Sheet that anyone with its link can view, so keep both private.</p></details></div>
+    <a class="see-all" href="faq/">See all questions &rarr;</a>
+  </div>
+</section>
+
+<section class="download" id="download">
+  <div class="container">
+    <img class="logo-big reveal" src="logo.png" alt="">
+    <h2 class="h2 reveal">Your office is <em>waiting.</em></h2>
+    <p class="lede reveal">OfficeSwap is coming soon to the App Store. Want it for your team? Get in touch.</p>
+    <div class="cta-row reveal">
+      <a class="pill-btn lg" href="support/">Contact us</a>
+      <a class="ghost-btn" href="faq/">Read the FAQ</a>
+    </div>
+  </div>
 </section>
 </main>
 
-</div>
 <footer class="mr">
   <div class="mr-wrap foot-grid">
     <div class="foot-brand">
@@ -132,5 +184,49 @@
     </a>
   </div>
 </footer>
+
+<script>
+(function () {
+  // Reveal on scroll
+  var els = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  } else { els.forEach(function (el) { el.classList.add("in"); }); }
+
+  // Screen switcher
+  var imgs = document.querySelectorAll("#screen img");
+  var tabs = document.querySelectorAll(".seg button");
+  var cur = 0, timer;
+  function show(i) {
+    cur = i;
+    imgs.forEach(function (im, k) { im.classList.toggle("on", k === i); });
+    tabs.forEach(function (t, k) { t.setAttribute("aria-selected", String(k === i)); });
+  }
+  function auto() { clearInterval(timer); timer = setInterval(function () { show((cur + 1) % imgs.length); }, 3500); }
+  tabs.forEach(function (t) { t.addEventListener("click", function () { show(+t.dataset.i); auto(); }); });
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) auto();
+
+  // Card rail arrows
+  var rail = document.getElementById("rail");
+  document.querySelectorAll(".rail-nav button").forEach(function (b) {
+    b.addEventListener("click", function () { rail.scrollBy({ left: +b.dataset.dir * 284 * 2, behavior: "smooth" }); });
+  });
+
+  // Highlight the nav pill for the section in view
+  var links = document.querySelectorAll(".pills a[href^='#']");
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    ["how", "made-for"].forEach(function (id) { var s = document.getElementById(id); if (s) spy.observe(s); });
+  }
+})();
+</script>
 </body>
 </html>
