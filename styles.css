@@ -417,3 +417,42 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .hots button:active { background: rgba(0,0,0,.1); }
 .hots button:focus-visible { outline: 2px solid #1a6ff2; outline-offset: -2px; }
 .hots button.card-hot:hover { background: rgba(255,255,255,.08); box-shadow: 0 0 0 2px rgba(156,110,33,.35); }
+
+/* ---------- Live calendar + result overlays on the phone (sizes in iPhone points) ---------- */
+.iphone .screen { container-type: inline-size; }
+.ov { position: absolute; inset: 0; z-index: 6; pointer-events: none; --pt: calc(100cqw / 402); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Helvetica Neue", Arial, sans-serif; color: #000; letter-spacing: -0.01em; }
+.ov[hidden] { display: none; }
+.ov button { font: inherit; color: inherit; border: 0; background: none; padding: 0; margin: 0; -webkit-tap-highlight-color: transparent; }
+.cal { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * var(--top)); height: calc(var(--pt) * 375); background: #fff; border-radius: calc(var(--pt) * 26); }
+.cal-head { position: absolute; left: calc(var(--pt) * 28); right: calc(var(--pt) * 18); top: calc(var(--pt) * 38); height: calc(var(--pt) * 24); display: flex; align-items: center; gap: calc(var(--pt) * 6); }
+.cal-head b { font-size: calc(var(--pt) * 17); font-weight: 600; }
+.cal-small { color: #9c6e21; width: calc(var(--pt) * 7); height: calc(var(--pt) * 12); display: inline-grid; }
+.cal-small svg { width: 100%; height: 100%; }
+.ov .cal-nav { position: absolute; top: 0; width: calc(var(--pt) * 30); height: calc(var(--pt) * 24); display: grid; place-items: center; color: #9c6e21; cursor: pointer; }
+.cal-nav svg { width: calc(var(--pt) * 10); height: calc(var(--pt) * 17); }
+.ov .cal-nav:disabled { color: #c5c5c7; cursor: default; }
+.cal-nav.prev { right: calc(var(--pt) * 46); } .cal-nav.next { right: calc(var(--pt) * 1); }
+.cal-dow, .cal-grid { position: absolute; left: calc(var(--pt) * 16); width: calc(var(--pt) * 336); display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-dow { top: calc(var(--pt) * 84); }
+.cal-dow span { text-align: center; font-size: calc(var(--pt) * 13); font-weight: 600; color: #8a8a8e; }
+.cal-grid { top: calc(var(--pt) * 104); grid-auto-rows: calc(var(--pt) * 48); }
+.day { display: grid; place-items: center; font-size: calc(var(--pt) * 20); cursor: pointer; position: relative; }
+.day::before { content: ""; position: absolute; width: calc(var(--pt) * 44); height: calc(var(--pt) * 44); border-radius: 50%; background: transparent; z-index: -1; transition: background-color .15s; }
+.day { z-index: 0; }
+.day:hover:not(:disabled)::before { background: #f7f4ee; }
+.day.today { color: #9c6e21; }
+.day.on { color: #9c6e21; font-weight: 600; }
+.day.on::before, .day.on:hover::before { background: #f3eee4; }
+.day.past { color: #dddddf; cursor: default; }
+.cal-submit { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * 788); height: calc(var(--pt) * 52); border-radius: calc(var(--pt) * 26) !important; background: #fff !important; color: #9c6e21 !important; font-size: calc(var(--pt) * 17) !important; font-weight: 600 !important; cursor: pointer; }
+.cal-submit:disabled { color: #b6b6bb !important; cursor: default; }
+.cal-submit:active:not(:disabled) { background: #f1f1f4 !important; }
+#ov-result { top: calc(100cqw / 402 * 150); background: #f2f2f7; overflow: auto; pointer-events: auto; }
+.res { padding: calc(var(--pt) * 48) calc(var(--pt) * 16) calc(var(--pt) * 40); text-align: center; }
+.res-icon svg { width: calc(var(--pt) * 64); height: calc(var(--pt) * 64); display: block; margin: 0 auto; }
+.res h4 { margin: calc(var(--pt) * 14) 0 0; font-size: calc(var(--pt) * 28); font-weight: 700; letter-spacing: 0.01em; }
+.res p { margin: calc(var(--pt) * 10) auto 0; max-width: calc(var(--pt) * 330); font-size: calc(var(--pt) * 17); line-height: 1.3; color: #8a8a8e; }
+.res-card { margin-top: calc(var(--pt) * 34); background: #fff; border-radius: calc(var(--pt) * 26); text-align: left; overflow: hidden; }
+.res-row { display: flex; justify-content: space-between; align-items: center; height: calc(var(--pt) * 52); padding: 0 calc(var(--pt) * 16); font-size: calc(var(--pt) * 17); position: relative; }
+.res-row + .res-row::before { content: ""; position: absolute; top: 0; left: calc(var(--pt) * 16); right: 0; height: 1px; background: #e5e5ea; }
+.res-row b { font-weight: 600; } .res-row em { font-style: normal; color: #ff9500; }

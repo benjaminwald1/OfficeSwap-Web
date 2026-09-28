@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=10">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 <header class="topnav">
@@ -94,6 +94,8 @@
           <img src="images/flow-offer-form.jpg" alt="Offer My Office form, filled in" width="720" height="1565" loading="lazy">
           <img src="images/flow-offer-done.jpg" alt="Board after offering an office" width="720" height="1565" loading="lazy">
           <div class="hots" id="hots"></div>
+          <div class="ov" id="ov-cal" hidden></div>
+          <div class="ov" id="ov-result" hidden></div>
         </div>
       </div>
     </div>
@@ -258,9 +260,9 @@
   var MAP = {
     0: tabs().concat(boardCards),
     1: tabs(), 2: tabs(), 3: tabs(), 4: tabs(),
-    5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }, { r: [0.04, 0.9, 0.92, 0.065], go: 6, label: "Request an office for 2 days" }],
+    5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
     6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done" }],
-    7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }, { r: [0.04, 0.9, 0.92, 0.065], go: 8, label: "Offer my office for 2 days" }],
+    7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
     8: tabs().concat(boardCards)
   };
   var cur = 0, timer = null, prevTimer = null;
@@ -286,8 +288,87 @@
     prevTimer = setTimeout(function () { imgs.forEach(function (im) { im.classList.remove("prev"); }); }, 400);
     cur = i;
     buildHots(i);
+    renderOverlays(i);
   }
   function stopAuto() { clearInterval(timer); timer = null; }
+
+  // ---- Live calendar and result, drawn over the screenshots. Kept in memory only:
+  // nothing is saved or sent, and a page reload starts over. ----
+  var TODAY = new Date(2026, 8, 28);            // the demo's "today", matching the screenshots
+  var FIRST_MONTH = new Date(2026, 8, 1), LAST_MONTH = new Date(2026, 11, 1);
+  var OPEN = { "2026-8-28": "Sarah Kim's office", "2026-8-29": "Elena Rossi's office", "2026-8-30": "Priya Shah's office" };
+  function key(d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }
+  function state(sel) { return { month: new Date(2026, 8, 1), sel: sel }; }
+  var cal = {
+    5: state({ "2026-8-28": new Date(2026, 8, 28), "2026-8-29": new Date(2026, 8, 29) }),
+    7: state({ "2026-8-29": new Date(2026, 8, 29), "2026-8-30": new Date(2026, 8, 30) })
+  };
+  var CARD_TOP = { 5: 349, 7: 240 };           // calendar card position, in iPhone points
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var ovCal = document.getElementById("ov-cal"), ovRes = document.getElementById("ov-result");
+  function weekdays(sel) {
+    return Object.keys(sel).map(function (k) { return sel[k]; })
+      .filter(function (d) { var w = d.getDay(); return w !== 0 && w !== 6; })
+      .sort(function (a, b) { return a - b; });
+  }
+  var CHEV_L = '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2L2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CHEV_R = '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M2 2l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function renderCal(i) {
+    var st = cal[i], m = st.month, y = m.getFullYear(), mo = m.getMonth();
+    var first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
+    var canPrev = m > FIRST_MONTH, canNext = m < LAST_MONTH;
+    var h = '<div class="cal" style="--top:' + CARD_TOP[i] + '">';
+    h += '<div class="cal-head"><b>' + MONTHS[mo] + " " + y + '</b><span class="cal-small">' + CHEV_R + '</span>';
+    h += '<button type="button" class="cal-nav prev" ' + (canPrev ? "" : "disabled") + ' aria-label="Previous month">' + CHEV_L + '</button>';
+    h += '<button type="button" class="cal-nav next" ' + (canNext ? "" : "disabled") + ' aria-label="Next month">' + CHEV_R + '</button></div>';
+    h += '<div class="cal-dow">' + DOW.map(function (d) { return "<span>" + d.toUpperCase() + "</span>"; }).join("") + "</div><div class=\"cal-grid\">";
+    for (var b = 0; b < first; b++) h += "<span></span>";
+    for (var d = 1; d <= days; d++) {
+      var dt = new Date(y, mo, d), k = key(dt), past = dt < TODAY, on = !!st.sel[k], today = k === key(TODAY);
+      h += '<button type="button" data-k="' + k + '" class="day' + (past ? " past" : "") + (on ? " on" : "") + (today ? " today" : "") + '"' +
+           (past ? " disabled" : "") + ' aria-pressed="' + on + '" aria-label="' + dt.toDateString() + '">' + d + "</button>";
+    }
+    h += "</div></div>";
+    var n = weekdays(st.sel).length;
+    var label = n === 0 ? "Pick your days above" : (i === 5 ? "Request an office for " : "Offer my office for ") + n + (n === 1 ? " day" : " days");
+    h += '<button type="button" class="cal-submit"' + (n === 0 ? " disabled" : "") + ">" + label + "</button>";
+    ovCal.innerHTML = h;
+    ovCal.querySelectorAll(".day").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var k = btn.dataset.k, p = k.split("-");
+        if (st.sel[k]) delete st.sel[k]; else st.sel[k] = new Date(+p[0], +p[1], +p[2]);
+        renderCal(i);
+      });
+    });
+    ovCal.querySelector(".prev").addEventListener("click", function () { st.month = new Date(y, mo - 1, 1); renderCal(i); });
+    ovCal.querySelector(".next").addEventListener("click", function () { st.month = new Date(y, mo + 1, 1); renderCal(i); });
+    ovCal.querySelector(".cal-submit").addEventListener("click", function () { if (n) show(i === 5 ? 6 : 8); });
+  }
+  var SHORT_DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], SHORT_MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function renderResult() {
+    var days = weekdays(cal[5].sel);
+    var seated = days.filter(function (d) { return OPEN[key(d)]; }).length;
+    var all = seated === days.length, none = seated === 0;
+    var title = all ? "You have an office" : (none ? "You're on the waitlist" : "Partly assigned");
+    var sub = none ? "No office is free on your days yet. As soon as someone gives theirs up, you'll be assigned to it automatically \u2014 no need to check back."
+      : (all ? "Here's the office you've been assigned for each day." : "You've been assigned an office for some days and are on the waitlist for the rest.");
+    var icon = none
+      ? '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="#ff9500"/><path d="M22 17h20M22 47h20M24 17c0 9 16 9 16 15s-16 6-16 15M40 17c0 9-16 9-16 15s16 6 16 15" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>'
+      : '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="#34c759"/><path d="M19 33l9 9 17-19" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var rows = days.map(function (d) {
+      var o = OPEN[key(d)];
+      return '<div class="res-row"><span>' + SHORT_DOW[d.getDay()] + ", " + SHORT_MON[d.getMonth()] + " " + d.getDate() + "</span>" +
+        (o ? "<b>" + o + "</b>" : '<em>Waitlisted</em>') + "</div>";
+    }).join("");
+    ovRes.innerHTML = '<div class="res"><div class="res-icon">' + icon + "</div><h4>" + title + "</h4><p>" + sub + '</p><div class="res-card">' + rows + "</div></div>";
+  }
+  function renderOverlays(i) {
+    ovCal.hidden = !(i === 5 || i === 7);
+    ovRes.hidden = i !== 6;
+    if (i === 5 || i === 7) renderCal(i);
+    if (i === 6) renderResult();
+  }
   buildHots(0);
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     timer = setInterval(function () { show((cur + 1) % 5); }, 3500);
