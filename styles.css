@@ -346,8 +346,8 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .bars i:nth-child(8) { height: 50%; animation-delay: .7s } .bars i:nth-child(9) { height: 30%; animation-delay: .8s }
 @keyframes bar { 50% { transform: scaleY(.55); } }
 @media (prefers-reduced-motion: reduce) { .bars i { animation: none; } }
-.hero-tile { padding: 36px 20px 0; justify-content: flex-start; }
-.hero-tile .iphone { --w: clamp(200px, 18vw, 250px); margin-top: 6px; }
+.hero-tile { padding: 36px 20px; justify-content: center; align-items: center; }
+.hero-tile .iphone { --w: clamp(200px, 18vw, 250px); margin: 0 auto; }
 @media (max-width: 900px) {
   .bento-top, .bento-bottom { grid-template-columns: 1fr; }
   .bento { grid-template-columns: 1fr 1fr; grid-template-rows: auto; grid-template-areas: "c c" "a d" "b e"; }
