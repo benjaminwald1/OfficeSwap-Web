@@ -80,37 +80,54 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
 
 /* ---------- Realistic iPhone ---------- */
+/* Titanium frame (the element's own background), a black bezel (the screen's border),
+   side buttons attached to the frame, and a soft contact shadow. --w must be a length. */
 .iphone {
   --w: 300px;
-  position: relative; width: var(--w); max-width: 100%; aspect-ratio: 1206 / 2622;
-  padding: calc(var(--w) * 0.035); border-radius: calc(var(--w) * 0.175);
-  background: #0a0a0b;
+  position: relative; width: var(--w); max-width: 100%; box-sizing: border-box;
+  padding: calc(var(--w) * 0.011);
+  border-radius: calc(var(--w) * 0.185);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,0) 6%, rgba(255,255,255,0) 94%, rgba(255,255,255,.5)),
+    linear-gradient(160deg, #eceef1 0%, #b9bdc4 22%, #f4f5f7 45%, #9ea3aa 70%, #d9dce0 100%);
   box-shadow:
-    0 0 0 calc(var(--w) * 0.009) #d9dbe0,
-    0 0 0 calc(var(--w) * 0.016) #a9adb4,
-    0 0 0 calc(var(--w) * 0.019) #6c7077,
-    0 40px 80px -24px rgba(0,0,0,.35),
-    0 18px 36px -18px rgba(0,0,0,.25);
-  box-sizing: content-box;
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 0 0 2px rgba(0,0,0,.18),
+    0 50px 90px -30px rgba(0,0,0,.38),
+    0 22px 40px -22px rgba(0,0,0,.3),
+    0 2px 4px rgba(0,0,0,.12);
 }
 .iphone > img, .iphone .screen {
-  display: block; width: 100%; height: 100%; object-fit: cover;
-  border-radius: calc(var(--w) * 0.14); background: #f2f2f7;
+  display: block; width: 100%; height: auto; box-sizing: border-box;
+  border: calc(var(--w) * 0.03) solid #050506;
+  border-radius: calc(var(--w) * 0.174);
+  background: #050506;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
 }
-.iphone .screen { position: relative; overflow: hidden; }
-.iphone .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 0; }
+.iphone .screen { position: relative; overflow: hidden; aspect-ratio: auto; }
+.iphone .screen::before { content: ""; display: block; padding-top: calc(2622 / 1206 * 100%); }
+.iphone .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 0; border-radius: calc(var(--w) * 0.144); }
 .iphone .screen img.prev { opacity: 1; z-index: 1; }
 .iphone .screen img.on { opacity: 1; z-index: 2; animation: screenIn .3s ease; }
 @keyframes screenIn { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .iphone .screen img.on { animation: none; } }
-/* side buttons */
-.iphone::before, .iphone::after {
-  content: ""; position: absolute; width: calc(var(--w) * 0.012);
-  background: linear-gradient(90deg, #8e9299, #d6d8dc 55%, #9da1a8);
-  border-radius: 2px;
+.iphone > img { border-radius: calc(var(--w) * 0.174); }
+/* Buttons attached to the frame: action + volume up/down on the left, side button on the right */
+.iphone::before, .iphone::after { content: ""; position: absolute; width: calc(var(--w) * 0.012); border-radius: 2px; }
+.iphone::before {
+  left: calc(var(--w) * -0.0085); top: 16%; height: calc(var(--w) * 0.40);
+  background:
+    linear-gradient(90deg, #8f949b, #e7e9ec 50%, #9ca1a8) 0 0 / 100% calc(var(--w) * 0.06) no-repeat,
+    linear-gradient(90deg, #8f949b, #e7e9ec 50%, #9ca1a8) 0 calc(var(--w) * 0.11) / 100% calc(var(--w) * 0.12) no-repeat,
+    linear-gradient(90deg, #8f949b, #e7e9ec 50%, #9ca1a8) 0 calc(var(--w) * 0.26) / 100% calc(var(--w) * 0.12) no-repeat;
 }
-.iphone::before { left: calc(var(--w) * -0.03); top: 22%; height: 17%; box-shadow: 0 calc(var(--w) * -0.14) 0 0 #b9bcc2; }
-.iphone::after { right: calc(var(--w) * -0.03); top: 28%; height: 11%; }
+.iphone::after {
+  right: calc(var(--w) * -0.0085); top: 27%; height: calc(var(--w) * 0.19);
+  background: linear-gradient(90deg, #9ca1a8, #e7e9ec 50%, #8f949b);
+}
+/* Screen glass: a faint diagonal reflection */
+.iphone .screen::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 30%); }
 .iphone.sm { --w: 240px; }
 .iphone.lg { --w: 330px; }
 
@@ -330,7 +347,7 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 @keyframes bar { 50% { transform: scaleY(.55); } }
 @media (prefers-reduced-motion: reduce) { .bars i { animation: none; } }
 .hero-tile { padding: 36px 20px 0; justify-content: flex-start; }
-.hero-tile .iphone { --w: min(250px, 70%); margin-top: 6px; }
+.hero-tile .iphone { --w: clamp(200px, 18vw, 250px); margin-top: 6px; }
 @media (max-width: 900px) {
   .bento-top, .bento-bottom { grid-template-columns: 1fr; }
   .bento { grid-template-columns: 1fr 1fr; grid-template-rows: auto; grid-template-areas: "c c" "a d" "b e"; }
