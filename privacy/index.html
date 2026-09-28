@@ -43,14 +43,14 @@
 <div class="wrap">
 <main>
 <h1>Privacy Policy</h1>
-<p class="meta">Effective September 27, 2026</p>
+<p class="meta">Effective September 28, 2026</p>
 
 <div class="summary">
   <p><strong>The short version</strong></p>
   <ul>
     <li>OfficeSwap has no user accounts. It doesn't ask for your email, phone number, location, contacts or photos.</li>
     <li>It stores the office schedule your organization enters: people's names, offices, office addresses, dates and optional notes.</li>
-    <li>That schedule is kept in a Google Sheet so everyone in your organization sees the same data. <strong>Anyone who has the sheet's link can view it.</strong></li>
+    <li>That schedule is stored securely online with Google's Firebase so everyone in your organization sees the same data. <strong>Only people with your organization's access code can see it.</strong></li>
     <li>There are no ads, no analytics and no tracking. We don't sell your information.</li>
   </ul>
 </div>
@@ -74,23 +74,22 @@
   <li>to show which offices are open, in use, or occupied by their owner on each day;</li>
   <li>to match office requests to offered offices automatically;</li>
   <li>to keep a waitlist of requests that haven't been matched yet;</li>
-  <li>to keep a readable copy of the schedule in your organization's Google Sheet.</li>
+  <li>to keep everyone's phones showing the same, up-to-date schedule.</li>
 </ul>
 <p>We don't use it for advertising or profiling, and we don't sell or rent it to anyone.</p>
 
 <h2>Where the information is stored</h2>
 <h3>On your iPhone</h3>
 <p>The app keeps a copy of your organization's schedule on your device. It also keeps the organizations you have signed in to, their access codes and addresses, and a spreadsheet (CSV) file of the schedule that you can choose to share. This data stays on your device unless you share it. Deleting the app removes it.</p>
-<h3>In Google Sheets</h3>
-<p>So that everyone in an organization sees the same schedule, the app saves the schedule to a Google Sheet held in a Google account controlled by the app's developer. The app connects to Google Sheets and Google Drive automatically. You don't sign in to Google, and the app never sees your own Google account.</p>
-<p>The sheet is set so that <strong>anyone with its link can view it</strong>. The app shows the link in its Export tab. Anyone you give the link to, or who otherwise gets it, can see the names, offices, addresses, dates and notes it contains.</p>
-<p>Google processes this data under its own terms and the <a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a>.</p>
+<h3>Online, with Firebase</h3>
+<p>So that everyone in an organization sees the same schedule, the app stores each organization's name, office address and schedule with Firebase, a service from Google, under that organization's access code. The app can read an organization's data only if it knows that exact code. Organizations can't be listed or searched.</p>
+<p>To connect securely, the app signs in to Firebase anonymously. This creates a random identifier for the app on your device. It isn't linked to your name, email or phone number, and you don't sign in to anything yourself. As part of providing the service, Google also processes technical information such as IP addresses.</p>
+<p>Google processes this data under its own terms, the <a href="https://firebase.google.com/support/privacy" rel="noopener">Firebase privacy information</a> and the <a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a>.</p>
 
 <h2>Who can see the information</h2>
 <ul>
   <li><strong>People in your organization:</strong> anyone who opens the app with your organization's access code sees its full schedule, including names and notes.</li>
-  <li><strong>Anyone with the sheet's link:</strong> as described above.</li>
-  <li><strong>Service providers:</strong> Google stores the shared schedule. Apple distributes the app under its own terms.</li>
+    <li><strong>Service providers:</strong> Google stores the shared schedule through Firebase. Apple distributes the app under its own terms.</li>
   <li><strong>When required by law:</strong> we may disclose information if we must do so to comply with the law or a valid legal request, or to protect the rights and safety of people using the app.</li>
 </ul>
 <p>We don't share the information with anyone else.</p>
@@ -99,7 +98,7 @@
 <p>Information is kept until it's removed. People can cancel their own requests and offers in the app. The app's Reset data option clears and replaces an organization's shared schedule for everyone. Past entries may stay in the shared schedule until they're removed or reset. To ask us to delete an organization's shared data, contact us as described below.</p>
 
 <h2>Security</h2>
-<p>Data travels between the app and Google over encrypted connections. An access code is a simple way to open an organization's schedule, not a password, and anyone who knows it can see that schedule. Keep your organization's access code and sheet link private. No system is perfectly secure, and we can't guarantee the security of information you enter.</p>
+<p>Data travels between the app and Firebase over encrypted connections and is encrypted where Google stores it. Security rules let the app open an organization only with its exact access code, and never list organizations. An access code works like a shared key rather than a personal password, and anyone who knows it can see and change that organization's schedule, so keep it private. No system is perfectly secure, and we can't guarantee the security of information you enter.</p>
 
 <h2>Your choices and rights</h2>
 <p>You can view, change or cancel your own requests and offers in the app at any time. You can also contact us to ask for a copy of information about you, or to ask us to correct or delete it. Depending on where you live, such as California or the European Economic Area, you may have additional rights under local law. We will respond to requests as those laws require.</p>
