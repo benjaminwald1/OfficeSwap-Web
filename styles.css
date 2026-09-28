@@ -30,7 +30,7 @@ body {
 }
 .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
 header.site {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
   padding-bottom: 20px; margin-bottom: 28px; border-bottom: 1px solid var(--line);
 }
 header.site img { width: 40px; height: 40px; border-radius: 10px; background: #000; }
@@ -62,3 +62,73 @@ li { margin: 4px 0; }
 .card span { color: var(--muted); font-size: 15px; }
 footer.site { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
 footer.site a { color: var(--muted); }
+
+/* ---------- Marketing home page ---------- */
+.home .wrap { max-width: 1080px; }
+.hero {
+  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center;
+  padding: 24px 0 56px;
+}
+.eyebrow { color: var(--brass); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px; }
+.hero h1 { font-size: clamp(38px, 6vw, 60px); line-height: 1.05; letter-spacing: -0.035em; margin: 0 0 18px; }
+.hero .lede { font-size: 20px; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px;
+  font-weight: 600; font-size: 16px; text-decoration: none;
+}
+.btn.primary { background: var(--navy-solid); color: #fff; }
+.btn.secondary { border: 1px solid var(--line); color: var(--ink); background: var(--card); }
+.soon { color: var(--muted); font-size: 14px; margin-top: 14px; }
+:root { --navy-solid: #1c2949; --glow: rgba(156, 110, 33, 0.18); }
+@media (prefers-color-scheme: dark) { :root { --navy-solid: #2b3a63; --glow: rgba(227, 184, 97, 0.14); } }
+
+.phone {
+  position: relative; width: min(300px, 78vw); margin: 0 auto; border-radius: 46px; padding: 10px;
+  background: #0b0c0f; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.phone img { display: block; width: 100%; height: auto; border-radius: 37px; }
+.hero .phone::before {
+  content: ""; position: absolute; inset: -40px; z-index: -1; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow), transparent);
+}
+
+section.block { padding: 56px 0; border-top: 1px solid var(--line); }
+section.block > h2 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -0.025em; margin: 0 0 10px; }
+section.block > .sub { color: var(--muted); font-size: 18px; margin: 0 0 32px; max-width: 60ch; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+.step { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+.step::before {
+  counter-increment: step; content: counter(step);
+  display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--glow); color: var(--brass); font-weight: 800; margin-bottom: 12px;
+}
+.step h3 { margin: 0 0 6px; font-size: 18px; }
+.step p { margin: 0; color: var(--muted); font-size: 16px; }
+
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.shots figure { margin: 0; }
+.shots .phone { width: 100%; max-width: 260px; }
+.shots figcaption { text-align: center; margin-top: 16px; }
+.shots figcaption strong { display: block; font-size: 17px; }
+.shots figcaption span { color: var(--muted); font-size: 15px; }
+
+.features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 32px; }
+.feature h3 { margin: 0 0 4px; font-size: 17px; }
+.feature p { margin: 0; color: var(--muted); font-size: 16px; }
+
+.closing {
+  text-align: center; background: var(--navy-solid); color: #fff; border-radius: 24px;
+  padding: 48px 24px; margin: 24px 0 0;
+}
+.closing h2 { color: #fff; margin: 0 0 10px; font-size: clamp(26px, 4vw, 34px); letter-spacing: -0.02em; }
+.closing p { color: rgba(255,255,255,0.78); margin: 0 auto 22px; max-width: 52ch; }
+.closing a.btn { background: #fff; color: #1c2949; }
+
+@media (max-width: 820px) {
+  header.site nav { margin-left: 0; width: 100%; }
+  .hero { grid-template-columns: 1fr; gap: 36px; text-align: left; }
+  .steps, .shots, .features { grid-template-columns: 1fr; }
+  .shots .phone { max-width: 280px; }
+}
