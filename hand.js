@@ -32,6 +32,12 @@
   // The thumb is drawn a fixed SHORT shorter past its base knuckle than in the photo, at rest and moving
   // alike, so its size never changes.
   var SHORT = 0.05;
+  // Pressing, the thumb rolls a little so its nail turns toward the viewer. The outline keeps its shape;
+  // inside it the skin is drawn from up to ROLL.frac of the thumb's half-width further toward the nail side, so the nail widens and
+  // moves in off the edge. It fades in along the thumb from ROLL.from to ROLL.full (none at the base).
+  var ROLL = { frac: 0.25, from: 0.5, full: 0.8,
+               // the nail-side edge of the solid skin, px from the thumb's axis, along its length
+               u: [0.45, 0.55, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1], edge: [150, 138, 130, 125, 107, 80, 58, 41, 34, 25] };
   var TURN_ROOT = 0.6;                         // share of the swing taken at the base joint; the rest at the base knuckle
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
@@ -157,7 +163,7 @@
       }
     }
     var k = 1 - p.rest;
-    return { turn: turn * k, bend: bend * k, back: 0, shorten: sh, slide: 0, shift: [0, 0], over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, bend: bend * k, roll: k * (1 - p.lift), back: 0, shorten: sh, slide: 0, shift: [0, 0], over: k, lift: p.lift, target: tg };
   }
 
 
@@ -228,6 +234,27 @@
     }
     return { nx: nx, ny: ny, uv: uv, idx: new Uint16Array(idx), count: nx * ny };
   })();
+  // The texture coordinates for the thumb piece with the roll applied: each mesh point samples the skin a
+  // little toward the nail side (measured across the thumb as it lies in the photo), most across the
+  // middle and not at the outline, so the picture slides without the shape changing or folding.
+  var ROLL_UV = new Float32Array(GRID.count * 2);
+  function rollUV(q) {
+    var c = Math.cos(REST_ANGLE), n = Math.sin(REST_ANGLE), uv = GRID.uv, amt = (q.roll || 0) * ROLL.frac;
+    for (var i = 0; i < GRID.count; i++) {
+      var x = uv[2 * i], y = uv[2 * i + 1], d = 0;
+      if (amt > 0) {
+        var dx = x - PIVOT[0], dy = y - PIVOT[1], lx = dx * c + dy * n, ly = -dx * n + dy * c, u = lx / REST_LEN;
+        var along = smooth(u, ROLL.from, ROLL.full);
+        if (along > 0) {
+          var half = lerp(u, ROLL.u, ROLL.edge), t = ly / half;   // -1 at the nail-side edge
+          d = amt * half * along * (t < -0.35 ? smooth(t, -1, -0.35) : 1 - smooth(t, -0.35, 0.5));
+        }
+      }
+      ROLL_UV[2 * i] = x + d * n; ROLL_UV[2 * i + 1] = y - d * c;
+    }
+    return ROLL_UV;
+  }
+  window.OfficeSwapThumb.rollUV = rollUV;
 
   function homography(src, dst) {
     var A = [], b = [];
@@ -272,7 +299,7 @@
                 scale: gl.getUniformLocation(prog, "u_scale"), offset: gl.getUniformLocation(prog, "u_offset"), size: gl.getUniformLocation(prog, "u_size"),
                 box: gl.getUniformLocation(prog, "u_box"), keep: gl.getUniformLocation(prog, "u_keep"), inv: gl.getUniformLocation(prog, "u_inv"), tex: gl.getUniformLocation(prog, "u_tex") };
     var posBuf = gl.createBuffer(), uvBuf = gl.createBuffer(), idxBuf = gl.createBuffer(), quadBuf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.bufferData(gl.ARRAY_BUFFER, GRID.uv, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.bufferData(gl.ARRAY_BUFFER, GRID.uv, gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, GRID.uv.byteLength, gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, IMG_W, 0, 0, IMG_H, IMG_W, IMG_H]), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, GRID.idx, gl.STATIC_DRAW);
@@ -294,6 +321,7 @@
       canvas: c, gl: gl, texture: texture,
       size: function (w, h) { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } gl.viewport(0, 0, w, h); gl.uniform2f(loc.size, w, h); },
       positions: function (arr) { gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, arr); },
+      uvs: function (arr) { gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, arr); },
       clear: function () { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); },
       // draw one texture piece through the warped mesh: box = where its pixels sit in the photo,
       // keep = [x0, x1, y0, y1] of the photo (as placed on the page) to show, or with inv to leave out
@@ -375,6 +403,7 @@
       // dark when touching, wider and fainter when raised
       warper.clear();
       warper.positions(pos);
+      warper.uvs(rollUV(q));
       // (it may move past the photo's own edges, so nothing of it is cut off there)
       warper.draw(thumbTex, [HAND_BOX[0], HAND_BOX[1], HAND_BOX[2] - HAND_BOX[0], HAND_BOX[3] - HAND_BOX[1]], [-IMG_W, 2 * IMG_W, -IMG_H, 2 * IMG_H], false, s, hand);
       if (q.over > 0.01) {
