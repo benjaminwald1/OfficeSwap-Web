@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../styles.css?v=30">
 </head>
 <body>
 <header class="topnav">
@@ -83,6 +83,7 @@
 <p>The app keeps a copy of your organization's schedule on your device. It also keeps the organizations you have signed in to, their access codes and addresses, and a spreadsheet (CSV) file of the schedule that you can choose to share. This data stays on your device unless you share it. Deleting the app removes it.</p>
 <h3>Online, with Firebase</h3>
 <p>So that everyone in an organization sees the same schedule, the app stores each organization's name, office address and schedule with Firebase, a service from Google, under that organization's access code. The app can read an organization's data only if it knows that exact code. Organizations can't be listed or searched.</p>
+<p>When someone registers a new organization, the app searches Wikipedia, run by the Wikimedia Foundation, for a freely licensed photo of the organization using only its name. If one is found, the photo's web address and its credit are saved with the organization so every phone shows the same picture. The app then loads that photo from Wikimedia. No other information is sent in these requests.</p>
 <p>To connect securely, the app signs in to Firebase anonymously. This creates a random identifier for the app on your device. It isn't linked to your name, email or phone number, and you don't sign in to anything yourself. As part of providing the service, Google also processes technical information such as IP addresses.</p>
 <p>Google processes this data under its own terms, the <a href="https://firebase.google.com/support/privacy" rel="noopener">Firebase privacy information</a> and the <a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a>.</p>
 

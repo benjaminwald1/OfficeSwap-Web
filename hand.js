@@ -3,10 +3,11 @@
    bendable WebGL mesh. Following the video's clock, it reaches over, bends to land its pad on
    each button, lifts between taps, drags the form up, and returns to rest on the phone's edge. */
 (function () {
-  var video = document.querySelector(".hold video");
-  var holder = document.querySelector(".hold");
-  var canvas = document.querySelector(".hold .hold-hand");
-  if (!video || !holder || !canvas) return;
+ // Every phone on the page (the hero and the closing section) gets its own rig.
+ document.querySelectorAll(".hold").forEach(function (holder, index) {
+  var video = holder.querySelector("video");
+  var canvas = holder.querySelector(".hold-hand");
+  if (!video || !canvas) return;
 
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
   var IMG_W = 1245, IMG_H = 1762;
@@ -286,5 +287,6 @@
   ["seeked", "ended", "pause", "loadeddata", "loadedmetadata"].forEach(function (e) { video.addEventListener(e, draw); });
   addEventListener("resize", draw);
   placeVideo();
-  window.OfficeSwapThumb = { draw: draw, pose: pose, onScreen: onScreen };
+  if (index === 0) window.OfficeSwapThumb = { draw: draw, pose: pose, onScreen: onScreen };
+ });
 })();

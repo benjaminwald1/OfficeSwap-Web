@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../styles.css?v=30">
 </head>
 <body class="wide">
 <header class="topnav">
@@ -220,12 +220,30 @@
 </main>
 <script>
   // FAQ accordion: click a question to expand or collapse its answer.
+  // Closed answers are hidden (so their links aren't reachable by Tab); an open answer
+  // drops its height limit once expanded, so it grows if the page narrows or rotates.
   document.querySelectorAll(".accordion-q").forEach(function (btn) {
     var answer = btn.nextElementSibling;
+    answer.hidden = true;
+    answer.addEventListener("transitionend", function (e) {
+      if (e.propertyName !== "max-height") return;
+      if (btn.getAttribute("aria-expanded") === "true") answer.style.maxHeight = "none";
+      else answer.hidden = true;
+    });
     btn.addEventListener("click", function () {
       var open = btn.getAttribute("aria-expanded") === "true";
+      var instant = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       btn.setAttribute("aria-expanded", String(!open));
-      answer.style.maxHeight = open ? "" : answer.scrollHeight + "px";
+      if (open) {
+        answer.style.maxHeight = answer.scrollHeight + "px";   // from "none" back to a number
+        void answer.offsetHeight;                              // so the collapse animates
+        answer.style.maxHeight = "0px";
+        if (instant) answer.hidden = true;
+      } else {
+        answer.hidden = false;
+        answer.style.maxHeight = answer.scrollHeight + "px";
+        if (instant) answer.style.maxHeight = "none";
+      }
     });
   });
 </script>

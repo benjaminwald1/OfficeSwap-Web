@@ -277,7 +277,7 @@ details.q p { margin: 0; padding: 0 22px 20px; color: var(--muted); font-size: 1
 .see-all:hover { text-decoration: underline; }
 
 /* ---------- Download CTA ---------- */
-.download { text-align: center; padding: 120px 0 100px; background: radial-gradient(60% 60% at 50% 100%, #f1ece2, var(--bg)); }
+.download { text-align: center; overflow-x: clip; padding: 120px 0 100px; background: radial-gradient(60% 60% at 50% 100%, #f1ece2, var(--bg)); }
 .download .logo-big { width: 84px; height: 84px; border-radius: 20px; background: #000; box-shadow: 0 16px 40px -12px rgba(0,0,0,.35); }
 .download .h2 { margin-top: 26px; }
 .download .cta-row { display: flex; justify-content: center; gap: 12px; margin-top: 30px; flex-wrap: wrap; align-items: center; }
@@ -573,3 +573,11 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .nf-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
 .nf-links a.pill-btn { color: #fff; }
 .nf-links a.ghost-btn { color: var(--ink); }
+
+/* Second phone, at the bottom of the page */
+.download .hero-video.reel-bottom { margin-top: 56px; padding-bottom: 0; }
+
+/* The demo phone never forces the page wider than a small (320px) screen */
+@media (max-width: 370px) { .iphone.lg { --w: calc(100vw - 40px); } }
+/* Firefox: show a focus ring on the calculator sliders too */
+.sl2 input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px #1a6ff2; }

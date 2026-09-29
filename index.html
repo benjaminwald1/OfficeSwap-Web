@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=28">
+<link rel="stylesheet" href="styles.css?v=30">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -32,14 +32,14 @@
   <div class="topnav-in">
     <a class="brand" href="./"><img src="logo.png" alt=""> OfficeSwap</a>
     <nav class="pills" aria-label="Main">
-      <a href="#how" class="active">How it works</a>
       <a href="#made-for">Made for you</a>
+      <a href="#how">How it works</a>
       <a href="faq/">FAQ</a>
       <a href="support/">Support</a>
     </nav>
     <details class="mnav">
       <summary aria-label="Menu"><span></span><span></span></summary>
-      <nav class="mnav-panel" aria-label="Menu"><a href="#how">How it works</a><a href="#made-for">Made for you</a><a href="faq/">FAQ</a><a href="support/">Support</a><a href="privacy/">Privacy Policy</a><a href="terms/">Terms of Service</a><a class="pill-btn" href="#download">Get the app</a></nav>
+      <nav class="mnav-panel" aria-label="Menu"><a href="#made-for">Made for you</a><a href="#how">How it works</a><a href="faq/">FAQ</a><a href="support/">Support</a><a href="privacy/">Privacy Policy</a><a href="terms/">Terms of Service</a><a class="pill-btn" href="#download">Get the app</a></nav>
     </details>
     <a class="pill-btn" href="#download">Get the app</a>
   </div>
@@ -58,9 +58,9 @@
   <div class="hero-video">
     <div class="hold">
       <video src="video/request-flow.mp4?v=4" poster="video/request-flow.jpg?v=4" width="604" height="1312" autoplay muted playsinline preload="auto" aria-label="A short video of someone holding an iPhone and requesting an office in OfficeSwap with their thumb: they tap Request an Office, pick Tuesday and Wednesday, and get an office for both days."></video>
-      <img class="hold-phone" src="images/hand/phone.webp?v=3" alt="" width="1245" height="1762">
-      <img class="hold-still" src="images/hand/handhold.webp?v=10" alt="" width="1245" height="1762">
-      <canvas class="hold-hand" aria-hidden="true" data-src="images/hand/handhold.webp?v=10" data-weights="images/hand/thumb-weights.png?v=2"></canvas>
+      <img class="hold-phone" src="images/hand/phone.webp?v=5" alt="" width="1245" height="1762">
+      <img class="hold-still" src="images/hand/handhold.webp?v=13" alt="" width="1245" height="1762">
+      <canvas class="hold-hand" aria-hidden="true" data-src="images/hand/handhold.webp?v=13" data-weights="images/hand/thumb-weights.png?v=2"></canvas>
     </div>
     <button type="button" class="replay" hidden aria-label="Play the video again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4.5H8"/></svg></button>
   </div>
@@ -251,6 +251,15 @@
       <a class="ghost-btn" href="faq/">Read the FAQ</a>
     </div>
   </div>
+  <div class="hero-video reel-bottom">
+    <div class="hold">
+      <video src="video/request-flow.mp4?v=4" poster="video/request-flow.jpg?v=4" width="604" height="1312" muted playsinline preload="metadata" data-play="in-view" aria-label="The same short video: someone holding an iPhone and requesting an office in OfficeSwap with their thumb: they tap Request an Office, pick Tuesday and Wednesday, and get an office for both days."></video>
+      <img class="hold-phone" src="images/hand/phone.webp?v=5" alt="" width="1245" height="1762">
+      <img class="hold-still" src="images/hand/handhold.webp?v=13" alt="" width="1245" height="1762">
+      <canvas class="hold-hand" aria-hidden="true" data-src="images/hand/handhold.webp?v=13" data-weights="images/hand/thumb-weights.png?v=2"></canvas>
+    </div>
+    <button type="button" class="replay" hidden aria-label="Play the video again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4.5H8"/></svg></button>
+  </div>
 </section>
 </main>
 
@@ -285,21 +294,34 @@
 
 <script>
 (function () {
-  // Hero video: plays once, stops on its last frame (the filled-in request), then offers a replay.
-  // hand.js moves the thumb in step with it.
-  var reel = document.querySelector(".hero-video video"), replay = document.querySelector(".hero-video .replay");
-  if (reel && replay) {
+  // Phone videos (hero and closing section): play once, stop on the last frame (the filled-in
+  // request), then offer a replay. hand.js moves the thumb in step with each one.
+  var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll(".hero-video").forEach(function (box) {
+    var reel = box.querySelector("video"), replay = box.querySelector(".replay");
+    if (!reel || !replay) return;
+    function play() { var p = reel.play(); if (p && p.catch) p.catch(function () {}); }
     reel.addEventListener("ended", function () { replay.hidden = false; requestAnimationFrame(function () { replay.classList.add("in"); }); });
     replay.addEventListener("click", function () {
       replay.classList.remove("in"); replay.hidden = true;
-      reel.currentTime = 0; var p = reel.play(); if (p && p.catch) p.catch(function () {});
+      reel.currentTime = 0; play();
     });
-    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (reduceMotion) {
       reel.removeAttribute("autoplay"); reel.pause();
       reel.poster = "video/request-flow-end.jpg?v=4";
       replay.hidden = false; replay.classList.add("in");
+      return;
     }
-  }
+    // The closing-section phone waits until it's on screen, so visitors see it from the start.
+    if (reel.getAttribute("data-play") === "in-view") {
+      if ("IntersectionObserver" in window) {
+        var seen = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { if (e.isIntersecting) { seen.disconnect(); reel.currentTime = 0; play(); } });
+        }, { threshold: 0.45 });
+        seen.observe(reel.closest(".hold"));
+      } else { play(); }
+    }
+  });
   // Reveal on scroll
   var els = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
@@ -357,6 +379,9 @@
     renderOverlays(i);
   }
   function stopAuto() { clearInterval(timer); timer = null; }
+  // Stop the tour the moment someone reaches for the phone, so focus and taps aren't swept away.
+  var screenEl = document.getElementById("screen");
+  if (screenEl) { screenEl.addEventListener("focusin", stopAuto); screenEl.addEventListener("pointerenter", stopAuto); }
 
   // ---- Live calendar and result, drawn over the screenshots. Kept in memory only:
   // nothing is saved or sent, and a page reload starts over. ----
@@ -412,6 +437,13 @@
     }).join("") + "</div></div>";
     var label = n === 0 ? "Pick your days above" : (i === 5 ? "Request an office for " : "Offer my office for ") + n + (n === 1 ? " day" : " days");
     h += '<button type="button" class="cal-submit"' + (n === 0 ? " disabled" : "") + ">" + label + "</button>";
+    // Remember which control had focus so a redraw doesn't throw it back to the page.
+    var fa = document.activeElement, fsel = null;
+    if (fa && ovCal.contains(fa)) {
+      if (fa.dataset.k) fsel = '[data-k="' + fa.dataset.k + '"]';
+      else if (fa.dataset.rm) fsel = '[data-rm="' + fa.dataset.rm + '"]';
+      else ["prev", "next", "cal-submit"].forEach(function (c) { if (fa.classList.contains(c)) fsel = "." + c; });
+    }
     ovCal.innerHTML = h;
     ovCal.querySelectorAll(".day:not(.off)").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -426,6 +458,12 @@
     ovCal.querySelector(".prev").addEventListener("click", function () { st.month = new Date(y, mo - 1, 1); renderCal(i); });
     ovCal.querySelector(".next").addEventListener("click", function () { st.month = new Date(y, mo + 1, 1); renderCal(i); });
     ovCal.querySelector(".cal-submit").addEventListener("click", function () { if (n) show(i === 5 ? 6 : 8); });
+    if (fsel) {
+      var back = ovCal.querySelector(fsel);
+      // a removed chip or a now-disabled button can't take focus: fall back to the calendar's first day
+      if (!back || back.disabled) back = ovCal.querySelector(".day:not(.off)");
+      if (back) back.focus();
+    }
   }
   var SHORT_DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], SHORT_MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function renderResult() {
@@ -445,8 +483,8 @@
     }).join("");
     ovRes.innerHTML = '<div class="res"><div class="res-icon">' + icon + "</div><h4>" + title + "</h4><p>" + sub + '</p><div class="res-card">' + rows + "</div></div>";
   }
-  // The four labels beside the phone jump straight to the screen they describe.
-  var PT_FOR = { 0: 0, 5: 1, 7: 2, 6: 3, 2: 4 };
+  // The five labels beside the phone jump straight to the screen they describe.
+  var PT_FOR = { 0: 0, 5: 1, 7: 2, 8: 2, 6: 3, 2: 4 };
   var pts = document.querySelectorAll(".pt");
   pts.forEach(function (p) {
     p.addEventListener("click", function () { stopAuto(); show(+p.dataset.go); });
@@ -527,7 +565,7 @@
   // Card rail arrows
   var rail = document.getElementById("rail");
   document.querySelectorAll(".rail-nav button").forEach(function (b) {
-    b.addEventListener("click", function () { rail.scrollBy({ left: +b.dataset.dir * 284 * 2, behavior: "smooth" }); });
+    b.addEventListener("click", function () { rail.scrollBy({ left: +b.dataset.dir * rail.clientWidth * 0.8, behavior: "smooth" }); });
   });
 
   // Highlight the nav pill for the section in view
@@ -551,6 +589,6 @@
     document.addEventListener("click", function (e) { if (m.open && !m.contains(e.target)) m.removeAttribute("open"); });
   })();
 </script>
-<script src="hand.js?v=3" defer></script>
+<script src="hand.js?v=4" defer></script>
 </body>
 </html>
