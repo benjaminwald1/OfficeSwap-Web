@@ -17,16 +17,17 @@
 
   // ---- The joints, as fractions of the thumb's length from its base (the tip is 1) ----
   // The whole thumb turns at its base (across ROOT), taking the ball of the hand with it. The two
-  // knuckles are hinges, narrow zones where the angle changes, with straight bone between them:
-  // the first knuckle (MCP) where the thumb leaves the ball of the hand, the second (IP) at the crease.
-  var ROOT = [-0.06, 0.06], MCP = 0.445, IP = 0.71, HINGE = 0.045;
+  // knuckles bend over wide, overlapping zones (HINGE each side), so a bent thumb is one smooth arc
+  // the way flesh over the joints looks, never a sharp V: the first knuckle (MCP) where the thumb
+  // leaves the ball of the hand, the second (IP) at the crease.
+  var ROOT = [-0.06, 0.06], MCP = 0.43, IP = 0.7, HINGE = 0.16;
   // For a nearer key the thumb bends (flexes) at both knuckles, never gets shorter: up to BEND.max
   // radians in all, split between them.
   var BEND = { mcp: 0.45, ip: 0.55, max: 1.9 };
   // A real hand also shifts its grip for a near key: the ball of the hand rolls back, away from
   // the key (GRIP parts of the missing reach to every one the knuckles take, up to DROP px), so
   // the thumb bends less.
-  var GRIP = 1.3, DROP = 260;
+  var GRIP = 3, DROP = 300;
   // How far each side of the axis the flesh reaches (outer side toward the edge of the hand, inner
   // side toward the phone), by length fraction.
   var BAND = { u: [0.05, 0.3, 0.445, 0.71, 0.95], outer: [-140, -110, -140, -120, -45], inner: [100, 88, 80, 64, 52] };
