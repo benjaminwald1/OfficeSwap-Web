@@ -9,17 +9,19 @@
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
   var IMG_W = 1245, IMG_H = 1762;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
-  var THUMB_BOX = [117, 580, 360, 1157];     // where the thumb piece sits at rest
+  var THUMB_BOX = [117, 580, 360, 1420];     // where the thumb piece sits at rest (its base runs on under the palm)
   var PIVOT = [240, 1125];                   // the root of the thumb's bone, hidden under the palm
   var PAD = [331.5, 621];                    // with the pivot, sets the thumb's axis (x runs along it)
   var TOUCH = [514, -25];                    // the middle of the tip, in the thumb's frame: what meets the glass
 
   // ---- The joints, as fractions of the thumb's length (0 at the pivot, 1 at the tip) ----
-  // The thumb swings from its root under the palm (the turn eases in across ROOT, most of it
-  // hidden by the palm). The two knuckles are hinges: narrow zones where the angle changes,
+  // The thumb swings from its root under the palm (the turn eases in across ROOT, almost all of
+  // it below the pivot, so the visible thumb stays straight instead of bowing like a banana; the
+  // thumb piece carries its own fleshy base, and the palm piece only covers the heel of the hand).
+  // The two knuckles are hinges: narrow zones where the angle changes,
   // with straight bone between them.
-  var ROOT = [-0.05, 0.35], MCP = 0.66, IP = 0.84, HINGE = 0.06;
-  var TURN_AT_ROOT = 0.75;                   // share of the turn taken at the root; the rest at the first knuckle
+  var ROOT = [-0.28, 0.02], MCP = 0.66, IP = 0.84, HINGE = 0.06;
+  var TURN_AT_ROOT = 0.92;                   // share of the turn taken at the root; the rest at the first knuckle
   // Curl (0..1) closes the reach for nearer keys: the knuckles bend a little (radians at full
   // curl) and the bones tip toward the glass, so they look shorter (never longer) from the front:
   // the metacarpal barely, the last phalanx the most, as it presses.
@@ -27,6 +29,11 @@
   // Past that much curl, the hand pulls the thumb's root back toward the palm instead (up to
   // SLIDE px, hidden under the palm), the way a real grip shifts for a near key.
   var SLIDE = 50;
+  // A real thumb never lies flat across the glass: it swings from its base low in the palm, so it
+  // always comes up at an angle from the phone's lower-left corner. For a low key the grip slides
+  // down the phone's edge (up to DROP px) so the thumb still rises at least MIN_RISE toward it,
+  // and the fleshy base sinks with it.
+  var DROP = 190, MIN_RISE = 0.5;
   // How far each side of the axis the thumb proper reaches (outer side toward the edge of the
   // hand, inner side toward the phone), by length fraction; the flesh beyond is the palm's.
   var BAND = { u: [0.2, 0.5, 0.8], outer: [-78, -74, -66], inner: [56, 50, 45] };
@@ -127,19 +134,21 @@
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
     var press = 1 - p.lift, turn = 0, curl = 0, back = 0;
-    var want = Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]), dw = dist(tg, PIVOT);
+    var drop = clamp(Math.max(0, tg[0] - PIVOT[0]) * Math.tan(MIN_RISE) - (PIVOT[1] - tg[1]), 0, DROP);
+    var root = [PIVOT[0], PIVOT[1] + drop];
+    var want = Math.atan2(tg[1] - root[1], tg[0] - root[0]), dw = dist(tg, root);
     var dir = [Math.cos(want), Math.sin(want)], curlMax = CURL.max * (1 - 0.5 * p.lift);
     for (var it = 0; it < 14; it++) {
-      var slide = [-back * dir[0], -back * dir[1]];
+      var slide = [-back * dir[0], drop - back * dir[1]];
       var pos = touchAt(turn, curl, press, slide);
       turn += wrapAngle(want - Math.atan2(pos[1] - PIVOT[1] - slide[1], pos[0] - PIVOT[0] - slide[0]));
-      var over = dist(pos, PIVOT) - dw;                 // how far past the target the tip reaches
+      var over = dist(pos, root) - dw;                 // how far past the target the tip reaches
       var c2 = clamp(curl + 0.8 * over / REACH_SPAN, 0, curlMax);
       over -= (c2 - curl) * REACH_SPAN; curl = c2;
       back = clamp(back + 0.8 * over, 0, SLIDE);
     }
     var k = 1 - p.rest;
-    return { turn: turn * k, curl: curl * k, press: press * k, slide: [-back * dir[0] * k, -back * dir[1] * k], over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, curl: curl * k, press: press * k, slide: [-back * dir[0] * k, (drop - back * dir[1]) * k], drop: drop * k, over: k, lift: p.lift, target: tg };
   }
 
   // ---- The warp: the whole hand deforms as one piece of skin. Marked spots along the thumb
@@ -169,7 +178,8 @@
       var a = apply(REST_S[i], h), b = apply(Ss[i], h);
       out.push([a[0], a[1], b[0], b[1]]);
     });
-    PINS.forEach(function (p) { out.push([p[0], p[1], p[0], p[1]]); });
+    // the thumb's fleshy base sinks with the grip; the heel of the hand stays put
+    PINS.forEach(function (p) { var d = (q.drop || 0) * 0.85 * smooth(p[1], 1330, 1150); out.push([p[0], p[1], p[0], p[1] + d]); });
     return out;
   }
   function mlsRigid(cp, x, y) {
