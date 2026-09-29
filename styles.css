@@ -578,3 +578,43 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 @media (max-width: 370px) { .iphone.lg { --w: calc(100vw - 40px); } }
 /* Firefox: show a focus ring on the calculator sliders too */
 .sl2 input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px #1a6ff2; }
+
+/* ---------- Hero: animated office board ---------- */
+.board-demo { position: relative; max-width: 880px; margin: 56px auto 24px; padding: 22px; box-sizing: border-box; background: #fff; border: 1px solid var(--line); border-radius: 28px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.04); text-align: left; }
+.bd-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.bd-title b { display: block; font-size: 17px; letter-spacing: -0.01em; }
+.bd-title span { font-size: 13px; color: var(--muted); }
+.bd-days { display: flex; gap: 6px; }
+.bd-day { font-size: 13px; font-weight: 600; color: var(--muted); padding: 7px 12px; border-radius: 999px; background: var(--pill); transition: background .35s, color .35s; }
+.bd-day.on { background: var(--ink); color: #fff; }
+.bd-body { display: grid; grid-template-columns: 1fr 220px; gap: 18px; }
+.bd-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.bd-tile { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: #fbfbfd; transition: background .45s, border-color .45s, transform .45s; }
+.bd-room { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.bd-who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.bd-av { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #e8e8ed; color: var(--ink-soft); font-size: 11px; font-weight: 700; display: grid; place-items: center; transition: background .45s, color .45s; }
+.bd-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-status { margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.bd-tile.free { background: #effaf2; border-color: #bfe8cb; transform: translateY(-2px); }
+.bd-tile.free .bd-status { color: #248a3d; }
+.bd-tile.free .bd-who { opacity: .45; }
+.bd-tile.taken { background: #eef4ff; border-color: #c7d9ff; }
+.bd-tile.taken .bd-av { background: #1a6ff2; color: #fff; }
+.bd-tile.taken .bd-status { color: #1a6ff2; }
+.bd-side { border-left: 1px solid var(--line); padding-left: 18px; }
+.bd-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+.bd-queue { display: flex; flex-direction: column; gap: 8px; transition: transform .35s; }
+.bd-person { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 14px; background: var(--pill); box-sizing: border-box; transition: opacity .3s; }
+.bd-person .bd-name { flex: 1; font-size: 13px; }
+.bd-pos { font-size: 11px; color: var(--muted); font-weight: 600; }
+.bd-fly { position: absolute; z-index: 5; margin: 0; background: #fff; box-shadow: 0 10px 30px -8px rgba(0,0,0,.25); transition: transform .7s cubic-bezier(.5,0,.2,1), opacity .2s ease-in .55s; pointer-events: none; }
+.bd-toast { position: absolute; left: 50%; top: -18px; transform: translate(-50%, -6px); background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 999px; white-space: nowrap; opacity: 0; transition: opacity .35s, transform .35s; pointer-events: none; }
+.bd-toast.in { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 700px) {
+  .board-demo { margin: 40px 16px 16px; padding: 16px; border-radius: 22px; }
+  .bd-body { grid-template-columns: 1fr; }
+  .bd-tiles { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .bd-side { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 14px; }
+  .bd-days { gap: 4px; } .bd-day { padding: 6px 9px; font-size: 12px; }
+  .bd-toast { white-space: normal; text-align: center; width: max-content; max-width: calc(100% - 24px); }
+}
