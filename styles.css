@@ -141,7 +141,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 .phones .p-center { --w: clamp(250px, 26vw, 330px); transform: translateX(-50%); z-index: 3; }
 .phones .p-left { --w: clamp(210px, 22vw, 280px); transform: translateX(-128%) translateY(70px) rotate(-6deg); z-index: 2; }
 .phones .p-right { --w: clamp(210px, 22vw, 280px); transform: translateX(28%) translateY(70px) rotate(6deg); z-index: 2; }
-.hero-video { position: relative; display: flex; justify-content: center; max-width: 1180px; margin: 64px auto 0; padding: 0 24px 0; box-sizing: border-box; }
+.hero-video { position: relative; display: flex; justify-content: center; max-width: 1180px; margin: 64px auto 0; padding: 0 24px 24px; box-sizing: border-box; }
 .hero-video .replay {
   position: absolute; bottom: 50%; width: 48px; height: 48px; border: 0; border-radius: 50%;
   display: grid; place-items: center; cursor: pointer; color: #1d1d1f;
@@ -154,15 +154,14 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 .hero-video .replay:focus-visible { outline: 2px solid #1d1d1f; outline-offset: 3px; }
 .hero-video .replay svg { width: 22px; height: 22px; }
 .hero { overflow: visible; overflow-x: clip; }
-:root { --hw: clamp(420px, 44vw, 600px); }
-.hero-video { z-index: 3; }
-.hold { position: relative; width: var(--hw); flex: none; aspect-ratio: 1245 / 2062; left: calc(var(--hw) * -0.086); }
+.hero-video { --hw: clamp(420px, 44vw, 600px); }
+.hold { position: relative; width: var(--hw); flex: none; aspect-ratio: 1245 / 1762; left: calc(var(--hw) * -0.086); }
 .hold video { position: absolute; left: 0; top: 0; transform-origin: 0 0; object-fit: fill; background: #f2f2f7; }
-.hold-phone, .hold-still { position: absolute; left: 0; top: 0; width: 100%; height: auto; pointer-events: none; }
+.hold-phone, .hold-still { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .hold-hand { position: absolute; top: 0; pointer-events: none; }
 .hold.live .hold-still { visibility: hidden; }
-.hero-video .replay { z-index: 6; left: calc(50% + var(--hw) * 0.40 + 12px); top: calc(var(--hw) * 0.6); bottom: auto; }
-@media (max-width: 700px) { .hero-video .replay { left: auto; right: 16px; top: calc(var(--hw) * 0.6); width: 44px; height: 44px; } }
+.hero-video .replay { z-index: 6; left: calc(50% + var(--hw) * 0.40 + 12px); }
+@media (max-width: 700px) { .hero-video .replay { left: auto; right: 16px; bottom: 34%; width: 44px; height: 44px; } }
 .iphone > video { aspect-ratio: 604 / 1312; object-fit: cover; }
 .phones::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(transparent, var(--bg)); z-index: 4; }
 @media (max-width: 700px) {
@@ -172,9 +171,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 }
 
 /* ---------- Activity marquee ---------- */
-.activity { position: relative; z-index: 1; padding: 30px 0 10px; overflow: hidden;
-  /* The cards start just under the hero phone and slide behind the forearm, which runs on past them. */
-  margin-top: calc(var(--hw) * -0.449 - 20px); }
+.activity { position: relative; padding: 30px 0 10px; overflow: hidden; }
 .activity::before, .activity::after { content: ""; position: absolute; top: 0; bottom: 0; width: 18%; z-index: 2; pointer-events: none; }
 .activity::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
 .activity::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
