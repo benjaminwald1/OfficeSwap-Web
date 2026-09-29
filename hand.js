@@ -30,17 +30,17 @@
   var ROOT = [-0.03, 0.03], MCP = 0.03, IP = 0.46, HINGE = { mcp: 0.03, ip: 0.06 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
   // last knuckle taking most of it, the way a thumb curls its tip onto a key.
-  var BEND = { mcp: 0.25, ip: 0.75, max: 1.2 };
+  var BEND = { mcp: 0.3, ip: 0.7, max: 1.6 };
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
   // segment looks per radian of bend.
   var FLAT = 1, TIP = { prox: 0, dist: 0 };
-  // A real thumb keeps its length: the reach comes from the ball of the thumb rolling in, the knuckles
-  // bending a little, and for the nearest keys the contact sitting a little behind the very tip, on
-  // the pad (PRESS). The grip could also slide the whole hand down the phone (SLIDE px) but doesn't:
-  // the wrist stays put.
-  var SLIDE = 0, PRESS = { max: 120, share: 0.7 };
+  // A real thumb keeps its length: a nearer key is reached by bending at the knuckles, and the very
+  // tip lands on it (PRESS could let the contact sit behind the tip, on the pad, but that left the
+  // tip reaching past the key and the thumb looking too long). The grip could also slide the whole
+  // hand down the phone (SLIDE px) but doesn't: the wrist stays put.
+  var SLIDE = 0, PRESS = { max: 0, share: 0 };
   // How far each side of the axis the flesh reaches (outer side toward the edge of the hand, inner
   // side toward the phone), by length fraction.
   var BAND = { u: [0.05, 0.25, 0.46, 0.7, 0.85, 0.97], outer: [-150, -138, -129, -82, -42, -30], inner: [60, 48, 57, 72, 67, 53] };
