@@ -26,13 +26,13 @@
   // thumb leaves the ball, and the top knuckle for a nearer key. Each joint bends over a short, smooth
   // hinge zone (HINGE each side).
   var ROOT = [-0.04, 0.06], MCP = 0.375, IP = 0.66, HINGE = { mcp: 0.08, ip: 0.055 };
-  // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
-  // last knuckle taking most of it, the way a thumb curls its tip onto a key.
-  var BEND = { mcp: 0.3, ip: 0.7, max: 1.9 };
+  // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the base
+  // knuckle taking most of it so the tip stays fairly straight (at most about 45 degrees).
+  var BEND = { mcp: 0.6, ip: 0.4, max: 2.0 };
   // The thumb is drawn a fixed SHORT shorter past its base knuckle than in the photo, at rest and moving
   // alike, so its size never changes.
   var SHORT = 0.05;
-  var TURN_ROOT = 0.25;                       // share of the swing taken at the base joint; the rest at the base knuckle
+  var TURN_ROOT = 0.6;                         // share of the swing taken at the base joint; the rest at the base knuckle
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
