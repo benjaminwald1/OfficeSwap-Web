@@ -24,7 +24,7 @@
   // The thumb moves only above where it crosses the phone's edge: below that (the ball of the thumb and the
   // stretch pressed against the phone) it stays exactly as in the photo. It swings at that point (MCP, a
   // short hinge), and for a nearer key bends there and at the top knuckle (IP), with rigid bone between.
-  var ROOT = [-0.04, 0.06], MCP = 0.5, IP = 0.7, HINGE = { mcp: 0.07, ip: 0.05 };
+  var ROOT = [-0.04, 0.06], MCP = 0.5, IP = 0.7, HINGE = { mcp: 0.025, ip: 0.05 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the top
   // knuckle taking a little more of it.
   var BEND = { mcp: 0.4, ip: 0.6, max: 2.0 };
@@ -167,11 +167,14 @@
     var pts = [];
     // none right at the base: the web between the swinging thumb and the still palm is left to stretch
     // freely, so it never folds over itself
-    for (var u = 0.12; u <= 1.02; u += 0.05) {
+    var us = [];
+    for (var u0 = 0.12; u0 <= 1.02; u0 += 0.05) us.push(u0);
+    [-0.035, -0.02, 0.02, 0.035].forEach(function (d) { us.push(MCP + d); });   // extra around the swing joint, so it bends crisply
+    us.forEach(function (u) {
       pts.push([u * REST_LEN, 0]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.8]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.inner) * 0.8]);
-    }
+    });
     return pts;
   })();
   // [x, y, share of the grip's shift it follows]: the palm, the heel under the phone and the wrist stay
