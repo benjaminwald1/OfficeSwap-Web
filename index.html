@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=33">
+<link rel="stylesheet" href="styles.css?v=34">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -55,19 +55,26 @@
       <a class="ghost-btn" href="#how">See how it works</a>
     </div>
   </div>
+  <div class="board-stage">
   <div class="board-demo" role="img" aria-label="An animated office board: an owner marks themselves away, their office becomes available, and the first person on the waitlist is assigned to it automatically.">
-    <div class="bd-head">
-      <div class="bd-title"><b>Office board</b><span>Northwind Partners</span></div>
-      <div class="bd-days" aria-hidden="true"></div>
+    <div class="bd-head" aria-hidden="true">
+      <div class="bd-title">
+        <span class="bd-live"><i></i>Live</span>
+        <b>Northwind Partners</b>
+        <span>Office board · this week</span>
+      </div>
+      <div class="bd-count"><span>Offices in use</span><div><b>6</b><em>/ 6</em></div><span class="bd-bar"><i></i></span></div>
     </div>
+    <div class="bd-days" aria-hidden="true"></div>
     <div class="bd-body" aria-hidden="true">
       <div class="bd-tiles"></div>
       <div class="bd-side">
-        <div class="bd-label">Waitlist</div>
-        <div class="bd-queue"></div>
+        <div class="bd-label">Waitlist <span class="bd-waitn">6</span></div>
+        <div class="bd-qwrap"><div class="bd-queue"></div></div>
       </div>
     </div>
-    <div class="bd-toast" aria-hidden="true"></div>
+    <div class="bd-note" aria-hidden="true"></div>
+  </div>
   </div>
 </section>
 
@@ -585,6 +592,6 @@
     document.addEventListener("click", function (e) { if (m.open && !m.contains(e.target)) m.removeAttribute("open"); });
   })();
 </script>
-<script src="demo.js?v=2" defer></script>
+<script src="demo.js?v=3" defer></script>
 </body>
 </html>
