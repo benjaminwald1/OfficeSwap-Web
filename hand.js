@@ -23,10 +23,10 @@
   // Curl (0..1) closes the reach for nearer keys: the knuckles bend a little (radians at full
   // curl) and the bones tip toward the glass, so they look shorter (never longer) from the front:
   // the metacarpal barely, the last phalanx the most, as it presses.
-  var CURL = { mcp: 0.30, ip: 0.70, meta: 0.10, proximal: 0.15, distal: 0.32, max: 0.55 };
+  var CURL = { mcp: 0.14, ip: 0.32, meta: 0.14, proximal: 0.26, distal: 0.42, max: 0.7 };
   // Past that much curl, the hand pulls the thumb's root back toward the palm instead (up to
   // SLIDE px, hidden under the palm), the way a real grip shifts for a near key.
-  var SLIDE = 90;
+  var SLIDE = 50;
   // How far each side of the axis the thumb proper reaches (outer side toward the edge of the
   // hand, inner side toward the phone), by length fraction; the flesh beyond is the palm's.
   var BAND = { u: [0.2, 0.5, 0.8], outer: [-78, -74, -66], inner: [56, 50, 45] };
@@ -34,13 +34,13 @@
   // ---- Motion: t (s), x, y (screen fractions), lift (0 = on the glass), rest (1 = resting on the edge), hold ----
   var KEYS = [
     [0.00, 0.14, 0.43, 1, 1, 0], [1.25, 0.14, 0.43, 1, 1, 0], [1.95, 0.15, 0.42, 0.8, 0, 0],
-    [2.15, 0.14, 0.43, 0, 0, 1], [2.35, 0.14, 0.43, 0, 0, 1], [2.75, 0.25, 0.56, 0.9, 0, 0],
-    [3.08, 0.34, 0.655, 0.25, 0, 0], [3.18, 0.35, 0.66, 0, 0, 1], [3.50, 0.30, 0.50, 0, 0, 1],
-    [3.66, 0.30, 0.52, 0.8, 0, 0], [4.30, 0.37, 0.65, 0.5, 0, 0], [4.48, 0.378, 0.665, 0, 0, 1],
-    [4.66, 0.378, 0.665, 0, 0, 1], [4.90, 0.44, 0.63, 0.8, 0, 0], [5.05, 0.49, 0.655, 0.45, 0, 0],
+    [2.15, 0.14, 0.43, 0, 0, 1], [2.35, 0.14, 0.43, 0, 0, 1], [2.75, 0.32, 0.60, 0.9, 0, 0],
+    [3.08, 0.44, 0.695, 0.25, 0, 0], [3.18, 0.45, 0.70, 0, 0, 1], [3.50, 0.40, 0.53, 0, 0, 1],
+    [3.66, 0.40, 0.55, 0.8, 0, 0], [4.30, 0.40, 0.66, 0.5, 0, 0], [4.48, 0.40, 0.675, 0, 0, 1],
+    [4.66, 0.40, 0.675, 0, 0, 1], [4.90, 0.45, 0.64, 0.8, 0, 0], [5.05, 0.49, 0.655, 0.45, 0, 0],
     [5.15, 0.495, 0.66, 0, 0, 1], [5.33, 0.495, 0.66, 0, 0, 1], [5.72, 0.42, 0.63, 0.8, 0, 0],
-    [5.86, 0.40, 0.64, 0.2, 0, 0], [5.93, 0.40, 0.64, 0, 0, 1], [6.25, 0.38, 0.54, 0, 0, 1],
-    [6.40, 0.38, 0.55, 0.8, 0, 0], [7.05, 0.42, 0.545, 0.45, 0, 0], [7.22, 0.42, 0.556, 0, 0, 1],
+    [5.86, 0.47, 0.68, 0.2, 0, 0], [5.93, 0.47, 0.68, 0, 0, 1], [6.25, 0.44, 0.56, 0, 0, 1],
+    [6.40, 0.44, 0.57, 0.8, 0, 0], [7.05, 0.42, 0.545, 0.45, 0, 0], [7.22, 0.42, 0.556, 0, 0, 1],
     [7.40, 0.42, 0.556, 0, 0, 1], [7.90, 0.30, 0.50, 1, 0, 0], [8.60, 0.14, 0.43, 1, 1, 0], [30, 0.14, 0.43, 1, 1, 0]
   ];
   function hermite(p0, p1, m0, m1, u) {
