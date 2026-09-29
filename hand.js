@@ -29,6 +29,10 @@
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
   // last knuckle taking most of it, the way a thumb curls its tip onto a key.
   var BEND = { mcp: 0.3, ip: 0.7, max: 1.6 };
+  // Over the screen the thumb tips down toward the glass, so from the front the part past the base
+  // knuckle looks shorter than it does lying along the phone's edge in the photo: SHORT.min for a far
+  // key up to SHORT.max for a near one, whatever lets the knuckles reach it with about SHORT.bend.
+  var SHORT = { min: 0.12, max: 0.45, bend: 0.6 };
   var TURN_ROOT = 0.25;                       // share of the swing taken at the base joint; the rest at the base knuckle
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
@@ -116,20 +120,20 @@
   }
   // fn(S, x0): S maps the thumb's own frame (x along it, from the pivot) to photo pixels for
   // the slice starting at x0.
-  function chain(turn, bend, fn, shift) {
+  function chain(turn, bend, fn, shift, shorten) {
     shift = shift || [0, 0];
     var M = mul(mul([1, 0, 0, 1, PIVOT[0] + shift[0], PIVOT[1] + shift[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
     for (var i = 0; i < N; i++) {
       var x0 = BASE + SW * i;
       if (i > 0) M = mul(M, rot(turn * (PF[i] - PF[i - 1]) + FLAT * bend * (PC[i] - PC[i - 1])));
-      var sx = 1 - bend * (TIP.prox * PP[i] + (TIP.dist - TIP.prox) * PD[i]);
+      var sx = (1 - (shorten || 0) * PP[i]) * (1 - bend * (TIP.prox * PP[i] + (TIP.dist - TIP.prox) * PD[i]));
       fn(mul(mul(M, [sx, 0, 0, 1, 0, 0]), [1, 0, 0, 1, -x0, 0]), x0);
       M = mul(M, [1, 0, 0, 1, SW * sx, 0]);
     }
   }
-  function touchAt(turn, bend, back) {   // back: how far behind the tip the contact is
+  function touchAt(turn, bend, back, shorten) {   // back: how far behind the tip the contact is
     var out = null, t = [TOUCH[0] - (back || 0), TOUCH[1]];
-    chain(turn, bend, function (S, x0) { if (out === null && t[0] >= x0 && t[0] < x0 + SW) out = apply(S, t); });
+    chain(turn, bend, function (S, x0) { if (out === null && t[0] >= x0 && t[0] < x0 + SW) out = apply(S, t); }, null, shorten);
     return out || TOUCH_PT;
   }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
@@ -147,15 +151,22 @@
     if (EASY > Math.abs(dx)) slide = clamp(Math.sqrt(EASY * EASY - dx * dx) - (PIVOT[1] - tg[1]), 0, SLIDE);
     tg = [tg[0], tg[1] - slide];
     var dw = dist(tg, PIVOT);
+    // tip the thumb down toward the glass just enough that a gentle bend (SHORT.bend) reaches the key:
+    // a little for a far key, more for a near one
+    var lo0 = SHORT.min, hi0 = SHORT.max, shorten = SHORT.max;
+    if (dist(touchAt(0, SHORT.bend, 0, SHORT.min), PIVOT) <= dw) shorten = SHORT.min;
+    else if (dist(touchAt(0, SHORT.bend, 0, SHORT.max), PIVOT) > dw) shorten = SHORT.max;
+    else for (var si2 = 0; si2 < 14; si2++) { shorten = (lo0 + hi0) / 2; if (dist(touchAt(0, SHORT.bend, 0, shorten), PIVOT) > dw) lo0 = shorten; else hi0 = shorten; }
+    shorten *= 1 - p.rest;
     var back = clamp(PRESS.share * (STRAIGHT - dw), 0, PRESS.max), bend = 0;
-    if (dist(touchAt(0, 0, back), PIVOT) > dw) {
+    if (dist(touchAt(0, 0, back, shorten), PIVOT) > dw) {
       var lo = 0, hi = BEND.max;
-      for (var it = 0; it < 16; it++) { bend = (lo + hi) / 2; if (dist(touchAt(0, bend, back), PIVOT) > dw) lo = bend; else hi = bend; }
+      for (var it = 0; it < 16; it++) { bend = (lo + hi) / 2; if (dist(touchAt(0, bend, back, shorten), PIVOT) > dw) lo = bend; else hi = bend; }
     }
-    var tp = touchAt(0, bend, back);
+    var tp = touchAt(0, bend, back, shorten);
     var turn = wrapAngle(Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]) - Math.atan2(tp[1] - PIVOT[1], tp[0] - PIVOT[0]));
     var k = 1 - p.rest;
-    return { turn: turn * k, bend: bend * k, back: back * k, slide: slide * k, shift: [0, 0], over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, bend: bend * k, back: back * k, shorten: shorten, slide: slide * k, shift: [0, 0], over: k, lift: p.lift, target: tg };
   }
 
 
@@ -185,7 +196,7 @@
   chain(0, 0, function (S) { REST_S.push(S); });
   function controls(q) {   // [[from x, from y, to x, to y], ...] in photo pixels
     var out = [], Ss = [];
-    chain(q.turn, q.bend, function (S) { Ss.push(S); }, q.shift);
+    chain(q.turn, q.bend, function (S) { Ss.push(S); }, q.shift, q.shorten);
     HANDLES.forEach(function (h) {
       var i = clamp(Math.floor((h[0] - BASE) / SW), 0, N - 1);
       var a = apply(REST_S[i], h), b = apply(Ss[i], h);
