@@ -52,6 +52,38 @@
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
   var REST_ANGLE = Math.atan2(PAD[1] - PIVOT[1], PAD[0] - PIVOT[0]);
   var REST_LEN = Math.hypot(PAD[0] - PIVOT[0], PAD[1] - PIVOT[1]);
+  function mul(m, n) {   // m after n
+    return [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3],
+            m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
+  }
+  function apply(m, p) { return [m[0] * p[0] + m[2] * p[1] + m[4], m[1] * p[0] + m[3] * p[1] + m[5]]; }
+  function rot(a) { var c = Math.cos(a), n = Math.sin(a); return [c, n, -n, c, 0, 0]; }
+  // The thumb as a chain of thin slices along its length. The slices under the palm stay put;
+  // the turn builds up through the base knuckle, so the thumb curves instead of hinging.
+  var N = 72, BASE = -160, FS = [];
+  (function () {
+    var full = REST_LEN * 1.12, w = (full - BASE) / N;
+    for (var i = 0; i <= N; i++) {
+      var mid = (BASE + w * i + w / 2) / REST_LEN, f = clamp((mid - 0.08) / 0.42, 0, 1);
+      FS.push(i < N ? f * f * (3 - 2 * f) : FS[N - 1]);
+    }
+  })();
+  function chain(turn, len, grow, fn) {
+    var full = REST_LEN * 1.12, w = (full - BASE) / N, prevF = 0;
+    var M = mul(mul([1, 0, 0, 1, PIVOT[0], PIVOT[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
+    for (var i = 0; i < N; i++) {
+      var x0 = BASE + w * i, f = FS[i];
+      M = mul(M, rot(turn * (f - prevF))); prevF = f;
+      var sx = 1 + (len * grow - 1) * f, sy = 1 + (grow - 1) * f;
+      fn(mul(mul(M, [sx, 0, 0, sy, 0, 0]), [1, 0, 0, 1, -x0, 0]), x0, w, turn * (FS[i + 1] - f));
+      M = mul(M, [1, 0, 0, 1, w * sx, 0]);
+    }
+  }
+  function padAt(turn, len, grow) {
+    var out = null;
+    chain(turn, len, grow, function (S, x0, w) { if (out === null && REST_LEN >= x0 && REST_LEN < x0 + w) out = apply(S, [REST_LEN, 0]); });
+    return out || PAD;
+  }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
 
   // Turn and length for the thumb so its pad lands on the target.
@@ -61,6 +93,12 @@
     var v = [tg[0] - PIVOT[0], tg[1] - PIVOT[1]];
     var turn = wrapAngle(Math.atan2(v[1], v[0]) - REST_ANGLE);
     var len = clamp(Math.hypot(v[0], v[1]) / REST_LEN, 0.74, 1.08);
+    var grow0 = 1 + p.lift * 0.03;
+    for (var it = 0; it < 8; it++) {           // refine against the real bend
+      var pos = padAt(turn, len, grow0);
+      turn += wrapAngle(Math.atan2(v[1], v[0]) - Math.atan2(pos[1] - PIVOT[1], pos[0] - PIVOT[0]));
+      len = clamp(len * Math.hypot(v[0], v[1]) / Math.max(1, Math.hypot(pos[0] - PIVOT[0], pos[1] - PIVOT[1])), 0.74, 1.08);
+    }
     var k = 1 - p.rest;
     return { turn: turn * k, len: 1 + (len - 1) * k, grow: 1 + p.lift * 0.03 * k, over: k, lift: p.lift, target: tg };
   }
@@ -110,7 +148,12 @@
     var video = holder.querySelector("video"), canvas = holder.querySelector(".hold-hand");
     if (!video || !canvas || !canvas.getContext) return;
     var ctx = canvas.getContext("2d");
-    var thumbImg = null, palmImg = null, fullImg = null, margin = 0.12;
+    var thumbImg = null, palmImg = null, fullImg = null, margin = 0.12, offc = null;
+    function offscreen(w, h) {
+      if (!offc) offc = document.createElement("canvas");
+      if (offc.width !== w || offc.height !== h) { offc.width = w; offc.height = h; }
+      return offc;
+    }
 
     var phoneImg = holder.querySelector(".hold-phone");
     function placeVideo(body) {
@@ -139,21 +182,31 @@
         canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       }
       var s = cssW / IMG_W * dpr, ox = cssW * margin * dpr;
-      var p = pose(video.currentTime), q = thumbPose(p), body = bodyPose(q);
-      placeVideo(body);
+      var p = pose(video.currentTime), q = thumbPose(p);
+      placeVideo();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.imageSmoothingQuality = "high";
       ctx.setTransform(s, 0, 0, s, ox, 0);   // photo pixels -> canvas pixels
-      ctx.transform(body[0], body[1], body[2], body[3], body[4], body[5]);   // the hand's own move
 
-      // The thumb: turn about its knuckle; shorten along its own length when bending toward the glass.
+      // The thumb bends from its base: the part fused to the palm stays put and the turn builds
+      // up along its length (drawn as thin slices along the thumb, each turned a little more).
+      var off = offscreen(canvas.width, canvas.height), octx = off.getContext("2d");
+      octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, off.width, off.height);
+      octx.imageSmoothingQuality = "high";
+      chain(q.turn, q.len, q.grow, function (S, x0, w, aNext) {
+        octx.save();
+        octx.setTransform(s, 0, 0, s, ox, 0);
+        octx.transform(S[0], S[1], S[2], S[3], S[4], S[5]);      // into the thumb's own frame, bent
+        // each slice ends exactly where the next one (turned a little more) begins: no gaps, no overlaps
+        var x1 = x0 + w, sn = Math.sin(aNext) * 400;
+        octx.beginPath(); octx.moveTo(x0 - 0.75, -400); octx.lineTo(x1 + sn, -400); octx.lineTo(x1 - sn, 400); octx.lineTo(x0 - 0.75, 400); octx.closePath(); octx.clip();
+        octx.rotate(-REST_ANGLE); octx.translate(-PIVOT[0], -PIVOT[1]);
+        octx.drawImage(thumbImg, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
+        octx.restore();
+      });
       ctx.save();
-      ctx.translate(PIVOT[0], PIVOT[1]);
-      ctx.rotate(q.turn + REST_ANGLE);
-      ctx.scale(q.len * q.grow, q.grow);
-      ctx.rotate(-REST_ANGLE);
-      ctx.translate(-PIVOT[0], -PIVOT[1]);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       if (q.over > 0.01) {
         // soft shadow on the glass: close and dark when touching, wider and fainter when raised
         ctx.shadowColor = "rgba(0,0,0," + ((0.30 - q.lift * 0.12) * q.over).toFixed(3) + ")";
@@ -161,8 +214,9 @@
         ctx.shadowOffsetX = (4 + q.lift * 12) * dpr;
         ctx.shadowOffsetY = (6 + q.lift * 18) * dpr;
       }
-      ctx.drawImage(thumbImg, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
+      ctx.drawImage(off, 0, 0);
       ctx.restore();
+      ctx.setTransform(s, 0, 0, s, ox, 0);
 
       // The palm on top hides the thumb's base knuckle, like a real hand.
       ctx.drawImage(palmImg, 0, 0, IMG_W, IMG_H);
