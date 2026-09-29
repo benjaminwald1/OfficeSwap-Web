@@ -10,6 +10,10 @@
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
   var IMG_W = 1245, IMG_H = 1762;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
+  // The phone's lower body: the palm is behind it, so when the grip slides down, the palm (drawn on
+  // in the palm layer where the photo has it hidden) shows only below this outline
+  var PHONE_LOW = [[352, 1100], [352, 1497], [360, 1508], [385, 1529], [410, 1536], [460, 1537], [560, 1540], [685, 1541],
+                   [785, 1542], [810, 1540], [835, 1532], [985, 1532], [1010, 1527], [1035, 1517], [1060, 1497], [1085, 1447], [1100, 1360], [1045, 1340], [1045, 1100]];
   var HAND_BOX = [0, 560, 372, 1762];        // the moving piece: the thumb and the ball of the hand, down to the wrist (a little past the
                                              // phone's edge, where the thumb's rounded pad is drawn in: the photo hides it behind the phone)
   var PIVOT = [320, 1215];                   // where the thumb swings from: its base knuckle, on the web side, where it leaves the palm (the palm keeps holding the phone)
@@ -24,17 +28,17 @@
   var ROOT = [-0.12, 0.12], MCP = 0.08, IP = 0.5, HINGE = { mcp: 0.09, ip: 0.06 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
   // last knuckle taking most of it, the way a thumb curls its tip onto a key.
-  var BEND = { mcp: 0.3, ip: 0.7, max: 2.4 };
+  var BEND = { mcp: 0.35, ip: 0.65, max: 1.0 };
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
   // segment looks per radian of bend.
-  var FLAT = 0.4, TIP = { prox: 0.15, dist: 0.2 };
-  // A real thumb is stiff: for a key close to its base it doesn't curl, it lies across the screen
-  // and presses with its pad, the tip reaching on past the key. PRESS is how far back from the tip
-  // the contact can slide (px along the thumb) and what share of the missing reach it takes; the
-  // knuckles bend only for the rest.
-  var PRESS = { max: 200, share: 0.85 };
+  var FLAT = 1, TIP = { prox: 0, dist: 0 };
+  // A real thumb keeps its length and barely bends: for a key close to its base the rest of the hand
+  // makes room instead, the whole hand sliding down along the phone as one piece (a grip shift, up
+  // to SLIDE px, about a centimetre), so the thumb reaches it with no more than about half its bend. PRESS lets the
+  // contact sit a little behind the very tip, on the pad.
+  var SLIDE = 110, PRESS = { max: 40, share: 0.5 };
   // How far each side of the axis the flesh reaches (outer side toward the edge of the hand, inner
   // side toward the phone), by length fraction.
   var BAND = { u: [0.05, 0.3, 0.5, 0.75, 0.95], outer: [-125, -120, -115, -80, -45], inner: [82, 70, 64, 58, 50] };
@@ -129,6 +133,7 @@
   }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
   var STRAIGHT = dist(touchAt(0, 0, 0), PIVOT);   // the tip's reach with the thumb straight
+  var EASY = dist(touchAt(0, BEND.max * 0.55, PRESS.max), PIVOT);   // its reach, comfortably bent
 
   // Turn and bend so the contact lands on the target: for a nearer key the contact slides back
   // from the tip onto the pad, then the knuckles bend just enough for what's left (a farther key
@@ -136,6 +141,10 @@
   function thumbPose(p) {
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
+    // how far the hand slides down so the key is a comfortable reach, then work in the hand's own frame
+    var dx = tg[0] - PIVOT[0], slide = 0;
+    if (EASY > Math.abs(dx)) slide = clamp(Math.sqrt(EASY * EASY - dx * dx) - (PIVOT[1] - tg[1]), 0, SLIDE);
+    tg = [tg[0], tg[1] - slide];
     var dw = dist(tg, PIVOT);
     var back = clamp(PRESS.share * (STRAIGHT - dw), 0, PRESS.max), bend = 0;
     if (dist(touchAt(0, 0, back), PIVOT) > dw) {
@@ -145,7 +154,7 @@
     var tp = touchAt(0, bend, back);
     var turn = wrapAngle(Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]) - Math.atan2(tp[1] - PIVOT[1], tp[0] - PIVOT[0]));
     var k = 1 - p.rest;
-    return { turn: turn * k, bend: bend * k, back: back * k, shift: [0, 0], over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, bend: bend * k, back: back * k, slide: slide * k, shift: [0, 0], over: k, lift: p.lift, target: tg };
   }
 
 
@@ -351,14 +360,20 @@
       var all = [0, IMG_W, 0, IMG_H];
       // the rest of the hand (the heel under the phone, the fingers), untouched
       warper.clear();
-      warper.drawStill(palmTex, [0, 0, IMG_W, IMG_H], all, false, s, [ox, 0]);
+      var hand = [ox, q.slide * s];   // the whole hand, slid down the phone for a near key
+      warper.drawStill(palmTex, [0, 0, IMG_W, IMG_H], all, false, s, hand);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, canvas.width, canvas.height);
+      PHONE_LOW.forEach(function (c, j) { ctx[j ? "lineTo" : "moveTo"](c[0] * s + ox, c[1] * s); });
+      ctx.closePath(); ctx.clip("evenodd");   // the phone stays in front of the palm
       ctx.drawImage(warper.canvas, 0, 0);
+      ctx.restore();
       // the thumb and the ball of the hand on top, with a soft shadow on the glass only: close and
       // dark when touching, wider and fainter when raised
       warper.clear();
       warper.positions(pos);
       // (it may move past the photo's own edges, so nothing of it is cut off there)
-      warper.draw(thumbTex, [HAND_BOX[0], HAND_BOX[1], HAND_BOX[2] - HAND_BOX[0], HAND_BOX[3] - HAND_BOX[1]], [-IMG_W, 2 * IMG_W, -IMG_H, 2 * IMG_H], false, s, [ox, 0]);
+      warper.draw(thumbTex, [HAND_BOX[0], HAND_BOX[1], HAND_BOX[2] - HAND_BOX[0], HAND_BOX[3] - HAND_BOX[1]], [-IMG_W, 2 * IMG_W, -IMG_H, 2 * IMG_H], false, s, hand);
       if (q.over > 0.01) {
         ctx.save();
         ctx.beginPath();
