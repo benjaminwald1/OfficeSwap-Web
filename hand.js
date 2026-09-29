@@ -21,14 +21,13 @@
   var TOUCH_PT = [307, 615];                 // the middle of the tip at rest: what meets the glass
 
   // ---- The joints, as fractions of the thumb's length from its base (the tip is 1) ----
-  // The thumb moves only at its three joints, with rigid bone between them: a little at its base joint in
-  // the ball of the thumb (so the ball barely moves), most of the swing at the base knuckle where the
-  // thumb leaves the ball, and the top knuckle for a nearer key. Each joint bends over a short, smooth
-  // hinge zone (HINGE each side).
-  var ROOT = [-0.04, 0.06], MCP = 0.375, IP = 0.66, HINGE = { mcp: 0.08, ip: 0.055 };
-  // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the base
-  // knuckle taking most of it so the tip stays fairly straight (at most about 45 degrees).
-  var BEND = { mcp: 0.6, ip: 0.4, max: 2.0 };
+  // The thumb moves only above where it crosses the phone's edge: below that (the ball of the thumb and the
+  // stretch pressed against the phone) it stays exactly as in the photo. It swings at that point (MCP, a
+  // short hinge), and for a nearer key bends there and at the top knuckle (IP), with rigid bone between.
+  var ROOT = [-0.04, 0.06], MCP = 0.5, IP = 0.7, HINGE = { mcp: 0.07, ip: 0.05 };
+  // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the top
+  // knuckle taking a little more of it.
+  var BEND = { mcp: 0.4, ip: 0.6, max: 2.0 };
   // The thumb is drawn a fixed SHORT shorter past its base knuckle than in the photo, at rest and moving
   // alike, so its size never changes.
   var SHORT = 0.05;
@@ -38,7 +37,8 @@
   var ROLL = { frac: 0.25, from: 0.5, full: 0.8,
                // the nail-side edge of the solid skin, px from the thumb's axis, along its length
                u: [0.45, 0.55, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1], edge: [150, 138, 130, 125, 107, 80, 58, 41, 34, 25] };
-  var TURN_ROOT = 0.6;                         // share of the swing taken at the base joint; the rest at the base knuckle
+  var TURN_RANGE = [-0.6, 2.2];               // how far the thumb can swing (radians, toward the screen is positive)
+  var TURN_ROOT = 0;                           // share of the swing taken down at the base joint (none: the rest is at MCP)
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
   // onto the screen, so seen from the front just the last segment (and a little of the one before)
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
@@ -143,24 +143,16 @@
   function thumbPose(p) {
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
-    var turn = 0, bend = 0.5, sh = SHORT, e = 1e-3;
-    for (var it = 0; it < 30; it++) {   // Gauss-Newton on (turn, bend), bend kept within the knuckles' range
-      var tp = touchAt(turn, bend, 0, sh), fx = tp[0] - tg[0], fy = tp[1] - tg[1];
-      if (fx * fx + fy * fy < 0.25) break;
-      var a = touchAt(turn + e, bend, 0, sh), c = touchAt(turn, bend + e, 0, sh);
-      var j11 = (a[0] - tp[0]) / e, j21 = (a[1] - tp[1]) / e, j12 = (c[0] - tp[0]) / e, j22 = (c[1] - tp[1]) / e;
-      var det = j11 * j22 - j12 * j21;
-      if (Math.abs(det) < 1e-6) break;
-      var dt = -(j22 * fx - j12 * fy) / det, db = -(-j21 * fx + j11 * fy) / det;
-      var m = Math.max(Math.abs(dt), Math.abs(db)) > 0.3 ? 0.3 / Math.max(Math.abs(dt), Math.abs(db)) : 1;
-      turn += dt * m; bend = clamp(bend + db * m, 0, BEND.max);
-    }
-    if (bend <= 1e-4) {   // out of reach even straight: point the thumb steadily at the key
-      bend = 0;
-      for (var it2 = 0; it2 < 20; it2++) {
-        var tq = touchAt(turn, 0, 0, sh);
-        turn += 0.7 * wrapAngle(Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]) - Math.atan2(tq[1] - PIVOT[1], tq[0] - PIVOT[0]));
-      }
+    // One swing joint: bend just enough that the tip is as far from the joint as the key is (a farther
+    // key gets a straighter thumb), then turn to aim at it; twice, since the joint is a short hinge
+    var sh = SHORT, back = TOUCH[0] - MCP * REST_LEN, turn = 0, bend = 0;
+    for (var pass = 0; pass < 3; pass++) {
+      var J = touchAt(turn, bend, back, sh), want = dist(tg, J), lo = 0, hi = BEND.max;
+      if (dist(touchAt(turn, 0, 0, sh), touchAt(turn, 0, back, sh)) <= want) bend = 0;
+      else for (var b = 0; b < 18; b++) { bend = (lo + hi) / 2; if (dist(touchAt(turn, bend, 0, sh), touchAt(turn, bend, back, sh)) > want) lo = bend; else hi = bend; }
+      J = touchAt(turn, bend, back, sh);
+      var tp = touchAt(turn, bend, 0, sh);
+      turn = clamp(turn + wrapAngle(Math.atan2(tg[1] - J[1], tg[0] - J[0]) - Math.atan2(tp[1] - J[1], tp[0] - J[0])), TURN_RANGE[0], TURN_RANGE[1]);
     }
     var k = 1 - p.rest;
     return { turn: turn * k, bend: bend * k, roll: k * (1 - p.lift), back: 0, shorten: sh, slide: 0, shift: [0, 0], over: k, lift: p.lift, target: tg };
