@@ -25,7 +25,10 @@
   // Curl (0..1) closes the reach for nearer keys: the knuckles bend a little (radians at full
   // curl) and the bones tip toward the glass, so they look shorter (never longer) from the front:
   // the metacarpal barely, the last phalanx the most, as it presses.
-  var CURL = { mcp: 0.30, ip: 0.70, meta: 0.10, proximal: 0.15, distal: 0.32 };
+  var CURL = { mcp: 0.30, ip: 0.70, meta: 0.10, proximal: 0.15, distal: 0.32, max: 0.55 };
+  // Past that much curl, the hand pulls the thumb's root back toward the palm instead (up to
+  // SLIDE px, hidden under the palm), the way a real grip shifts for a near key.
+  var SLIDE = 90;
   // The fleshy base at the crease stays put under the swinging thumb (fading out from UNDER[0]
   // to UNDER[1]), so the hand's outline holds where the thumb leaves it; the moving thumb fades
   // in over START, so it grows out of that base with no seam.
@@ -33,7 +36,7 @@
   // Only the slender thumb swings; the fleshy mound at its base (the thenar) belongs to the hand
   // and stays put. This band, in the thumb's frame, is how far each side of the axis the moving
   // piece reaches (outer side toward the edge of the hand, inner side toward the phone).
-  var BAND = { u: [0.2, 0.5, 0.8], outer: [-90, -80, -66], inner: [75, 60, 45], feather: 6 };
+  var BAND = { u: [0.2, 0.5, 0.8], outer: [-78, -74, -66], inner: [56, 50, 45], feather: 6 };
 
   // ---- Motion: t (s), x, y (screen fractions), lift (0 = on the glass), rest (1 = resting on the edge), hold ----
   var KEYS = [
@@ -102,8 +105,8 @@
   // pivot) to photo pixels for the slice [x0, x0 + w), which is squeezed by sx along the thumb;
   // aNext is the extra turn where the next slice begins; under and own are how much of the
   // fixed base and of the moving thumb show here.
-  function chain(turn, curl, press, fn) {
-    var M = mul(mul([1, 0, 0, 1, PIVOT[0], PIVOT[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
+  function chain(turn, curl, press, slide, fn) {
+    var M = mul(mul([1, 0, 0, 1, PIVOT[0] + slide[0], PIVOT[1] + slide[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
     var s0 = 1 - CURL.meta * curl, s1 = 1 - CURL.proximal * curl, s2 = 1 - CURL.distal * curl - 0.03 * press;
     for (var i = 0; i < N; i++) {
       var x0 = BASE + SW * i;
@@ -113,34 +116,41 @@
       M = mul(M, [1, 0, 0, 1, SW * sx, 0]);
     }
   }
-  function touchAt(turn, curl, press) {
+  function touchAt(turn, curl, press, slide) {
     var out = null;
-    chain(turn, curl, press, function (S, x0, w) { if (out === null && TOUCH[0] >= x0 && TOUCH[0] < x0 + w) out = apply(S, TOUCH); });
+    chain(turn, curl, press, slide, function (S, x0, w) { if (out === null && TOUCH[0] >= x0 && TOUCH[0] < x0 + w) out = apply(S, TOUCH); });
     return out || PAD;
   }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
-  var REACH_SPAN = dist(touchAt(0, 0, 0), PIVOT) - dist(touchAt(0, 1, 0), PIVOT);
+  var NO_SLIDE = [0, 0];
+  var REACH_SPAN = dist(touchAt(0, 0, 0, NO_SLIDE), PIVOT) - dist(touchAt(0, 1, 0, NO_SLIDE), PIVOT);
 
-  // Turn and curl for the thumb so the middle of its tip lands on the target: turn toward it,
-  // curl as much as needed to close the distance (a farther key gets a straighter thumb).
+  // Turn, curl and root slide for the thumb so the middle of its tip lands on the target: turn
+  // toward it, curl as much as needed to close the distance (a farther key gets a straighter
+  // thumb), and past the curl limit pull the root back. A raised thumb curls less and slides more.
   function thumbPose(p) {
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
-    var press = 1 - p.lift, turn = 0, curl = 0;
+    var press = 1 - p.lift, turn = 0, curl = 0, back = 0;
     var want = Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]), dw = dist(tg, PIVOT);
-    for (var it = 0; it < 12; it++) {
-      var pos = touchAt(turn, curl, press);
-      turn += wrapAngle(want - Math.atan2(pos[1] - PIVOT[1], pos[0] - PIVOT[0]));
-      curl = clamp(curl + 0.8 * (dist(pos, PIVOT) - dw) / REACH_SPAN, 0, 1);
+    var dir = [Math.cos(want), Math.sin(want)], curlMax = CURL.max * (1 - 0.5 * p.lift);
+    for (var it = 0; it < 14; it++) {
+      var slide = [-back * dir[0], -back * dir[1]];
+      var pos = touchAt(turn, curl, press, slide);
+      turn += wrapAngle(want - Math.atan2(pos[1] - PIVOT[1] - slide[1], pos[0] - PIVOT[0] - slide[0]));
+      var over = dist(pos, PIVOT) - dw;                 // how far past the target the tip reaches
+      var c2 = clamp(curl + 0.8 * over / REACH_SPAN, 0, curlMax);
+      over -= (c2 - curl) * REACH_SPAN; curl = c2;
+      back = clamp(back + 0.8 * over, 0, SLIDE);
     }
     var k = 1 - p.rest;
-    return { turn: turn * k, curl: curl * k, press: press * k, over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, curl: curl * k, press: press * k, slide: [-back * dir[0] * k, -back * dir[1] * k], over: k, lift: p.lift, target: tg };
   }
   function slices(t) {
     var p = pose(t), q = thumbPose(p), out = [], base = [];
-    chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) out.push({ S: S, x0: x0, w: w, aNext: aNext, sx: sx, alpha: own }); });
-    chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) base.push({ S: S, x0: x0, w: w, aNext: aNext, alpha: under, sx: sx }); });
-    return { p: p, q: q, touch: touchAt(q.turn, q.curl, q.press), slices: out, base: base };
+    chain(q.turn, q.curl, q.press, q.slide, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) out.push({ S: S, x0: x0, w: w, aNext: aNext, sx: sx, alpha: own }); });
+    chain(0, 0, 0, NO_SLIDE, function (S, x0, w, aNext, under, sx) { if (under > 0.001) base.push({ S: S, x0: x0, w: w, aNext: aNext, alpha: under, sx: sx }); });
+    return { p: p, q: q, touch: touchAt(q.turn, q.curl, q.press, q.slide), slices: out, base: base };
   }
   window.OfficeSwapThumb = { pose: pose, thumbPose: thumbPose, slices: slices };
 
@@ -253,8 +263,8 @@
         octx.drawImage(img, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
         octx.restore();
       }
-      if (q.over > 0.01) chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) slice(S, x0, w, aNext, under * q.over, sx, thumbImg); });
-      chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) slice(S, x0, w, aNext, own, sx, thinImg); });
+      if (q.over > 0.01) chain(0, 0, 0, NO_SLIDE, function (S, x0, w, aNext, under, sx) { if (under > 0.001) slice(S, x0, w, aNext, under * q.over, sx, thumbImg); });
+      chain(q.turn, q.curl, q.press, q.slide, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) slice(S, x0, w, aNext, own, sx, thinImg); });
       // Keep the swinging base inside the hand's outline, so it never bulges out of the hand.
       if (maskImg) {
         octx.save();
