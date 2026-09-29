@@ -236,8 +236,9 @@
       "attribute vec2 a_pos; attribute vec2 a_uv; uniform vec2 u_scale; uniform vec2 u_offset; uniform vec2 u_size; varying vec2 v_uv;" +
       "void main() { vec2 p = a_pos * u_scale + u_offset; gl_Position = vec4(p.x / u_size.x * 2.0 - 1.0, 1.0 - p.y / u_size.y * 2.0, 0.0, 1.0); v_uv = a_uv; }"));
     gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,
-      "precision mediump float; uniform sampler2D u_tex; uniform vec4 u_box; uniform vec4 u_keep; uniform float u_inv; varying vec2 v_uv;" +
-      "void main() { bool inside = v_uv.x >= u_keep.x && v_uv.x < u_keep.y && v_uv.y >= u_keep.z && v_uv.y < u_keep.w;" +
+      "precision highp float; uniform sampler2D u_tex; uniform vec4 u_box; uniform vec4 u_keep; uniform float u_inv; uniform vec2 u_scale; uniform vec2 u_offset; uniform vec2 u_size; varying vec2 v_uv;" +
+      "void main() { vec2 ph = vec2((gl_FragCoord.x - u_offset.x) / u_scale.x, (u_size.y - gl_FragCoord.y - u_offset.y) / u_scale.y);" +
+      " bool inside = ph.x >= u_keep.x && ph.x < u_keep.y && ph.y >= u_keep.z && ph.y < u_keep.w;" +
       " if (u_inv > 0.5 ? inside : !inside) discard;" +
       " vec2 t = (v_uv - u_box.xy) / u_box.zw; if (t.x < 0.0 || t.x > 1.0 || t.y < 0.0 || t.y > 1.0) discard;" +
       " vec4 col = texture2D(u_tex, t); gl_FragColor = vec4(col.rgb * col.a, col.a); }"));
@@ -270,7 +271,7 @@
       positions: function (arr) { gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, arr); },
       clear: function () { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); },
       // draw one texture piece through the warped mesh: box = where its pixels sit in the photo,
-      // keep = [x0, x1, y0, y1] of the photo to show (or, with inv, to leave out)
+      // keep = [x0, x1, y0, y1] of the photo (as placed on the page) to show, or with inv to leave out
       draw: function (tex, box, keep, inv, scale, offset) {
         attrs(posBuf, uvBuf);
         gl.uniform2f(loc.scale, scale, scale); gl.uniform2f(loc.offset, offset[0], offset[1]);
@@ -315,7 +316,7 @@
       for (var i = 0; i < GRID.count; i++) {
         var x = uv[2 * i], y = uv[2 * i + 1], d = mlsRigid(cp, x, y);
         posRaw[2 * i] = d[0]; posRaw[2 * i + 1] = d[1];
-        var w = smooth(x, WARP.x1, WARP.x1 - WARP.taper);
+        var w = smooth(x, WARP.x1 - WARP.step, WARP.x1 - WARP.step - WARP.taper);   // at rest a full mesh cell before the join
         posTaper[2 * i] = x + (d[0] - x) * w; posTaper[2 * i + 1] = y + (d[1] - y) * w;
       }
     }
