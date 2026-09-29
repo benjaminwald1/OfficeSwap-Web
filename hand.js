@@ -5,7 +5,7 @@
    clock: reaches over, presses each button, flicks the form up, and returns to rest on the edge. */
 (function () {
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
-  var IMG_W = 1245, IMG_H = 1762;
+  var IMG_W = 1245, IMG_H = 2062;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
   var THUMB_BOX = [133, 580, 360, 1133];     // where the thumb piece sits at rest
   var PIVOT = [240, 1125];               // its base knuckle, hidden under the palm
