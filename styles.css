@@ -334,8 +334,6 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 /* Tappable tab bar laid over the phone screenshot */
 .tapbar { position: absolute; left: 5%; right: 5%; top: 89.5%; height: 8%; z-index: 3; display: grid; grid-template-columns: repeat(5, 1fr); }
 .tapbar button { border: 0; background: transparent; cursor: pointer; border-radius: 999px; -webkit-tap-highlight-color: transparent; }
-.tapbar button:hover { background: rgba(0,0,0,.05); }
-.tapbar button:active { background: rgba(0,0,0,.1); }
 .tapbar button:focus-visible { outline: 2px solid #1a6ff2; outline-offset: -2px; }
 .try { margin: -12px 0 0; font-size: 13.5px; color: var(--faint); text-align: center; }
 
