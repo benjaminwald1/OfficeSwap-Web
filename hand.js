@@ -240,14 +240,19 @@
                  load(holder.querySelector(".hold-still").getAttribute("src"))]).then(function (imgs) {
       thumbImg = imgs[0]; palmImg = imgs[1]; fullImg = imgs[2];
       holder.classList.add("live");
-      draw();
+      dirty = true;
     }).catch(function () {});
 
-    var raf = 0;
-    function loop() { draw(); raf = video.paused || video.ended ? 0 : requestAnimationFrame(loop); }
-    video.addEventListener("play", function () { if (!raf) raf = requestAnimationFrame(loop); });
-    ["seeked", "ended", "pause", "loadeddata", "loadedmetadata"].forEach(function (e) { video.addEventListener(e, draw); });
-    addEventListener("resize", draw);
+    // Follow the video's clock every frame, whatever way it was started (autoplay, replay, seek).
+    var lastT = -1, dirty = true;
+    function loop() {
+      var t = video.currentTime;
+      if (dirty || t !== lastT) { lastT = t; dirty = false; draw(); }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    ["loadeddata", "loadedmetadata"].forEach(function (e) { video.addEventListener(e, function () { dirty = true; }); });
+    addEventListener("resize", function () { dirty = true; });
     placeVideo();
     if (first) { window.OfficeSwapThumb = { draw: draw, pose: pose, thumbPose: thumbPose }; first = false; }
   });
