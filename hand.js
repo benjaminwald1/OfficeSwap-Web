@@ -16,10 +16,11 @@
   var TOUCH_PT = [307, 615];                 // the middle of the tip at rest: what meets the glass
 
   // ---- The joints, as fractions of the thumb's length from its base (the tip is 1) ----
-  // The thumb turns at its base knuckle (across ROOT), where it leaves the ball of the hand. Its
+  // The thumb turns at its base (across ROOT), the ball of the thumb leaning a little with it
+  // (the turn is shared down into it, not taken all at the knuckle, which looked rubbery). Its
   // two knuckles bend over short hinge zones (HINGE each side), with straight bone between them:
   // the base knuckle (MCP) just above the pivot, the top one (IP) at the crease.
-  var ROOT = [-0.12, 0.12], MCP = 0.08, IP = 0.5, HINGE = { mcp: 0.09, ip: 0.06 };
+  var ROOT = [-0.3, 0.1], MCP = 0.08, IP = 0.5, HINGE = { mcp: 0.09, ip: 0.06 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
   // last knuckle taking most of it, the way a thumb curls its tip onto a key.
   var BEND = { mcp: 0.3, ip: 0.7, max: 2.4 };
@@ -28,10 +29,11 @@
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
   // segment looks per radian of bend.
   var FLAT = 0.4, TIP = { prox: 0.15, dist: 0.2 };
-  // Optionally the hand could shift its grip for a near key (the ball of the hand rolling back,
-  // GRIP parts of the missing reach to every one the knuckles take, up to DROP px). Off: a real
-  // wrist stays put while the thumb works, and moving it tore the hand at the wrist.
-  var GRIP = 0, DROP = 0;
+  // A real thumb is stiff: for a key close to its base it doesn't curl, it lies across the screen
+  // and presses with its pad, the tip reaching on past the key. PRESS is how far back from the tip
+  // the contact can slide (px along the thumb) and what share of the missing reach it takes; the
+  // knuckles bend only for the rest.
+  var PRESS = { max: 200, share: 0.85 };
   // How far each side of the axis the flesh reaches (outer side toward the edge of the hand, inner
   // side toward the phone), by length fraction.
   var BAND = { u: [0.05, 0.3, 0.5, 0.75, 0.95], outer: [-125, -120, -115, -80, -45], inner: [82, 70, 64, 58, 50] };
@@ -119,39 +121,32 @@
       M = mul(M, [1, 0, 0, 1, SW * sx, 0]);
     }
   }
-  function touchAt(turn, bend) {
-    var out = null;
-    chain(turn, bend, function (S, x0) { if (out === null && TOUCH[0] >= x0 && TOUCH[0] < x0 + SW) out = apply(S, TOUCH); });
+  function touchAt(turn, bend, back) {   // back: how far behind the tip the contact is
+    var out = null, t = [TOUCH[0] - (back || 0), TOUCH[1]];
+    chain(turn, bend, function (S, x0) { if (out === null && t[0] >= x0 && t[0] < x0 + SW) out = apply(S, t); });
     return out || TOUCH_PT;
   }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
-  // The tip's reach from the base shrinks as the thumb bends; tabulate it once so a pose is a lookup.
-  var REACH = [];
-  for (var bi = 0; bi <= 64; bi++) {
-    var bp = touchAt(0, BEND.max * bi / 64);
-    REACH.push({ bend: BEND.max * bi / 64, d: dist(bp, PIVOT), a: Math.atan2(bp[1] - PIVOT[1], bp[0] - PIVOT[0]) });
-  }
+  var STRAIGHT = dist(touchAt(0, 0, 0), PIVOT);   // the tip's reach with the thumb straight
 
-  // Grip, turn and bend so the middle of the tip lands on the target: slide the hand down for a
-  // near key, bend just enough that the tip is as far from the base as the key is (a farther key
-  // gets a straighter thumb), then turn the whole thumb at its base to point there.
+  // Turn and bend so the contact lands on the target: for a nearer key the contact slides back
+  // from the tip onto the pad, then the knuckles bend just enough for what's left (a farther key
+  // gets a straighter thumb), and the whole thumb turns at its base to point there.
   function thumbPose(p) {
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
-    var d0 = dist(tg, PIVOT), away = [(PIVOT[0] - tg[0]) / d0, (PIVOT[1] - tg[1]) / d0];
-    var back = clamp(GRIP * (REACH[0].d - d0) / (1 + GRIP), 0, DROP);   // the reach still missing shrinks as the hand rolls back
-    var base = [PIVOT[0] + away[0] * back, PIVOT[1] + away[1] * back];
-    var dw = dist(tg, base), r = REACH[REACH.length - 1], i;
-    for (i = 1; i < REACH.length; i++) if (REACH[i].d <= dw) { r = REACH[i]; break; }
-    var bend = 0, a = REACH[0].a;
-    if (i < REACH.length && i > 0) {
-      var r0 = REACH[i - 1], f = clamp((r0.d - dw) / (r0.d - r.d), 0, 1);
-      bend = r0.bend + (r.bend - r0.bend) * f; a = r0.a + wrapAngle(r.a - r0.a) * f;
-    } else if (i >= REACH.length) { bend = r.bend; a = r.a; }
-    var turn = wrapAngle(Math.atan2(tg[1] - base[1], tg[0] - base[0]) - a);
+    var dw = dist(tg, PIVOT);
+    var back = clamp(PRESS.share * (STRAIGHT - dw), 0, PRESS.max), bend = 0;
+    if (dist(touchAt(0, 0, back), PIVOT) > dw) {
+      var lo = 0, hi = BEND.max;
+      for (var it = 0; it < 16; it++) { bend = (lo + hi) / 2; if (dist(touchAt(0, bend, back), PIVOT) > dw) lo = bend; else hi = bend; }
+    }
+    var tp = touchAt(0, bend, back);
+    var turn = wrapAngle(Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]) - Math.atan2(tp[1] - PIVOT[1], tp[0] - PIVOT[0]));
     var k = 1 - p.rest;
-    return { turn: turn * k, bend: bend * k, shift: [(base[0] - PIVOT[0]) * k, (base[1] - PIVOT[1]) * k], over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, bend: bend * k, back: back * k, shift: [0, 0], over: k, lift: p.lift, target: tg };
   }
+
 
   // ---- The warp: the whole hand deforms as one piece of skin. Marked spots along the bones
   // (HANDLES, in the thumb's frame) go where the joint chain puts them; PINS at the wrist and the
@@ -167,12 +162,12 @@
     }
     return pts;
   })();
-  // [x, y, share of the grip's shift it follows]: the wrist, the heel under the phone and the ball
-  // of the hand stay put (the palm keeps holding the phone while the thumb moves), so the hand
-  // never tears where the pieces meet
+  // [x, y, share of the grip's shift it follows]: the wrist, the heel under the phone and the palm's
+  // edge against the phone stay put (the palm keeps holding the phone while the thumb moves), so
+  // the hand never tears where the pieces meet
   var PINS = [[40, 1700, 0], [150, 1700, 0], [130, 1740, 0], [230, 1762, 0], [300, 1760, 0], [340, 1700, 0], [340, 1620, 0],
               [345, 1560, 0], [420, 1570, 0], [560, 1600, 0], [720, 1640, 0], [110, 1590, 0], [200, 1630, 0], [300, 1630, 0],
-              [130, 1220, 0], [150, 1300, 0], [230, 1320, 0], [310, 1300, 0], [340, 1380, 0], [150, 1420, 0], [250, 1440, 0], [340, 1470, 0]];
+              [345, 1340, 0], [345, 1420, 0], [345, 1480, 0], [150, 1520, 0], [250, 1530, 0]];
   // The mesh covers the moving piece; everything right of it (the heel under the phone, the
   // fingers, the phone's outline) is the still palm piece.
   var WARP = { x0: 0, y0: HAND_BOX[1], y1: IMG_H, step: 24, xmax: HAND_BOX[2] };
