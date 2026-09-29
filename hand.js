@@ -11,7 +11,7 @@
   var IMG_W = 1245, IMG_H = 1762;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
   var HAND_BOX = [0, 560, 362, 1762];        // the moving piece: the thumb and the ball of the hand, down to the wrist
-  var PIVOT = [258, 1205];                   // where the thumb swings from: its base knuckle, where it leaves the palm (the palm itself keeps holding the phone)
+  var PIVOT = [320, 1215];                   // where the thumb swings from: its base knuckle, on the web side, where it leaves the palm (the palm keeps holding the phone)
   var PAD = [300, 600];                      // with the pivot, sets the thumb's axis (x runs along it)
   var TOUCH_PT = [307, 615];                 // the middle of the tip at rest: what meets the glass
 
@@ -158,7 +158,9 @@
   // heel of the hand stay put; everything between follows smoothly (moving least squares, rigid). ----
   var HANDLES = (function () {
     var pts = [];
-    for (var u = 0.04; u <= 1.02; u += 0.05) {
+    // none right at the base: the web between the swinging thumb and the still palm is left to stretch
+    // freely, so it never folds over itself
+    for (var u = 0.19; u <= 1.02; u += 0.05) {
       pts.push([u * REST_LEN, 0]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.8]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.inner) * 0.8]);
