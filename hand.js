@@ -236,20 +236,25 @@
       "attribute vec2 a_pos; attribute vec2 a_uv; uniform vec2 u_scale; uniform vec2 u_offset; uniform vec2 u_size; varying vec2 v_uv;" +
       "void main() { vec2 p = a_pos * u_scale + u_offset; gl_Position = vec4(p.x / u_size.x * 2.0 - 1.0, 1.0 - p.y / u_size.y * 2.0, 0.0, 1.0); v_uv = a_uv; }"));
     gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,
-      "precision mediump float; uniform sampler2D u_tex; uniform vec4 u_box; uniform vec4 u_keep; varying vec2 v_uv;" +
-      "void main() { if (v_uv.x < u_keep.x || v_uv.x >= u_keep.y || v_uv.y < u_keep.z || v_uv.y >= u_keep.w) discard;" +
+      "precision mediump float; uniform sampler2D u_tex; uniform vec4 u_box; uniform vec4 u_keep; uniform float u_inv; varying vec2 v_uv;" +
+      "void main() { bool inside = v_uv.x >= u_keep.x && v_uv.x < u_keep.y && v_uv.y >= u_keep.z && v_uv.y < u_keep.w;" +
+      " if (u_inv > 0.5 ? inside : !inside) discard;" +
       " vec2 t = (v_uv - u_box.xy) / u_box.zw; if (t.x < 0.0 || t.x > 1.0 || t.y < 0.0 || t.y > 1.0) discard;" +
       " vec4 col = texture2D(u_tex, t); gl_FragColor = vec4(col.rgb * col.a, col.a); }"));
     gl.linkProgram(prog); gl.useProgram(prog);
     var loc = { pos: gl.getAttribLocation(prog, "a_pos"), uv: gl.getAttribLocation(prog, "a_uv"),
                 scale: gl.getUniformLocation(prog, "u_scale"), offset: gl.getUniformLocation(prog, "u_offset"), size: gl.getUniformLocation(prog, "u_size"),
-                box: gl.getUniformLocation(prog, "u_box"), keep: gl.getUniformLocation(prog, "u_keep"), tex: gl.getUniformLocation(prog, "u_tex") };
-    var posBuf = gl.createBuffer(), uvBuf = gl.createBuffer(), idxBuf = gl.createBuffer();
+                box: gl.getUniformLocation(prog, "u_box"), keep: gl.getUniformLocation(prog, "u_keep"), inv: gl.getUniformLocation(prog, "u_inv"), tex: gl.getUniformLocation(prog, "u_tex") };
+    var posBuf = gl.createBuffer(), uvBuf = gl.createBuffer(), idxBuf = gl.createBuffer(), quadBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.bufferData(gl.ARRAY_BUFFER, GRID.uv, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(loc.uv); gl.vertexAttribPointer(loc.uv, 2, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, GRID.uv.byteLength, gl.DYNAMIC_DRAW);
-    gl.enableVertexAttribArray(loc.pos); gl.vertexAttribPointer(loc.pos, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, IMG_W, 0, 0, IMG_H, IMG_W, IMG_H]), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, GRID.idx, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(loc.pos); gl.enableVertexAttribArray(loc.uv);
+    function attrs(pos, uv) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, pos); gl.vertexAttribPointer(loc.pos, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, uv); gl.vertexAttribPointer(loc.uv, 2, gl.FLOAT, false, 0, 0);
+    }
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.uniform1i(loc.tex, 0);
     function texture(img) {
@@ -263,13 +268,23 @@
       canvas: c, gl: gl, texture: texture,
       size: function (w, h) { if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } gl.viewport(0, 0, w, h); gl.uniform2f(loc.size, w, h); },
       positions: function (arr) { gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, arr); },
-      // draw one texture piece: box = where its pixels sit in the photo, keep = [x0, x1, y0, y1] of the photo to show
-      draw: function (tex, box, keep, scale, offset) {
-        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      clear: function () { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); },
+      // draw one texture piece through the warped mesh: box = where its pixels sit in the photo,
+      // keep = [x0, x1, y0, y1] of the photo to show (or, with inv, to leave out)
+      draw: function (tex, box, keep, inv, scale, offset) {
+        attrs(posBuf, uvBuf);
         gl.uniform2f(loc.scale, scale, scale); gl.uniform2f(loc.offset, offset[0], offset[1]);
-        gl.uniform4f(loc.box, box[0], box[1], box[2], box[3]); gl.uniform4f(loc.keep, keep[0], keep[1], keep[2], keep[3]);
+        gl.uniform4f(loc.box, box[0], box[1], box[2], box[3]); gl.uniform4f(loc.keep, keep[0], keep[1], keep[2], keep[3]); gl.uniform1f(loc.inv, inv ? 1 : 0);
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.drawElements(gl.TRIANGLES, GRID.idx.length, gl.UNSIGNED_SHORT, 0);
+      },
+      // the same, unwarped, over the whole photo
+      drawStill: function (tex, box, keep, inv, scale, offset) {
+        attrs(quadBuf, quadBuf);
+        gl.uniform2f(loc.scale, scale, scale); gl.uniform2f(loc.offset, offset[0], offset[1]);
+        gl.uniform4f(loc.box, box[0], box[1], box[2], box[3]); gl.uniform4f(loc.keep, keep[0], keep[1], keep[2], keep[3]); gl.uniform1f(loc.inv, inv ? 1 : 0);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
     };
   }
@@ -323,8 +338,9 @@
       deform(q);
       warper.size(canvas.width, canvas.height);
       // the thumb, with a soft shadow on the glass: close and dark when touching, wider and fainter when raised
+      warper.clear();
       warper.positions(posRaw);
-      warper.draw(thumbTex, [THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]], [0, IMG_W, 0, IMG_H], s, [ox, 0]);
+      warper.draw(thumbTex, [THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]], [0, IMG_W, 0, IMG_H], false, s, [ox, 0]);
       ctx.save();
       if (q.over > 0.01) {
         ctx.shadowColor = "rgba(0,0,0," + ((0.30 - q.lift * 0.12) * q.over).toFixed(3) + ")";
@@ -334,16 +350,15 @@
       }
       ctx.drawImage(warper.canvas, 0, 0);
       ctx.restore();
-      // the palm on top, warped where it meets the thumb, untouched elsewhere
+      // the palm on top: warped where it meets the thumb, untouched elsewhere (the two parts meet
+      // pixel for pixel, with the warp eased back to rest along the join)
+      var keep = [WARP.x0, WARP.x1, WARP.y0, WARP.y1];
+      warper.clear();
       warper.positions(posTaper);
-      warper.draw(palmTex, [0, 0, IMG_W, IMG_H], [WARP.x0, WARP.x1, WARP.y0, WARP.y1], s, [ox, 0]);
+      warper.draw(palmTex, [0, 0, IMG_W, IMG_H], keep, false, s, [ox, 0]);
+      warper.drawStill(palmTex, [0, 0, IMG_W, IMG_H], keep, true, s, [ox, 0]);
       ctx.drawImage(warper.canvas, 0, 0);
       ctx.setTransform(s, 0, 0, s, ox, 0);   // photo pixels -> canvas pixels
-      ctx.save();
-      // (overlapping the warped part by a few pixels, where it has eased back to rest, so no seam shows)
-      ctx.beginPath(); ctx.rect(WARP.x1 - 3, 0, IMG_W - WARP.x1 + 3, IMG_H); ctx.rect(0, 0, IMG_W, WARP.y0); ctx.clip();
-      ctx.drawImage(palmImg, 0, 0, IMG_W, IMG_H);
-      ctx.restore();
       // Resting, the untouched photo shows; it fades out as the thumb lifts off the edge. Only in
       // the last moment of the rest, when the warped hand is almost exactly the photo.
       var still = 1 - q.over;
