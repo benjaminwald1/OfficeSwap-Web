@@ -176,7 +176,7 @@
     var n = cp.length, ws = new Array(n), sw = 0, px = 0, py = 0, qx = 0, qy = 0, i, w, c;
     for (i = 0; i < n; i++) {
       c = cp[i]; var dx = c[0] - x, dy = c[1] - y;
-      w = 1 / (dx * dx + dy * dy + 1e-3); ws[i] = w; sw += w;
+      w = dx * dx + dy * dy + 1e-3; w = 1 / (w * w); ws[i] = w; sw += w;   // 1/d^4: each spot's pull stays local, so the knuckles keep their shape
       px += w * c[0]; py += w * c[1]; qx += w * c[2]; qy += w * c[3];
     }
     px /= sw; py /= sw; qx /= sw; qy /= sw;
@@ -340,7 +340,8 @@
       ctx.drawImage(warper.canvas, 0, 0);
       ctx.setTransform(s, 0, 0, s, ox, 0);   // photo pixels -> canvas pixels
       ctx.save();
-      ctx.beginPath(); ctx.rect(0, 0, IMG_W, IMG_H); ctx.rect(WARP.x0, WARP.y0, WARP.x1 - WARP.x0, WARP.y1 - WARP.y0); ctx.clip("evenodd");
+      // (overlapping the warped part by a few pixels, where it has eased back to rest, so no seam shows)
+      ctx.beginPath(); ctx.rect(WARP.x1 - 3, 0, IMG_W - WARP.x1 + 3, IMG_H); ctx.rect(0, 0, IMG_W, WARP.y0); ctx.clip();
       ctx.drawImage(palmImg, 0, 0, IMG_W, IMG_H);
       ctx.restore();
       // Resting, the untouched photo shows; it fades out as the thumb lifts off the edge. Only in
