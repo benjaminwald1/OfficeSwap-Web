@@ -1,27 +1,46 @@
 /* Each phone on the page is a real photo of a hand holding an iPhone, with the app video on its
-   screen. The thumb is a separate, undistorted piece of the photo. It turns at its base knuckle,
-   which sits under the palm like a real one, and gets a little shorter when it presses near its
-   base (a thumb bending toward the glass looks shorter from the front). It follows the video's
-   clock: reaches over, presses each button, flicks the form up, and returns to rest on the edge. */
+   screen. The thumb is a separate, undistorted piece of the photo, drawn as a chain of thin
+   slices along its length so it can turn at its joints like a real one: fixed under the palm,
+   easing into the turn across its fleshy base, then hinging at the two knuckles. It never
+   stretches; for a nearer key it curls, and the last bones tip toward the glass so they look
+   shorter from the front. It follows the video's clock: reaches over, presses each button,
+   flicks the form up, and returns to rest on the edge. */
 (function () {
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
   var IMG_W = 1245, IMG_H = 1762;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
   var THUMB_BOX = [117, 580, 360, 1157];     // where the thumb piece sits at rest
-  var PIVOT = [240, 1125];               // its base knuckle, hidden under the palm
-  var PAD = [331.5, 621];                    // the pad that touches the glass
+  var PIVOT = [240, 1125];                   // the root of the thumb's bone, hidden under the palm
+  var PAD = [331.5, 621];                    // with the pivot, sets the thumb's axis (x runs along it)
+  var TOUCH = [514, -25];                    // the middle of the tip, in the thumb's frame: what meets the glass
+  var MASK_X = 330;                          // left of this the thumb stays inside the hand's outline; the phone starts just right of it
+
+  // ---- The joints, as fractions of the thumb's length (0 at the pivot, 1 at the tip) ----
+  // The thumb swings from its root under the palm (the turn eases in across ROOT, most of it
+  // hidden by the palm). The two knuckles are hinges: narrow zones where the angle changes,
+  // with straight bone between them.
+  var ROOT = [-0.05, 0.35], MCP = 0.66, IP = 0.84, HINGE = 0.06;
+  var TURN_AT_ROOT = 0.75;                    // share of the turn taken at the root; the rest at the first knuckle
+  // Curl (0..1) closes the reach for nearer keys: the knuckles bend a little (radians at full
+  // curl) and the bones tip toward the glass, so they look shorter (never longer) from the front:
+  // the metacarpal barely, the last phalanx the most, as it presses.
+  var CURL = { mcp: 0.30, ip: 0.55, meta: 0.10, proximal: 0.20, distal: 0.50 };
+  // The fleshy base at the crease stays put under the swinging thumb (fading out from UNDER[0]
+  // to UNDER[1]), so the hand's outline holds where the thumb leaves it; the moving thumb fades
+  // in over START, so it grows out of that base with no seam.
+  var UNDER = [0.22, 0.40], START = [0.08, 0.20];
 
   // ---- Motion: t (s), x, y (screen fractions), lift (0 = on the glass), rest (1 = resting on the edge), hold ----
   var KEYS = [
-    [0.00, 0.14, 0.42, 1, 1, 0], [1.25, 0.14, 0.42, 1, 1, 0], [1.95, 0.15, 0.41, 0.8, 0, 0],
-    [2.15, 0.14, 0.42, 0, 0, 1], [2.35, 0.14, 0.42, 0, 0, 1], [2.75, 0.25, 0.56, 0.9, 0, 0],
+    [0.00, 0.14, 0.43, 1, 1, 0], [1.25, 0.14, 0.43, 1, 1, 0], [1.95, 0.15, 0.42, 0.8, 0, 0],
+    [2.15, 0.14, 0.43, 0, 0, 1], [2.35, 0.14, 0.43, 0, 0, 1], [2.75, 0.25, 0.56, 0.9, 0, 0],
     [3.08, 0.34, 0.655, 0.25, 0, 0], [3.18, 0.35, 0.66, 0, 0, 1], [3.50, 0.30, 0.50, 0, 0, 1],
     [3.66, 0.30, 0.52, 0.8, 0, 0], [4.30, 0.37, 0.65, 0.5, 0, 0], [4.48, 0.378, 0.665, 0, 0, 1],
-    [4.66, 0.378, 0.665, 0, 0, 1], [4.95, 0.44, 0.63, 0.8, 0, 0], [5.12, 0.495, 0.655, 0.45, 0, 0],
-    [5.23, 0.500, 0.665, 0, 0, 1], [5.40, 0.500, 0.665, 0, 0, 1], [5.72, 0.42, 0.63, 0.8, 0, 0],
+    [4.66, 0.378, 0.665, 0, 0, 1], [4.90, 0.44, 0.63, 0.8, 0, 0], [5.05, 0.49, 0.655, 0.45, 0, 0],
+    [5.15, 0.495, 0.66, 0, 0, 1], [5.33, 0.495, 0.66, 0, 0, 1], [5.72, 0.42, 0.63, 0.8, 0, 0],
     [5.86, 0.40, 0.64, 0.2, 0, 0], [5.93, 0.40, 0.64, 0, 0, 1], [6.25, 0.38, 0.54, 0, 0, 1],
-    [6.40, 0.38, 0.55, 0.8, 0, 0], [7.05, 0.44, 0.545, 0.45, 0, 0], [7.22, 0.45, 0.556, 0, 0, 1],
-    [7.40, 0.45, 0.556, 0, 0, 1], [7.90, 0.30, 0.50, 1, 0, 0], [8.60, 0.14, 0.42, 1, 1, 0], [30, 0.14, 0.42, 1, 1, 0]
+    [6.40, 0.38, 0.55, 0.8, 0, 0], [7.05, 0.42, 0.545, 0.45, 0, 0], [7.22, 0.42, 0.556, 0, 0, 1],
+    [7.40, 0.42, 0.556, 0, 0, 1], [7.90, 0.30, 0.50, 1, 0, 0], [8.60, 0.14, 0.43, 1, 1, 0], [30, 0.14, 0.43, 1, 1, 0]
   ];
   function hermite(p0, p1, m0, m1, u) {
     var u2 = u * u, u3 = u2 * u;
@@ -42,7 +61,7 @@
         return { x: o[0], y: o[1], lift: Math.max(0, Math.min(1, o[2])), rest: a[4] + (b[4] - a[4]) * ru };
       }
     }
-    return { x: 0.14, y: 0.42, lift: 1, rest: 1 };
+    return { x: 0.14, y: 0.43, lift: 1, rest: 1 };
   }
   function onScreen(u, v) {
     var q = SCREEN;
@@ -50,6 +69,7 @@
             (1 - v) * ((1 - u) * q.tl[1] + u * q.tr[1]) + v * ((1 - u) * q.bl[1] + u * q.br[1])];
   }
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function smooth(u, a, b) { var x = clamp((u - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); }
   var REST_ANGLE = Math.atan2(PAD[1] - PIVOT[1], PAD[0] - PIVOT[0]);
   var REST_LEN = Math.hypot(PAD[0] - PIVOT[0], PAD[1] - PIVOT[1]);
   function mul(m, n) {   // m after n
@@ -58,65 +78,67 @@
   }
   function apply(m, p) { return [m[0] * p[0] + m[2] * p[1] + m[4], m[1] * p[0] + m[3] * p[1] + m[5]]; }
   function rot(a) { var c = Math.cos(a), n = Math.sin(a); return [c, n, -n, c, 0, 0]; }
-  // The thumb as a chain of thin slices along its length. The slices under the palm stay put;
-  // the turn builds up through the base knuckle, so the thumb curves instead of hinging.
-  var N = 72, BASE = -160, FS = [];
-  (function () {
-    var full = REST_LEN * 1.12, w = (full - BASE) / N;
-    for (var i = 0; i <= N; i++) {
-      // Two joints, like a real thumb: most of the turn at the base knuckle just above the palm,
-      // the rest at the joint near the tip; the segments between stay straight.
-      var mid = (BASE + w * i + w / 2) / REST_LEN;
-      var j1 = clamp((mid - 0.20) / 0.16, 0, 1), j2 = clamp((mid - 0.60) / 0.14, 0, 1);
-      var f = 0.62 * j1 * j1 * (3 - 2 * j1) + 0.38 * j2 * j2 * (3 - 2 * j2);
-      FS.push(i < N ? f : FS[N - 1]);
-    }
-  })();
-  function chain(turn, len, grow, fn) {
-    var full = REST_LEN * 1.12, w = (full - BASE) / N, prevF = 0;
+  function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
+
+  // The thumb as a chain of thin slices along its length. Per slice (at its middle): how much of
+  // the turn toward the target has built up, how much of the curl (in radians), and how far past
+  // each knuckle it is (for the shortening).
+  var N = 120, BASE = -160, SW = (REST_LEN * 1.12 - BASE) / N;
+  var PF = [], PC = [], PM = [], PI = [], PU = [], PE = [], PS = [];
+  for (var si = 0; si <= N; si++) {
+    var su = (BASE + SW * (Math.min(si, N - 1) + 0.5)) / REST_LEN;
+    var th = smooth(su, ROOT[0], ROOT[1]), m = smooth(su, MCP - HINGE, MCP + HINGE), ip = smooth(su, IP - HINGE, IP + HINGE);
+    PF.push(TURN_AT_ROOT * th + (1 - TURN_AT_ROOT) * m);
+    PC.push(CURL.mcp * m + CURL.ip * ip);
+    PM.push(m); PI.push(ip); PE.push(smooth(su, ROOT[1], ROOT[1] + 0.2));
+    PU.push(1 - smooth(su, UNDER[0], UNDER[1])); PS.push(smooth(su, START[0], START[1]));
+  }
+  // fn(S, x0, w, aNext, under, sx, own): S maps the thumb's own frame (x along it, from the
+  // pivot) to photo pixels for the slice [x0, x0 + w), which is squeezed by sx along the thumb;
+  // aNext is the extra turn where the next slice begins; under and own are how much of the
+  // fixed base and of the moving thumb show here.
+  function chain(turn, curl, press, fn) {
     var M = mul(mul([1, 0, 0, 1, PIVOT[0], PIVOT[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
+    var s0 = 1 - CURL.meta * curl, s1 = 1 - CURL.proximal * curl, s2 = 1 - CURL.distal * curl - 0.03 * press;
     for (var i = 0; i < N; i++) {
-      var x0 = BASE + w * i, f = FS[i];
-      M = mul(M, rot(turn * (f - prevF))); prevF = f;
-      var sx = 1 + (len * grow - 1) * f, sy = 1 + (grow - 1) * f;
-      fn(mul(mul(M, [sx, 0, 0, sy, 0, 0]), [1, 0, 0, 1, -x0, 0]), x0, w, turn * (FS[i + 1] - f));
-      M = mul(M, [1, 0, 0, 1, w * sx, 0]);
+      var x0 = BASE + SW * i;
+      if (i > 0) M = mul(M, rot(turn * (PF[i] - PF[i - 1]) + curl * (PC[i] - PC[i - 1])));
+      var sx = 1 + (s0 - 1) * PE[i] + (s1 - s0) * PM[i] + (s2 - s1) * PI[i];
+      fn(mul(mul(M, [sx, 0, 0, 1, 0, 0]), [1, 0, 0, 1, -x0, 0]), x0, SW, turn * (PF[i + 1] - PF[i]) + curl * (PC[i + 1] - PC[i]), PU[i], sx, PS[i]);
+      M = mul(M, [1, 0, 0, 1, SW * sx, 0]);
     }
   }
-  function padAt(turn, len, grow) {
+  function touchAt(turn, curl, press) {
     var out = null;
-    chain(turn, len, grow, function (S, x0, w) { if (out === null && REST_LEN >= x0 && REST_LEN < x0 + w) out = apply(S, [REST_LEN, 0]); });
+    chain(turn, curl, press, function (S, x0, w) { if (out === null && TOUCH[0] >= x0 && TOUCH[0] < x0 + w) out = apply(S, TOUCH); });
     return out || PAD;
   }
   function wrapAngle(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
+  var REACH_SPAN = dist(touchAt(0, 0, 0), PIVOT) - dist(touchAt(0, 1, 0), PIVOT);
 
-  // Turn and length for the thumb so its pad lands on the target.
+  // Turn and curl for the thumb so the middle of its tip lands on the target: turn toward it,
+  // curl as much as needed to close the distance (a farther key gets a straighter thumb).
   function thumbPose(p) {
     var tg = onScreen(p.x, p.y);
     tg = [tg[0] - p.lift * 4, tg[1] - p.lift * 8];
-    var v = [tg[0] - PIVOT[0], tg[1] - PIVOT[1]];
-    var turn = wrapAngle(Math.atan2(v[1], v[0]) - REST_ANGLE);
-    var len = clamp(Math.hypot(v[0], v[1]) / REST_LEN, 0.74, 1.08);
-    var grow0 = 1 + p.lift * 0.03;
-    for (var it = 0; it < 8; it++) {           // refine against the real bend
-      var pos = padAt(turn, len, grow0);
-      turn += wrapAngle(Math.atan2(v[1], v[0]) - Math.atan2(pos[1] - PIVOT[1], pos[0] - PIVOT[0]));
-      len = clamp(len * Math.hypot(v[0], v[1]) / Math.max(1, Math.hypot(pos[0] - PIVOT[0], pos[1] - PIVOT[1])), 0.74, 1.08);
+    var press = 1 - p.lift, turn = 0, curl = 0;
+    var want = Math.atan2(tg[1] - PIVOT[1], tg[0] - PIVOT[0]), dw = dist(tg, PIVOT);
+    for (var it = 0; it < 12; it++) {
+      var pos = touchAt(turn, curl, press);
+      turn += wrapAngle(want - Math.atan2(pos[1] - PIVOT[1], pos[0] - PIVOT[0]));
+      curl = clamp(curl + 0.8 * (dist(pos, PIVOT) - dw) / REACH_SPAN, 0, 1);
     }
     var k = 1 - p.rest;
-    return { turn: turn * k, len: 1 + (len - 1) * k, grow: 1 + p.lift * 0.03 * k, over: k, lift: p.lift, target: tg };
+    return { turn: turn * k, curl: curl * k, press: press * k, over: k, lift: p.lift, target: tg };
   }
+  function slices(t) {
+    var p = pose(t), q = thumbPose(p), out = [], base = [];
+    chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) out.push({ S: S, x0: x0, w: w, aNext: aNext, sx: sx, alpha: own }); });
+    chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) base.push({ S: S, x0: x0, w: w, aNext: aNext, alpha: under, sx: sx }); });
+    return { p: p, q: q, touch: touchAt(q.turn, q.curl, q.press), slices: out, base: base };
+  }
+  window.OfficeSwapThumb = { pose: pose, thumbPose: thumbPose, slices: slices };
 
-  // The whole hand (and the phone in it) shifts toward what the thumb reaches for, rolls a little
-  // from the wrist, and dips on each press: [a, b, c, d, e, f] in photo pixels.
-  var WRIST = [300, IMG_H];
-  function bodyPose(q) {
-    var k = q.over, press = (1 - q.lift) * k;
-    var dx = (q.target[0] - PAD[0]) * 0.055 * k, dy = (q.target[1] - PAD[1]) * 0.045 * k + press * 4;
-    var roll = -q.turn * 0.10 - press * 0.006;
-    var c = Math.cos(roll), n = Math.sin(roll);
-    return [c, n, -n, c, WRIST[0] - c * WRIST[0] + n * WRIST[1] + dx, WRIST[1] - n * WRIST[0] - c * WRIST[1] + dy];
-  }
   function mul4(A, B) {   // column-major 4x4 product A*B
     var o = new Array(16);
     for (var col = 0; col < 4; col++) for (var row = 0; row < 4; row++) {
@@ -152,7 +174,7 @@
     var video = holder.querySelector("video"), canvas = holder.querySelector(".hold-hand");
     if (!video || !canvas || !canvas.getContext) return;
     var ctx = canvas.getContext("2d");
-    var thumbImg = null, palmImg = null, fullImg = null, margin = 0.12, offc = null;
+    var thumbImg = null, palmImg = null, fullImg = null, maskImg = null, margin = 0.12, offc = null;
     function offscreen(w, h) {
       if (!offc) offc = document.createElement("canvas");
       if (offc.width !== w || offc.height !== h) { offc.width = w; offc.height = h; }
@@ -160,21 +182,14 @@
     }
 
     var phoneImg = holder.querySelector(".hold-phone");
-    function placeVideo(body) {
+    function placeVideo() {
       var s = holder.clientWidth / IMG_W, bleed = 3, vw = 604, vh = 1312;
-      body = body || [1, 0, 0, 1, 0, 0];
       video.style.width = vw + "px"; video.style.height = vh + "px";
       var d = [[SCREEN.tl[0] - bleed, SCREEN.tl[1] - bleed], [SCREEN.tr[0] + bleed, SCREEN.tr[1] - bleed],
                [SCREEN.br[0] + bleed, SCREEN.br[1] + bleed], [SCREEN.bl[0] - bleed, SCREEN.bl[1] + bleed]]
               .map(function (p) { return [p[0] * s, p[1] * s]; });
-      var H = homography([[0, 0], [vw, 0], [vw, vh], [0, vh]], d);
-      // the body move, in CSS pixels, applied after the screen fit
-      var B = [body[0], body[1], 0, 0, body[2], body[3], 0, 0, 0, 0, 1, 0, body[4] * s, body[5] * s, 0, 1];
-      video.style.transform = "matrix3d(" + mul4(B, H).join(",") + ")";
-      if (phoneImg) {
-        phoneImg.style.transformOrigin = "0 0";
-        phoneImg.style.transform = "matrix(" + [body[0], body[1], body[2], body[3], body[4] * s, body[5] * s].join(",") + ")";
-      }
+      video.style.transform = "matrix3d(" + homography([[0, 0], [vw, 0], [vw, vh], [0, vh]], d).join(",") + ")";
+      if (phoneImg) { phoneImg.style.transformOrigin = "0 0"; phoneImg.style.transform = ""; }
     }
 
     function draw() {
@@ -193,22 +208,33 @@
       ctx.imageSmoothingQuality = "high";
       ctx.setTransform(s, 0, 0, s, ox, 0);   // photo pixels -> canvas pixels
 
-      // The thumb bends from its base: the part fused to the palm stays put and the turn builds
-      // up along its length (drawn as thin slices along the thumb, each turned a little more).
+      // The thumb, slice by slice: each one turned a little more than the last at the joints.
+      // First the fleshy base that stays put at the crease, then the moving thumb over it.
       var off = offscreen(canvas.width, canvas.height), octx = off.getContext("2d");
       octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, off.width, off.height);
       octx.imageSmoothingQuality = "high";
-      chain(q.turn, q.len, q.grow, function (S, x0, w, aNext) {
+      function slice(S, x0, w, aNext, alpha, sx) {
         octx.save();
+        octx.globalAlpha = alpha;
         octx.setTransform(s, 0, 0, s, ox, 0);
         octx.transform(S[0], S[1], S[2], S[3], S[4], S[5]);      // into the thumb's own frame, bent
         // each slice ends exactly where the next one (turned a little more) begins: no gaps, no overlaps
-        var x1 = x0 + w, sn = Math.sin(aNext) * 400;
-        octx.beginPath(); octx.moveTo(x0 - 0.75, -400); octx.lineTo(x1 + sn, -400); octx.lineTo(x1 - sn, 400); octx.lineTo(x0 - 0.75, 400); octx.closePath(); octx.clip();
+        var x1 = x0 + w, sn = Math.sin(aNext) * 400 / sx;
+        octx.beginPath(); octx.moveTo(x0 - 1.5, -400); octx.lineTo(x1 + sn, -400); octx.lineTo(x1 - sn, 400); octx.lineTo(x0 - 1.5, 400); octx.closePath(); octx.clip();
         octx.rotate(-REST_ANGLE); octx.translate(-PIVOT[0], -PIVOT[1]);
         octx.drawImage(thumbImg, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
         octx.restore();
-      });
+      }
+      if (q.over > 0.01) chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) slice(S, x0, w, aNext, under * q.over, sx); });
+      chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) slice(S, x0, w, aNext, own, sx); });
+      // Keep the swinging base inside the hand's outline, so it never bulges out of the hand.
+      if (maskImg) {
+        octx.save();
+        octx.globalCompositeOperation = "destination-in";
+        octx.setTransform(s, 0, 0, s, ox, 0);
+        octx.drawImage(maskImg, 0, 0, IMG_W, IMG_H);
+        octx.restore();
+      }
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       if (q.over > 0.01) {
@@ -222,7 +248,7 @@
       ctx.restore();
       ctx.setTransform(s, 0, 0, s, ox, 0);
 
-      // The palm on top hides the thumb's base knuckle, like a real hand.
+      // The palm on top hides the thumb's root, like a real hand.
       ctx.drawImage(palmImg, 0, 0, IMG_W, IMG_H);
       // Resting, the untouched photo shows; it fades out as the thumb lifts off the edge.
       var still = 1 - q.over;
@@ -239,6 +265,12 @@
     Promise.all([load(canvas.getAttribute("data-thumb")), load(canvas.getAttribute("data-palm")),
                  load(holder.querySelector(".hold-still").getAttribute("src"))]).then(function (imgs) {
       thumbImg = imgs[0]; palmImg = imgs[1]; fullImg = imgs[2];
+      // the hand's outline on the thumb's side, from the photo; everything from the phone's edge
+      // rightward is fair game (the thumb crosses the bezel and the screen)
+      maskImg = document.createElement("canvas"); maskImg.width = IMG_W; maskImg.height = IMG_H;
+      var mctx = maskImg.getContext("2d");
+      mctx.drawImage(fullImg, 0, 0, IMG_W, IMG_H);
+      mctx.fillRect(MASK_X, 0, IMG_W - MASK_X, IMG_H);
       holder.classList.add("live");
       dirty = true;
     }).catch(function () {});
@@ -254,6 +286,6 @@
     ["loadeddata", "loadedmetadata"].forEach(function (e) { video.addEventListener(e, function () { dirty = true; }); });
     addEventListener("resize", function () { dirty = true; });
     placeVideo();
-    if (first) { window.OfficeSwapThumb = { draw: draw, pose: pose, thumbPose: thumbPose }; first = false; }
+    if (first) { window.OfficeSwapThumb.draw = draw; first = false; }
   });
 })();
