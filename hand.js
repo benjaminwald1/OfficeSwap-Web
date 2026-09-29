@@ -1,7 +1,8 @@
 /* Each phone on the page is a real photo of a hand holding an iPhone, with the app video on its
    screen. The thumb is a separate, undistorted piece of the photo, drawn as a chain of thin
-   slices along its length so it can turn at its joints like a real one: fixed under the palm,
-   easing into the turn across its fleshy base, then hinging at the two knuckles. It never
+   slices along its length so it can turn at its joints like a real one: the fleshy mound at
+   its base stays with the hand, the slender thumb swings from its root under the palm and
+   hinges at the two knuckles. It never
    stretches; for a nearer key it curls, and the last bones tip toward the glass so they look
    shorter from the front. It follows the video's clock: reaches over, presses each button,
    flicks the form up, and returns to rest on the edge. */
@@ -24,11 +25,15 @@
   // Curl (0..1) closes the reach for nearer keys: the knuckles bend a little (radians at full
   // curl) and the bones tip toward the glass, so they look shorter (never longer) from the front:
   // the metacarpal barely, the last phalanx the most, as it presses.
-  var CURL = { mcp: 0.30, ip: 0.55, meta: 0.10, proximal: 0.20, distal: 0.50 };
+  var CURL = { mcp: 0.30, ip: 0.70, meta: 0.10, proximal: 0.15, distal: 0.32 };
   // The fleshy base at the crease stays put under the swinging thumb (fading out from UNDER[0]
   // to UNDER[1]), so the hand's outline holds where the thumb leaves it; the moving thumb fades
   // in over START, so it grows out of that base with no seam.
   var UNDER = [0.22, 0.40], START = [0.08, 0.20];
+  // Only the slender thumb swings; the fleshy mound at its base (the thenar) belongs to the hand
+  // and stays put. This band, in the thumb's frame, is how far each side of the axis the moving
+  // piece reaches (outer side toward the edge of the hand, inner side toward the phone).
+  var BAND = { u: [0.2, 0.5, 0.8], outer: [-90, -80, -66], inner: [75, 60, 45], feather: 6 };
 
   // ---- Motion: t (s), x, y (screen fractions), lift (0 = on the glass), rest (1 = resting on the edge), hold ----
   var KEYS = [
@@ -167,6 +172,29 @@
     return [h[0], h[3], 0, h[6], h[1], h[4], 0, h[7], 0, 0, 1, 0, h[2], h[5], 0, 1];
   }
 
+  function lerp(u, xs, ys) {
+    if (u <= xs[0]) return ys[0];
+    for (var i = 1; i < xs.length; i++) if (u <= xs[i]) return ys[i - 1] + (ys[i] - ys[i - 1]) * (u - xs[i - 1]) / (xs[i] - xs[i - 1]);
+    return ys[ys.length - 1];
+  }
+  // The thumb piece with the thenar cut away (soft-edged), for the moving thumb.
+  function slenderThumb(img) {
+    var c = document.createElement("canvas"), w = THUMB_BOX[2] - THUMB_BOX[0], h = THUMB_BOX[3] - THUMB_BOX[1];
+    c.width = w; c.height = h;
+    var g = c.getContext("2d");
+    g.translate(-THUMB_BOX[0], -THUMB_BOX[1]); g.translate(PIVOT[0], PIVOT[1]); g.rotate(REST_ANGLE);
+    g.filter = "blur(" + BAND.feather + "px)";
+    g.fillStyle = "#fff"; g.beginPath();
+    var u, pts = [];
+    for (u = -0.4; u <= 1.3; u += 0.05) pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer)]);
+    for (u = 1.3; u >= -0.4; u -= 0.05) pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.inner)]);
+    pts.forEach(function (p, i) { if (i) g.lineTo(p[0], p[1]); else g.moveTo(p[0], p[1]); });
+    g.closePath(); g.fill();
+    g.filter = "none"; g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = "source-in";
+    g.drawImage(img, 0, 0, w, h);
+    return c;
+  }
   function load(src) { return new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = src; }); }
 
   var first = true;
@@ -174,7 +202,7 @@
     var video = holder.querySelector("video"), canvas = holder.querySelector(".hold-hand");
     if (!video || !canvas || !canvas.getContext) return;
     var ctx = canvas.getContext("2d");
-    var thumbImg = null, palmImg = null, fullImg = null, maskImg = null, margin = 0.12, offc = null;
+    var thumbImg = null, thinImg = null, palmImg = null, fullImg = null, maskImg = null, margin = 0.12, offc = null;
     function offscreen(w, h) {
       if (!offc) offc = document.createElement("canvas");
       if (offc.width !== w || offc.height !== h) { offc.width = w; offc.height = h; }
@@ -213,7 +241,7 @@
       var off = offscreen(canvas.width, canvas.height), octx = off.getContext("2d");
       octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, off.width, off.height);
       octx.imageSmoothingQuality = "high";
-      function slice(S, x0, w, aNext, alpha, sx) {
+      function slice(S, x0, w, aNext, alpha, sx, img) {
         octx.save();
         octx.globalAlpha = alpha;
         octx.setTransform(s, 0, 0, s, ox, 0);
@@ -222,11 +250,11 @@
         var x1 = x0 + w, sn = Math.sin(aNext) * 400 / sx;
         octx.beginPath(); octx.moveTo(x0 - 1.5, -400); octx.lineTo(x1 + sn, -400); octx.lineTo(x1 - sn, 400); octx.lineTo(x0 - 1.5, 400); octx.closePath(); octx.clip();
         octx.rotate(-REST_ANGLE); octx.translate(-PIVOT[0], -PIVOT[1]);
-        octx.drawImage(thumbImg, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
+        octx.drawImage(img, THUMB_BOX[0], THUMB_BOX[1], THUMB_BOX[2] - THUMB_BOX[0], THUMB_BOX[3] - THUMB_BOX[1]);
         octx.restore();
       }
-      if (q.over > 0.01) chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) slice(S, x0, w, aNext, under * q.over, sx); });
-      chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) slice(S, x0, w, aNext, own, sx); });
+      if (q.over > 0.01) chain(0, 0, 0, function (S, x0, w, aNext, under, sx) { if (under > 0.001) slice(S, x0, w, aNext, under * q.over, sx, thumbImg); });
+      chain(q.turn, q.curl, q.press, function (S, x0, w, aNext, under, sx, own) { if (own > 0.001) slice(S, x0, w, aNext, own, sx, thinImg); });
       // Keep the swinging base inside the hand's outline, so it never bulges out of the hand.
       if (maskImg) {
         octx.save();
@@ -265,6 +293,7 @@
     Promise.all([load(canvas.getAttribute("data-thumb")), load(canvas.getAttribute("data-palm")),
                  load(holder.querySelector(".hold-still").getAttribute("src"))]).then(function (imgs) {
       thumbImg = imgs[0]; palmImg = imgs[1]; fullImg = imgs[2];
+      thinImg = slenderThumb(thumbImg);
       // the hand's outline on the thumb's side, from the photo; everything from the phone's edge
       // rightward is fair game (the thumb crosses the bezel and the screen)
       maskImg = document.createElement("canvas"); maskImg.width = IMG_W; maskImg.height = IMG_H;
