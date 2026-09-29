@@ -37,6 +37,7 @@
   var ROLL = { frac: 0.25, from: 0.5, full: 0.8,
                // the nail-side edge of the solid skin, px from the thumb's axis, along its length
                u: [0.45, 0.55, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1], edge: [150, 138, 130, 125, 107, 80, 58, 41, 34, 25] };
+  var KNUCKLE = 32;                           // how far the knuckle bulges out at the swing joint, px per radian of bend
   var TURN_RANGE = [-0.6, 2.2];               // how far the thumb can swing (radians, toward the screen is positive)
   var TURN_ROOT = 0;                           // share of the swing taken down at the base joint (none: the rest is at MCP)
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
@@ -175,6 +176,12 @@
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.8]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.inner) * 0.8]);
     });
+    // the outer edge right at the swing joint, so the outline follows the bone's corner there (a sharp
+    // knuckle) instead of being rounded off; KNUCKLE pushes it out a little as the joint bends
+    [-0.03, -0.012, 0, 0.012, 0.03].forEach(function (d) {
+      var u = MCP + d;
+      pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.97, 1 - Math.abs(d) / 0.03]);
+    });
     return pts;
   })();
   // [x, y, share of the grip's shift it follows]: the palm, the heel under the phone and the wrist stay
@@ -192,7 +199,8 @@
     chain(q.turn, q.bend, function (S) { Ss.push(S); }, q.shift, q.shorten);
     HANDLES.forEach(function (h) {
       var i = clamp(Math.floor((h[0] - BASE) / SW), 0, N - 1);
-      var a = apply(REST_S[i], h), b = apply(Ss[i], h);
+      var knuckle = h[2] ? KNUCKLE * h[2] * Math.abs(q.turn * (1 - TURN_ROOT) + q.bend * BEND.mcp) : 0;
+      var a = apply(REST_S[i], h), b = apply(Ss[i], [h[0], h[1] - knuckle]);
       out.push([a[0], a[1], b[0], b[1]]);
     });
     PINS.forEach(function (p) { out.push([p[0], p[1], p[0] + q.shift[0] * p[2], p[1] + q.shift[1] * p[2]]); });
