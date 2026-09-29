@@ -7,7 +7,7 @@
   // ---- Photo geometry, in pixels of the 1245x1762 layers ----
   var IMG_W = 1245, IMG_H = 1762;
   var SCREEN = { tl: [406.7, 57.0], tr: [1066.1, 68.3], br: [1049.7, 1503.0], bl: [390.0, 1495.0] };
-  var THUMB_BOX = [133, 580, 360, 1133];     // where the thumb piece sits at rest
+  var THUMB_BOX = [117, 580, 360, 1157];     // where the thumb piece sits at rest
   var PIVOT = [240, 1125];               // its base knuckle, hidden under the palm
   var PAD = [331.5, 621];                    // the pad that touches the glass
 
@@ -64,8 +64,12 @@
   (function () {
     var full = REST_LEN * 1.12, w = (full - BASE) / N;
     for (var i = 0; i <= N; i++) {
-      var mid = (BASE + w * i + w / 2) / REST_LEN, f = clamp((mid - 0.08) / 0.42, 0, 1);
-      FS.push(i < N ? f * f * (3 - 2 * f) : FS[N - 1]);
+      // Two joints, like a real thumb: most of the turn at the base knuckle just above the palm,
+      // the rest at the joint near the tip; the segments between stay straight.
+      var mid = (BASE + w * i + w / 2) / REST_LEN;
+      var j1 = clamp((mid - 0.20) / 0.16, 0, 1), j2 = clamp((mid - 0.60) / 0.14, 0, 1);
+      var f = 0.62 * j1 * j1 * (3 - 2 * j1) + 0.38 * j2 * j2 * (3 - 2 * j2);
+      FS.push(i < N ? f : FS[N - 1]);
     }
   })();
   function chain(turn, len, grow, fn) {
