@@ -24,7 +24,7 @@
   // The thumb moves only above where it crosses the phone's edge: below that (the ball of the thumb and the
   // stretch pressed against the phone) it stays exactly as in the photo. It swings at that point (MCP, a
   // short hinge), and for a nearer key bends there and at the top knuckle (IP), with rigid bone between.
-  var ROOT = [-0.04, 0.06], MCP = 0.5, IP = 0.7, HINGE = { mcp: 0.025, ip: 0.05 };
+  var ROOT = [-0.04, 0.06], MCP = 0.5, IP = 0.7, HINGE = { mcp: 0.012, ip: 0.05 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the top
   // knuckle taking a little more of it.
   var BEND = { mcp: 0.4, ip: 0.6, max: 2.0 };
@@ -37,7 +37,7 @@
   var ROLL = { frac: 0.25, from: 0.5, full: 0.8,
                // the nail-side edge of the solid skin, px from the thumb's axis, along its length
                u: [0.45, 0.55, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1], edge: [150, 138, 130, 125, 107, 80, 58, 41, 34, 25] };
-  var KNUCKLE = 32;                           // how far the knuckle bulges out at the swing joint, px per radian of bend
+  var KNUCKLE = 10;                           // how far the knuckle bulges out at the swing joint, px per radian of bend
   var TURN_RANGE = [-0.6, 2.2];               // how far the thumb can swing (radians, toward the screen is positive)
   var TURN_ROOT = 0;                           // share of the swing taken down at the base joint (none: the rest is at MCP)
   // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
@@ -178,9 +178,9 @@
     });
     // the outer edge right at the swing joint, so the outline follows the bone's corner there (a sharp
     // knuckle) instead of being rounded off; KNUCKLE pushes it out a little as the joint bends
-    [-0.03, -0.012, 0, 0.012, 0.03].forEach(function (d) {
+    [-0.04, -0.02, 0, 0.02, 0.04].forEach(function (d) {   // the outer edge through the joint: one point, the knuckle
       var u = MCP + d;
-      pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.97, 1 - Math.abs(d) / 0.03]);
+      pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.97, d === 0 ? 1 : 0]);
     });
     return pts;
   })();
@@ -191,7 +191,7 @@
               [150, 1540, 0], [110, 1530, 0]];
   // The mesh covers the moving piece; everything right of it (the heel under the phone, the
   // fingers, the phone's outline) is the still palm piece.
-  var WARP = { x0: 0, y0: HAND_BOX[1], y1: IMG_H, step: 24, xmax: HAND_BOX[2] };
+  var WARP = { x0: 0, y0: HAND_BOX[1], y1: IMG_H, step: 12, xmax: HAND_BOX[2] };
   var REST_S = [];
   chain(0, 0, function (S) { REST_S.push(S); });
   function controls(q) {   // [[from x, from y, to x, to y], ...] in photo pixels
