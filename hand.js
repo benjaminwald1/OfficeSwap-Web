@@ -16,16 +16,17 @@
                    [785, 1542], [810, 1540], [835, 1532], [985, 1532], [1010, 1527], [1035, 1517], [1060, 1497], [1085, 1447], [1100, 1360], [1045, 1340], [1045, 1100]];
   var HAND_BOX = [0, 560, 372, 1762];        // the moving piece: the thumb and the ball of the hand, down to the wrist (a little past the
                                              // phone's edge, where the thumb's rounded pad is drawn in: the photo hides it behind the phone)
-  var PIVOT = [320, 1215];                   // where the thumb swings from: its base knuckle, on the web side, where it leaves the palm (the palm keeps holding the phone)
+  var PIVOT = [260, 1480];                   // where the thumb swings from: deep in the ball of the thumb, so the ball rolls in over the
+                                             // phone's corner as the thumb reaches (the wrist and the palm's outer edge stay put)
   var PAD = [300, 600];                      // with the pivot, sets the thumb's axis (x runs along it)
   var TOUCH_PT = [307, 615];                 // the middle of the tip at rest: what meets the glass
 
   // ---- The joints, as fractions of the thumb's length from its base (the tip is 1) ----
-  // The thumb turns at its base (across ROOT), where it leaves the palm; the palm itself keeps its
-  // exact shape from the photo. Its
+  // The thumb turns at its base (across ROOT, spread through the ball of the thumb, which leans in with
+  // it) while the wrist and the palm's outer edge keep their shape from the photo. Its
   // two knuckles bend over short hinge zones (HINGE each side), with straight bone between them:
   // the base knuckle (MCP) just above the pivot, the top one (IP) at the crease.
-  var ROOT = [-0.12, 0.12], MCP = 0.08, IP = 0.5, HINGE = { mcp: 0.09, ip: 0.06 };
+  var ROOT = [-0.05, 0.3], MCP = 0.375, IP = 0.66, HINGE = { mcp: 0.05, ip: 0.04 };
   // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
   // last knuckle taking most of it, the way a thumb curls its tip onto a key.
   var BEND = { mcp: 0.35, ip: 0.65, max: 1.0 };
@@ -34,14 +35,14 @@
   // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
   // segment looks per radian of bend.
   var FLAT = 1, TIP = { prox: 0, dist: 0 };
-  // A real thumb keeps its length and barely bends: for a key close to its base the rest of the hand
-  // makes room instead, the whole hand sliding down along the phone as one piece (a grip shift, up
-  // to SLIDE px, about a centimetre), so the thumb reaches it with no more than about half its bend. PRESS lets the
-  // contact sit a little behind the very tip, on the pad.
-  var SLIDE = 110, PRESS = { max: 40, share: 0.5 };
+  // A real thumb keeps its length: the reach comes from the ball of the thumb rolling in, the knuckles
+  // bending a little, and for the nearest keys the contact sitting a little behind the very tip, on
+  // the pad (PRESS). The grip could also slide the whole hand down the phone (SLIDE px) but doesn't:
+  // the wrist stays put.
+  var SLIDE = 0, PRESS = { max: 150, share: 0.7 };
   // How far each side of the axis the flesh reaches (outer side toward the edge of the hand, inner
   // side toward the phone), by length fraction.
-  var BAND = { u: [0.05, 0.3, 0.5, 0.75, 0.95], outer: [-125, -120, -115, -80, -45], inner: [82, 70, 64, 58, 50] };
+  var BAND = { u: [0.05, 0.2, 0.375, 0.55, 0.66, 0.8, 0.95], outer: [-110, -117, -156, -138, -129, -82, -35], inner: [83, 77, 61, 48, 57, 72, 58] };
 
   // ---- Motion: t (s), x, y (screen fractions), lift (0 = on the glass), rest (1 = resting on the edge), hold ----
   var KEYS = [
@@ -165,19 +166,18 @@
     var pts = [];
     // none right at the base: the web between the swinging thumb and the still palm is left to stretch
     // freely, so it never folds over itself
-    for (var u = 0.19; u <= 1.02; u += 0.05) {
+    for (var u = 0.12; u <= 1.02; u += 0.05) {
       pts.push([u * REST_LEN, 0]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.outer) * 0.8]);
       pts.push([u * REST_LEN, lerp(u, BAND.u, BAND.inner) * 0.8]);
     }
     return pts;
   })();
-  // [x, y, share of the grip's shift it follows]: the whole palm (ball of the hand, its edges, the heel
-  // under the phone) and the wrist stay exactly as in the photo while the thumb moves
+  // [x, y, share of the grip's shift it follows]: the wrist, the heel under the phone and the palm's
+  // outer edge stay exactly as in the photo while the thumb and the ball of the thumb move
   var PINS = [[40, 1700, 0], [150, 1700, 0], [130, 1740, 0], [230, 1762, 0], [300, 1760, 0], [340, 1700, 0], [340, 1620, 0],
               [345, 1560, 0], [420, 1570, 0], [560, 1600, 0], [720, 1640, 0], [110, 1590, 0], [200, 1630, 0], [300, 1630, 0],
-              [120, 1250, 0], [130, 1320, 0], [150, 1400, 0], [155, 1470, 0], [230, 1330, 0], [310, 1310, 0], [345, 1300, 0],
-              [345, 1380, 0], [250, 1440, 0], [345, 1460, 0]];
+              [125, 1300, 0], [140, 1400, 0], [150, 1470, 0]];
   // The mesh covers the moving piece; everything right of it (the heel under the phone, the
   // fingers, the phone's outline) is the still palm piece.
   var WARP = { x0: 0, y0: HAND_BOX[1], y1: IMG_H, step: 24, xmax: HAND_BOX[2] };
