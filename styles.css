@@ -575,7 +575,6 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
 .nf-links a.ghost-btn { color: var(--ink); }
 
 /* Second phone, at the bottom of the page */
-.download .hero-video.reel-bottom { margin-top: 56px; padding-bottom: 0; }
 
 /* The demo phone never forces the page wider than a small (320px) screen */
 @media (max-width: 370px) { .iphone.lg { --w: calc(100vw - 40px); } }
