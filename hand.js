@@ -20,10 +20,15 @@
   // knuckles bend over wide, overlapping zones (HINGE each side), so a bent thumb is one smooth arc
   // the way flesh over the joints looks, never a sharp V: the first knuckle (MCP) where the thumb
   // leaves the ball of the hand, the second (IP) at the crease.
-  var ROOT = [-0.06, 0.06], MCP = 0.43, IP = 0.7, HINGE = 0.16;
-  // For a nearer key the thumb bends (flexes) at both knuckles, never gets shorter: up to BEND.max
-  // radians in all, split between them.
-  var BEND = { mcp: 0.45, ip: 0.55, max: 1.9 };
+  var ROOT = [-0.06, 0.06], MCP = 0.44, IP = 0.7, HINGE = { mcp: 0.06, ip: 0.045 };
+  // For a nearer key the thumb bends (flexes) at both knuckles: up to BEND.max radians in all, the
+  // last knuckle taking most of it, the way a thumb curls its tip onto a key.
+  var BEND = { mcp: 0.3, ip: 0.7, max: 2.2 };
+  // Much of a real knuckle's bend goes down toward the glass, not sideways: the fingertip tips
+  // onto the screen, so seen from the front just the last segment (and a little of the one before)
+  // looks shorter. FLAT is the share of the bend that shows sideways; TIP how much shorter each
+  // segment looks per radian of bend.
+  var FLAT = 0.45, TIP = { prox: 0.06, dist: 0.26 };
   // A real hand also shifts its grip for a near key: the ball of the hand rolls back, away from
   // the key (GRIP parts of the missing reach to every one the knuckles take, up to DROP px), so
   // the thumb bends less.
@@ -95,11 +100,12 @@
   // ---- The joint chain: thin rigid slices along the thumb, each turned a little more than the last ----
   // Per slice (at its middle): how much of the turn at the base has built up, and how much of the bend.
   var N = 120, BASE = -120, SW = (REST_LEN * 1.06 - BASE) / N;
-  var PF = [], PC = [];
+  var PF = [], PC = [], PP = [], PD = [];
   for (var si = 0; si <= N; si++) {
     var su = (BASE + SW * (Math.min(si, N - 1) + 0.5)) / REST_LEN;
     PF.push(smooth(su, ROOT[0], ROOT[1]));
-    PC.push(BEND.mcp * smooth(su, MCP - HINGE, MCP + HINGE) + BEND.ip * smooth(su, IP - HINGE, IP + HINGE));
+    PP.push(smooth(su, MCP - HINGE.mcp, MCP + HINGE.mcp)); PD.push(smooth(su, IP - HINGE.ip, IP + HINGE.ip));
+    PC.push(BEND.mcp * smooth(su, MCP - HINGE.mcp, MCP + HINGE.mcp) + BEND.ip * smooth(su, IP - HINGE.ip, IP + HINGE.ip));
   }
   // fn(S, x0): S maps the thumb's own frame (x along it, from the pivot) to photo pixels for
   // the slice starting at x0.
@@ -108,9 +114,10 @@
     var M = mul(mul([1, 0, 0, 1, PIVOT[0] + shift[0], PIVOT[1] + shift[1]], rot(REST_ANGLE)), [1, 0, 0, 1, BASE, 0]);
     for (var i = 0; i < N; i++) {
       var x0 = BASE + SW * i;
-      if (i > 0) M = mul(M, rot(turn * (PF[i] - PF[i - 1]) + bend * (PC[i] - PC[i - 1])));
-      fn(mul(M, [1, 0, 0, 1, -x0, 0]), x0);
-      M = mul(M, [1, 0, 0, 1, SW, 0]);
+      if (i > 0) M = mul(M, rot(turn * (PF[i] - PF[i - 1]) + FLAT * bend * (PC[i] - PC[i - 1])));
+      var sx = 1 - bend * (TIP.prox * PP[i] + (TIP.dist - TIP.prox) * PD[i]);
+      fn(mul(mul(M, [sx, 0, 0, 1, 0, 0]), [1, 0, 0, 1, -x0, 0]), x0);
+      M = mul(M, [1, 0, 0, 1, SW * sx, 0]);
     }
   }
   function touchAt(turn, bend) {
