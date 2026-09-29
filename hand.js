@@ -62,9 +62,27 @@
     var turn = wrapAngle(Math.atan2(v[1], v[0]) - REST_ANGLE);
     var len = clamp(Math.hypot(v[0], v[1]) / REST_LEN, 0.74, 1.08);
     var k = 1 - p.rest;
-    return { turn: turn * k, len: 1 + (len - 1) * k, grow: 1 + p.lift * 0.03 * k, over: k, lift: p.lift };
+    return { turn: turn * k, len: 1 + (len - 1) * k, grow: 1 + p.lift * 0.03 * k, over: k, lift: p.lift, target: tg };
   }
 
+  // The whole hand (and the phone in it) shifts toward what the thumb reaches for, rolls a little
+  // from the wrist, and dips on each press: [a, b, c, d, e, f] in photo pixels.
+  var WRIST = [300, IMG_H];
+  function bodyPose(q) {
+    var k = q.over, press = (1 - q.lift) * k;
+    var dx = (q.target[0] - PAD[0]) * 0.055 * k, dy = (q.target[1] - PAD[1]) * 0.045 * k + press * 4;
+    var roll = -q.turn * 0.10 - press * 0.006;
+    var c = Math.cos(roll), n = Math.sin(roll);
+    return [c, n, -n, c, WRIST[0] - c * WRIST[0] + n * WRIST[1] + dx, WRIST[1] - n * WRIST[0] - c * WRIST[1] + dy];
+  }
+  function mul4(A, B) {   // column-major 4x4 product A*B
+    var o = new Array(16);
+    for (var col = 0; col < 4; col++) for (var row = 0; row < 4; row++) {
+      var v = 0; for (var k = 0; k < 4; k++) v += A[k * 4 + row] * B[col * 4 + k];
+      o[col * 4 + row] = v;
+    }
+    return o;
+  }
   function homography(src, dst) {
     var A = [], b = [];
     for (var i = 0; i < 4; i++) {
@@ -94,18 +112,26 @@
     var ctx = canvas.getContext("2d");
     var thumbImg = null, palmImg = null, fullImg = null, margin = 0.12;
 
-    function placeVideo() {
+    var phoneImg = holder.querySelector(".hold-phone");
+    function placeVideo(body) {
       var s = holder.clientWidth / IMG_W, bleed = 3, vw = 604, vh = 1312;
+      body = body || [1, 0, 0, 1, 0, 0];
       video.style.width = vw + "px"; video.style.height = vh + "px";
       var d = [[SCREEN.tl[0] - bleed, SCREEN.tl[1] - bleed], [SCREEN.tr[0] + bleed, SCREEN.tr[1] - bleed],
                [SCREEN.br[0] + bleed, SCREEN.br[1] + bleed], [SCREEN.bl[0] - bleed, SCREEN.bl[1] + bleed]]
               .map(function (p) { return [p[0] * s, p[1] * s]; });
-      video.style.transform = "matrix3d(" + homography([[0, 0], [vw, 0], [vw, vh], [0, vh]], d).join(",") + ")";
+      var H = homography([[0, 0], [vw, 0], [vw, vh], [0, vh]], d);
+      // the body move, in CSS pixels, applied after the screen fit
+      var B = [body[0], body[1], 0, 0, body[2], body[3], 0, 0, 0, 0, 1, 0, body[4] * s, body[5] * s, 0, 1];
+      video.style.transform = "matrix3d(" + mul4(B, H).join(",") + ")";
+      if (phoneImg) {
+        phoneImg.style.transformOrigin = "0 0";
+        phoneImg.style.transform = "matrix(" + [body[0], body[1], body[2], body[3], body[4] * s, body[5] * s].join(",") + ")";
+      }
     }
 
     function draw() {
-      placeVideo();
-      if (!thumbImg || !palmImg) return;
+      if (!thumbImg || !palmImg) { placeVideo(); return; }
       var cssW = holder.clientWidth, cssH = holder.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
       var W = Math.round(cssW * (1 + margin * 2)), H = Math.round(cssH * (1 + margin));
       if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
@@ -113,11 +139,13 @@
         canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       }
       var s = cssW / IMG_W * dpr, ox = cssW * margin * dpr;
-      var p = pose(video.currentTime), q = thumbPose(p);
+      var p = pose(video.currentTime), q = thumbPose(p), body = bodyPose(q);
+      placeVideo(body);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.imageSmoothingQuality = "high";
       ctx.setTransform(s, 0, 0, s, ox, 0);   // photo pixels -> canvas pixels
+      ctx.transform(body[0], body[1], body[2], body[3], body[4], body[5]);   // the hand's own move
 
       // The thumb: turn about its knuckle; shorten along its own length when bending toward the glass.
       ctx.save();
