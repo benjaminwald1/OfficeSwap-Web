@@ -78,9 +78,9 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 /* Motion, after yourpersona.com. Headlines: word by word, each drops in blurred from above, sharpens with a
    small overshoot and settles. Other content rises (fades up), cards pop (rise with a slight scale). */
 .bt-w { display: inline-block; opacity: 0; will-change: transform, filter, opacity; }
-.wt.go .bt-w { animation: bt-in 1s cubic-bezier(.22,.9,.28,1) var(--d, 0ms) both; }
+.wt.go .bt-w { animation: bt-in var(--bt-dur, 1s) cubic-bezier(.22,.9,.28,1) var(--d, 0ms) both; }
 @keyframes bt-in {
-  0% { opacity: .01; filter: blur(12px); transform: translateY(-16px); }
+  0% { opacity: 0; filter: blur(12px); transform: translateY(-16px); }
   50% { opacity: .6; filter: blur(4px); transform: translateY(3px); }
   100% { opacity: 1; filter: blur(0); transform: none; }
 }

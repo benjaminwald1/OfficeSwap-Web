@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=39">
+<link rel="stylesheet" href="styles.css?v=40">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -310,12 +310,15 @@
       } else { play(); }
     }
   });
-  // Text and reveal motion, after yourpersona.com: headlines come in word by word (each word drops in
-  // blurred from a little above, sharpens with a small overshoot and settles); everything else rises
-  // or pops in, staggered when several arrive together.
-  var WORD_STEP = 28;
-  function splitWords(el) {
+  // Text and reveal motion, copied from yourpersona.com/band (their BlurText): each word drops in from
+  // 16px above, blurred 12px and invisible, passes 3px below at 4px blur and 60% opacity halfway, then
+  // settles sharp; eased cubic-bezier(.22,.9,.28,1) on each half. Their settings, per kind of text:
+  //   hero headline: 28ms between words, 1s per word, on load
+  //   hero subtitle: 14ms between words, 0.9s per word, starting 220ms in, on load
+  //   section headings: 90ms between words, 0.68s per word, when a tenth of the heading is in view
+  function splitWords(el, step, start, dur) {
     var n = 0;
+    el.style.setProperty("--bt-dur", dur + "ms");
     (function walk(node) {
       [].slice.call(node.childNodes).forEach(function (c) {
         if (c.nodeType === 3) {
@@ -324,46 +327,53 @@
             if (!p) return;
             if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
             var w = document.createElement("span"); w.className = "bt-w"; w.textContent = p;
-            w.style.setProperty("--d", (n++ * WORD_STEP) + "ms"); frag.appendChild(w);
+            w.style.setProperty("--d", (start + n++ * step) + "ms"); frag.appendChild(w);
           });
           c.parentNode.replaceChild(frag, c);
         } else if (c.nodeType === 1 && c.tagName !== "BR") walk(c);
       });
     })(el);
-    return n;
+    return start + (n - 1) * step + dur;   // when the last word lands
   }
   var reduceMotionText = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var heads = [].slice.call(document.querySelectorAll("h1.display, .h2"));
-  if (!reduceMotionText) heads.forEach(function (h) { h.classList.remove("reveal"); h.classList.add("wt"); splitWords(h); });
-  // the hero: headline on load, then the line under it and the buttons
-  var heroH = document.querySelector(".hero h1.display");
-  if (heroH && !reduceMotionText) {
-    var words = heroH.querySelectorAll(".bt-w").length, after = words * WORD_STEP + 450;
-    [".hero .lede", ".hero .cta-row", ".hero .phones"].forEach(function (sel, i) {
-      var e = document.querySelector(sel);
-      if (e) { e.classList.add("rise"); e.style.setProperty("--rd", (after + i * 140) + "ms"); }
-    });
-    setTimeout(function () {
-      heroH.classList.add("go");
-      [".hero .lede", ".hero .cta-row", ".hero .phones"].forEach(function (sel) { var e = document.querySelector(sel); if (e) e.classList.add("in"); });
-    }, 60);
+  var heroH = document.querySelector(".hero h1.display"), heroP = document.querySelector(".hero .lede");
+  if (!reduceMotionText) {
+    [].forEach.call(document.querySelectorAll(".h2"), function (h) { h.classList.remove("reveal"); h.classList.add("wt"); splitWords(h, 90, 0, 680); });
+    if (heroH) {
+      heroH.classList.add("wt");
+      var end = splitWords(heroH, 28, 0, 1000);
+      if (heroP) { heroP.classList.add("wt"); end = Math.max(end, splitWords(heroP, 14, 220, 900)); }
+      // the buttons and phones follow once the words have mostly landed
+      [".hero .cta-row", ".hero .phones"].forEach(function (sel, i) {
+        var e = document.querySelector(sel);
+        if (e) { e.classList.add("rise"); e.style.setProperty("--rd", (end - 450 + i * 140) + "ms"); }
+      });
+      setTimeout(function () {
+        heroH.classList.add("go"); if (heroP) heroP.classList.add("go");
+        [".hero .cta-row", ".hero .phones"].forEach(function (sel) { var e = document.querySelector(sel); if (e) e.classList.add("in"); });
+      }, 60);
+    }
   }
   // everything else, when it scrolls into view
-  var els = [].slice.call(document.querySelectorAll(".reveal, .wt")).filter(function (e) { return e !== heroH; });
+  var els = [].slice.call(document.querySelectorAll(".reveal")).filter(function (e) { return e !== heroH; });
   if ("IntersectionObserver" in window && !reduceMotionText) {
+    // headings: as soon as a tenth of one is on screen, like theirs
+    var hio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { hio.unobserve(e.target); e.target.classList.add("go"); } });
+    }, { threshold: 0.1 });
+    [].forEach.call(document.querySelectorAll(".h2.wt"), function (h) { hio.observe(h); });
     var io = new IntersectionObserver(function (entries) {
       var k = 0;
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
         io.unobserve(e.target);
-        if (e.target.classList.contains("wt")) { e.target.classList.add("go"); return; }
         e.target.style.setProperty("--rd", (k++ * 70) + "ms");   // stagger what arrives together
         e.target.classList.add("in");
         setTimeout(function (t) { t.classList.add("settled"); }, 1200 + k * 70, e.target);
       });
     }, { rootMargin: "0px 0px -10% 0px" });
     els.forEach(function (el) { io.observe(el); });
-  } else { els.forEach(function (el) { el.classList.add("in", "go"); }); }
+  } else { els.forEach(function (el) { el.classList.add("in"); }); [].forEach.call(document.querySelectorAll(".wt"), function (h) { h.classList.add("go"); }); }
 
   // Interactive phone. Screens: 0-4 are the app's tabs, 5-8 are the request and offer flows.
   // Each screen lists its tappable areas as [left, top, width, height] fractions of the screen.
