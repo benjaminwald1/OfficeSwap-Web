@@ -30,27 +30,52 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  "url": "https://officeswap.co/benjamin-wald/",
-  "name": "Benjamin Wald | Founder & CEO of OfficeSwap",
-  "mainEntity": {
-    "@type": "Person",
-    "@id": "https://officeswap.co/benjamin-wald/#person",
-    "name": "Benjamin Wald",
-    "givenName": "Benjamin",
-    "familyName": "Wald",
-    "url": "https://officeswap.co/benjamin-wald/",
-    "image": "https://officeswap.co/images/benjamin-wald.webp",
-    "jobTitle": "Founder & CEO",
-    "description": "Benjamin Wald is the founder and CEO of OfficeSwap, a marketplace for flexible office space, and co-founder of MIR Rehab, a technology-enabled neurorehabilitation platform. His work focuses on healthcare technology, artificial intelligence, product development, and technology-driven marketplaces.",
-    "worksFor": { "@type": "Organization", "name": "OfficeSwap", "url": "https://officeswap.co/" },
-    "affiliation": { "@type": "Organization", "name": "MIR Rehab", "url": "https://mirrehab.com/" },
-    "knowsAbout": ["Healthcare technology", "Artificial intelligence", "Product development", "Technology-driven marketplaces"],
-    "sameAs": [
-      "https://www.linkedin.com/in/benjaminwaldprofile",
-      "https://mirrehab.com/team/benjamin-wald"
-    ]
-  }
+  "@graph": [
+    {
+      "@type": "ProfilePage",
+      "@id": "https://officeswap.co/benjamin-wald/",
+      "url": "https://officeswap.co/benjamin-wald/",
+      "name": "Benjamin Wald | Founder & CEO of OfficeSwap",
+      "mainEntity": {
+        "@id": "https://officeswap.co/benjamin-wald/#person"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://officeswap.co/benjamin-wald/#person",
+      "name": "Benjamin Wald",
+      "givenName": "Benjamin",
+      "familyName": "Wald",
+      "url": "https://officeswap.co/benjamin-wald/",
+      "image": "https://officeswap.co/images/benjamin-wald.webp",
+      "jobTitle": "Founder & CEO, OfficeSwap",
+      "worksFor": {
+        "@id": "https://officeswap.co/#organization"
+      },
+      "description": "Benjamin Wald is a Los Angeles–based technology founder from Beverly Hills and the founder of OfficeSwap and MirRehab. OfficeSwap is a workspace marketplace that hands unused offices to the people who need them; MirRehab is a healthcare technology company building a neurorehabilitation platform.",
+      "sameAs": [
+        "https://www.linkedin.com/in/benjaminwaldprofile"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://officeswap.co/#organization",
+      "name": "OfficeSwap",
+      "url": "https://officeswap.co/",
+      "founder": {
+        "@id": "https://officeswap.co/benjamin-wald/#person"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://mirrehab.com/#organization",
+      "name": "MirRehab",
+      "url": "https://mirrehab.com/",
+      "founder": {
+        "@id": "https://officeswap.co/benjamin-wald/#person"
+      }
+    }
+  ]
 }
 </script>
 <style>.profile-photo { display: block; width: 132px; height: 132px; border-radius: 50%; object-fit: cover; margin: 8px 0 22px; box-shadow: 0 10px 30px -12px rgba(0,0,0,.35); }
