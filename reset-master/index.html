@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reset master code · OfficeSwap</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../styles.css?v=41">
+<style>
+  .rm { max-width: 440px; margin: 72px auto 96px; padding: 0 20px; }
+  .rm-card { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 28px; box-shadow: 0 24px 60px -34px rgba(20,30,60,.35); }
+  .rm-logo { width: 44px; height: 44px; border-radius: 11px; display: block; margin-bottom: 18px; }
+  .rm h1 { font-size: 26px; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .rm p { color: var(--muted); margin: 0 0 18px; line-height: 1.5; }
+  .rm label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
+  .rm input { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fbfbfd; }
+  .rm input:focus { outline: 2px solid #1a6ff2; outline-offset: 1px; background: #fff; }
+  .rm button { margin-top: 20px; width: 100%; border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: 16px; padding: 13px; border-radius: 999px; background: var(--ink); color: #fff; }
+  .rm button:disabled { opacity: .45; cursor: default; }
+  .rm .err { color: #c9302c; font-size: 14px; margin-top: 12px; min-height: 1em; }
+  .rm .ok { color: #248a3d; font-weight: 600; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="rm">
+  <div class="rm-card">
+    <img class="rm-logo" src="../logo.png" alt="" width="44" height="44">
+    <section id="loading"><h1>One moment…</h1><p>Checking your link.</p></section>
+
+    <section id="bad" hidden>
+      <h1>This link doesn't work</h1>
+      <p id="bad-why">It may have expired or already been used.</p>
+      <p>Request a new one in the app: Settings → Delete organization → <b>I Forgot</b>.</p>
+    </section>
+
+    <form id="form" hidden novalidate>
+      <h1>Set a new master code</h1>
+      <p>For <b id="org-name">your organization</b>. You'll use it to remove offices or people, reset the data, or delete the organization.</p>
+      <label for="code">New master code</label>
+      <input id="code" type="password" autocomplete="new-password" minlength="6" required>
+      <label for="confirm">Confirm new master code</label>
+      <input id="confirm" type="password" autocomplete="new-password" minlength="6" required>
+      <div class="err" id="form-err" role="alert"></div>
+      <button id="save" type="submit" disabled>Save master code</button>
+    </form>
+
+    <section id="done" hidden>
+      <h1 class="ok">Master code saved</h1>
+      <p>Go back to OfficeSwap and use your new master code. Every phone in your organization picks it up automatically.</p>
+    </section>
+  </div>
+</main>
+<script>
+(function () {
+  // The link from the "I Forgot" email signs the owner in (proving they own
+  // the address on file), then saves a new master code. The database only
+  // accepts it from someone signed in to that organization's owner email.
+  // The master code is hashed here the same way the app does (PBKDF2-SHA256,
+  // 120,000 rounds, random 16-byte salt); the code itself never leaves this page.
+  var API_KEY = "AIzaSyBfpw5r8T2dMftpEPbaectPYpSRK_sG2tI";
+  var PROJECT = "officeswap-uw3il";
+  var ROUNDS = 120000, MIN = 6;
+  var q = new URLSearchParams(location.search);
+  var org = q.get("org"), email = q.get("e"), oob = q.get("oobCode");
+  var $ = function (id) { return document.getElementById(id); };
+  var token = null;
+  function show(id) { ["loading", "bad", "form", "done"].forEach(function (s) { $(s).hidden = s !== id; }); }
+  function bad(why) { if (why) $("bad-why").textContent = why; show("bad"); }
+  function api(url, body, method) {
+    return fetch(url, {
+      method: method || "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, token ? { Authorization: "Bearer " + token } : {}),
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); });
+  }
+  var DOC = "https://firestore.googleapis.com/v1/projects/" + PROJECT + "/databases/(default)/documents/orgs/";
+
+  // Remove the one-time code from the address bar, so it isn't left in history.
+  function tidyURL() { try { history.replaceState(null, "", location.pathname + "?org=" + encodeURIComponent(org || "")); } catch (e) {} }
+
+  function signIn() {
+    // A reload after signing in keeps working for this tab.
+    try { var saved = JSON.parse(sessionStorage.getItem("rm") || "null"); if (saved && saved.org === org && saved.exp > Date.now()) { token = saved.token; return Promise.resolve(); } } catch (e) {}
+    if (!org || !email || !oob) return Promise.reject({ why: "Open this page from the link in the email OfficeSwap sent you." });
+    return api("https://identitytoolkit.googleapis.com/v1/accounts:signInWithEmailLink?key=" + API_KEY, { email: email, oobCode: oob })
+      .then(function (r) {
+        token = r.idToken;
+        try { sessionStorage.setItem("rm", JSON.stringify({ org: org, token: token, exp: Date.now() + 50 * 60 * 1000 })); } catch (e) {}
+      });
+  }
+
+  function b64(bytes) { var s = ""; new Uint8Array(bytes).forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s); }
+  function hash(code, salt) {
+    var enc = new TextEncoder().encode(code.replace(/^[ \t]+|[ \t]+$/g, ""));
+    return crypto.subtle.importKey("raw", enc, "PBKDF2", false, ["deriveBits"]).then(function (k) {
+      return crypto.subtle.deriveBits({ name: "PBKDF2", salt: salt, iterations: ROUNDS, hash: "SHA-256" }, k, 256);
+    });
+  }
+
+  function check() {
+    var c = $("code").value, d = $("confirm").value, msg = "";
+    if (c && c.trim().length < MIN) msg = "Use at least " + MIN + " characters.";
+    else if (d && c !== d) msg = "The two codes don't match.";
+    $("form-err").textContent = msg;
+    $("save").disabled = !(c.trim().length >= MIN && c === d);
+  }
+  $("code").addEventListener("input", check);
+  $("confirm").addEventListener("input", check);
+
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if ($("save").disabled) return;
+    $("save").disabled = true; $("save").textContent = "Saving…";
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    hash($("code").value, salt).then(function (bits) {
+      return api(DOC + encodeURIComponent(org) + "?updateMask.fieldPaths=masterHash&updateMask.fieldPaths=masterSalt",
+        { fields: { masterHash: { stringValue: b64(bits) }, masterSalt: { stringValue: b64(salt) } } }, "PATCH");
+    }).then(function () {
+      try { sessionStorage.removeItem("rm"); } catch (e) {}
+      show("done");
+    }).catch(function () {
+      $("form-err").textContent = "Couldn't save it. This email may not be the organization's owner email, or the sign-in expired. Request a new link from the app.";
+      $("save").textContent = "Save master code"; check();
+    });
+  });
+
+  signIn().then(function () {
+    tidyURL();
+    return api(DOC + encodeURIComponent(org), null, "GET").then(function (d) {
+      var f = d.fields || {};
+      if (f.name) $("org-name").textContent = f.name.stringValue;
+      if (!f.ownerEmail || f.ownerEmail.stringValue.toLowerCase() !== String(email || "").toLowerCase()) {
+        // still show the form; the database decides, but warn early
+        if (email && f.ownerEmail) throw { why: "This link was sent to a different address than the organization's owner email." };
+      }
+      show("form"); $("code").focus();
+    }, function () { show("form"); $("code").focus(); });
+  }).catch(function (err) {
+    tidyURL();
+    bad(err && err.why ? err.why : null);
+  });
+})();
+</script>
+</body>
+</html>
