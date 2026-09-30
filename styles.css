@@ -626,3 +626,5 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .pill-btn:hover, .ghost-btn:hover { transform: translateY(-1px); }
   .pill-btn:active, .ghost-btn:active { transform: scale(.97); }
 }
+.foot-founder { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+.foot-founder:hover { text-decoration-color: currentColor; }
