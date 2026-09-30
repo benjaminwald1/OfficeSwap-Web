@@ -342,10 +342,10 @@
       var e = document.querySelector(sel);
       if (e) { e.classList.add("rise"); e.style.setProperty("--rd", (after + i * 140) + "ms"); }
     });
-    requestAnimationFrame(function () {
+    setTimeout(function () {
       heroH.classList.add("go");
       [".hero .lede", ".hero .cta-row", ".hero .phones"].forEach(function (sel) { var e = document.querySelector(sel); if (e) e.classList.add("in"); });
-    });
+    }, 60);
   }
   // everything else, when it scrolls into view
   var els = [].slice.call(document.querySelectorAll(".reveal, .wt")).filter(function (e) { return e !== heroH; });
