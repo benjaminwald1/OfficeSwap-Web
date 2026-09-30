@@ -622,7 +622,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .tile.settled, .bt.settled, .card { transition: transform .35s cubic-bezier(.22,.9,.28,1), box-shadow .35s, opacity .35s; }
   .tile.settled:hover, .bt.settled:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -22px rgba(20,30,60,.35); }
   .card:hover { transform: translateY(-4px); box-shadow: 0 22px 44px -24px rgba(20,30,60,.5); }
-  .pill-btn, .ghost-btn { transition: transform .2s, background .2s; }
+  .pill-btn:not(.reveal), .ghost-btn:not(.reveal), .reveal.settled.pill-btn { transition: transform .2s, background .2s; }
   .pill-btn:hover, .ghost-btn:hover { transform: translateY(-1px); }
   .pill-btn:active, .ghost-btn:active { transform: scale(.97); }
 }
