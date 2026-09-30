@@ -215,7 +215,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 
 /* ---------- Made for (card rail) ---------- */
 .rail-wrap { position: relative; margin-top: 48px; }
-.rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 24px 8px; scrollbar-width: none; }
+.rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(24px, calc(50% - 566px)) 8px; scroll-padding-inline: max(24px, calc(50% - 566px)); scrollbar-width: none; }
 .rail::-webkit-scrollbar { display: none; }
 .card {
   flex: none; width: 272px; height: 400px; border-radius: 22px; position: relative; overflow: hidden;
@@ -604,4 +604,25 @@ footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in 
   .phones { height: 560px; }
   .phones .p-left, .phones .p-right { display: none; }
   .phones .p-center { --w: 250px; }
+}
+
+/* ---------- Polish ---------- */
+/* no lone last words */
+p, .lede, li { text-wrap: pretty; }
+h3 { text-wrap: balance; }
+/* skip link for keyboard users */
+.skip { position: absolute; left: 16px; top: -60px; z-index: 1000; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; text-decoration: none; transition: top .2s; }
+.skip:focus { top: 12px; }
+main:focus { outline: none; }
+/* a clear focus ring on links and buttons, for keyboards only */
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid #1a6ff2; outline-offset: 3px; border-radius: 8px; }
+/* cards respond to the pointer: they lift, and photos ease in a touch */
+.reveal.settled { transition-duration: .35s; transition-delay: 0ms; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tile.settled, .bt.settled, .card { transition: transform .35s cubic-bezier(.22,.9,.28,1), box-shadow .35s, opacity .35s; }
+  .tile.settled:hover, .bt.settled:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -22px rgba(20,30,60,.35); }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 22px 44px -24px rgba(20,30,60,.5); }
+  .pill-btn, .ghost-btn { transition: transform .2s, background .2s; }
+  .pill-btn:hover, .ghost-btn:hover { transform: translateY(-1px); }
+  .pill-btn:active, .ghost-btn:active { transform: scale(.97); }
 }
