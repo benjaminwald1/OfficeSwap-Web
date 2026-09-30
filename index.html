@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=36">
+<link rel="stylesheet" href="styles.css?v=37">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -309,14 +309,59 @@
       } else { play(); }
     }
   });
-  // Reveal on scroll
-  var els = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
+  // Text and reveal motion, after yourpersona.com: headlines come in word by word (each word drops in
+  // blurred from a little above, sharpens with a small overshoot and settles); everything else rises
+  // or pops in, staggered when several arrive together.
+  var WORD_STEP = 28;
+  function splitWords(el) {
+    var n = 0;
+    (function walk(node) {
+      [].slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          var parts = c.textContent.split(/(\s+)/), frag = document.createDocumentFragment();
+          parts.forEach(function (p) {
+            if (!p) return;
+            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+            var w = document.createElement("span"); w.className = "bt-w"; w.textContent = p;
+            w.style.setProperty("--d", (n++ * WORD_STEP) + "ms"); frag.appendChild(w);
+          });
+          c.parentNode.replaceChild(frag, c);
+        } else if (c.nodeType === 1 && c.tagName !== "BR") walk(c);
+      });
+    })(el);
+    return n;
+  }
+  var reduceMotionText = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var heads = [].slice.call(document.querySelectorAll("h1.display, .h2"));
+  if (!reduceMotionText) heads.forEach(function (h) { h.classList.remove("reveal"); h.classList.add("wt"); splitWords(h); });
+  // the hero: headline on load, then the line under it and the buttons
+  var heroH = document.querySelector(".hero h1.display");
+  if (heroH && !reduceMotionText) {
+    var words = heroH.querySelectorAll(".bt-w").length, after = words * WORD_STEP + 450;
+    [".hero .lede", ".hero .cta-row", ".hero .phones"].forEach(function (sel, i) {
+      var e = document.querySelector(sel);
+      if (e) { e.classList.add("rise"); e.style.setProperty("--rd", (after + i * 140) + "ms"); }
+    });
+    requestAnimationFrame(function () {
+      heroH.classList.add("go");
+      [".hero .lede", ".hero .cta-row", ".hero .phones"].forEach(function (sel) { var e = document.querySelector(sel); if (e) e.classList.add("in"); });
+    });
+  }
+  // everything else, when it scrolls into view
+  var els = [].slice.call(document.querySelectorAll(".reveal, .wt")).filter(function (e) { return e !== heroH; });
+  if ("IntersectionObserver" in window && !reduceMotionText) {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-    }, { rootMargin: "0px 0px -8% 0px" });
+      var k = 0;
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        if (e.target.classList.contains("wt")) { e.target.classList.add("go"); return; }
+        e.target.style.setProperty("--rd", (k++ * 70) + "ms");   // stagger what arrives together
+        e.target.classList.add("in");
+      });
+    }, { rootMargin: "0px 0px -10% 0px" });
     els.forEach(function (el) { io.observe(el); });
-  } else { els.forEach(function (el) { el.classList.add("in"); }); }
+  } else { els.forEach(function (el) { el.classList.add("in", "go"); }); }
 
   // Interactive phone. Screens: 0-4 are the app's tabs, 5-8 are the request and offer flows.
   // Each screen lists its tappable areas as [left, top, width, height] fractions of the screen.
