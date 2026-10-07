@@ -46,7 +46,7 @@
   // ---------- Build the scene ----------
   // A photo of the printed directory lying on a desk, and a real hand
   // holding a phone over it. The phone photo's screen is see-through; the
-  // app's screens sit underneath at a fixed design size (182 x 386) and
+  // app's screens sit underneath at a fixed design size (182 x 396) and
   // are scaled to fit.
   var scene = el("div", "sc-scene");
   var desk = el("img", "sc-desk");
@@ -102,7 +102,7 @@
   sway.appendChild(screen);
   var hand = el("img", "sc-handimg");
   hand.src = IMG + "hand-phone.webp"; hand.alt = ""; hand.decoding = "async"; hand.loading = "lazy";
-  hand.width = 900; hand.height = 1311;
+  hand.width = 900; hand.height = 1308;
   sway.appendChild(hand);
   phone.appendChild(sway);
   scene.appendChild(phone);
