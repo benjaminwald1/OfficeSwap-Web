@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=46">
+<link rel="stylesheet" href="styles.css?v=48">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","downloadUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","installUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -63,10 +63,9 @@
       <a class="ghost-btn" href="#how">See how it works</a>
     </div>
   </div>
-  <div class="phones" aria-hidden="false">
-    <div class="iphone p-left"><img decoding="async" src="images/waitlist.jpg?v=4" alt="The Waitlist tab in OfficeSwap" width="720" height="1565"></div>
-    <div class="iphone p-center"><img decoding="async" fetchpriority="high" src="images/board.jpg?v=4" alt="The Board tab in OfficeSwap, showing open offices and visitors for the day" width="720" height="1565"></div>
-    <div class="iphone p-right"><img decoding="async" src="images/plans.jpg?v=4" alt="The Plans tab in OfficeSwap, listing requests and the office each person got" width="720" height="1565"></div>
+  <div class="phones intro-video">
+    <video class="intro-v" muted playsinline autoplay loop preload="auto" poster="video/intro-start.jpg?v=1" aria-label="OfficeSwap's welcome video: high-rise offices and city views, with the OfficeSwap logo"><source src="video/office-intro.mp4?v=1" type="video/mp4"></video>
+    <div class="intro-brand" aria-hidden="true"><span class="intro-logo"></span><b>OfficeSwap</b></div>
   </div>
 </section>
 
@@ -649,6 +648,23 @@
     document.querySelectorAll("main section[id]").forEach(function (s) { spy.observe(s); });
   }
 })();
+</script>
+<script>
+  // The hero plays the app's welcome video on a loop, paused while it's
+  // off screen. With Reduce Motion it stays on a still frame.
+  (function () {
+    var v = document.querySelector(".intro-v"); if (!v) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v.removeAttribute("autoplay"); v.pause(); v.poster = "video/intro-end.jpg?v=1"; return;
+    }
+    function play() { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) play(); else v.pause(); });
+      }).observe(v);
+    }
+    play();
+  })();
 </script>
 <script>
   // Close the phone menu after choosing a link or tapping outside it.

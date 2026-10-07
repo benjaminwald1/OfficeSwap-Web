@@ -774,4 +774,16 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .sc-db { min-height: 600px; }
   .sc-points { grid-template-columns: 1fr; }
 }
-}
+
+/* ---------- Hero: the app's welcome video ---------- */
+.phones.intro-video { --w: clamp(280px, 30vw, 380px); position: relative; width: var(--w); height: auto; aspect-ratio: 9 / 16;
+  margin: 64px auto 40px; border-radius: calc(var(--w) * 0.09); overflow: hidden; background: #000;
+  box-shadow: 0 50px 90px -30px rgba(0,0,0,.38), 0 22px 40px -22px rgba(0,0,0,.3); }
+.phones.intro-video::after { content: none; }
+.intro-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* the app's logo and name over the top of the video */
+.intro-brand { position: absolute; left: 0; right: 0; top: 0; height: 42%; padding-top: calc(var(--w) * 0.12); display: flex; flex-direction: column;
+  align-items: center; gap: calc(var(--w) * 0.03); color: #fff; background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0)); pointer-events: none; }
+.intro-logo { width: calc(var(--w) * 0.23); height: calc(var(--w) * 0.23); border-radius: calc(var(--w) * 0.055);
+  background: #000 url("logo.png") center / cover; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+.intro-brand b { font: 700 calc(var(--w) * 0.098)/1.1 ui-rounded, "SF Pro Rounded", var(--sf); letter-spacing: -.01em; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
