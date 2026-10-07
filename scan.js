@@ -1,6 +1,7 @@
-/* "Scan your team in": a phone scans a printed staff directory and the
-   people it reads land in the company's office list. Loops while the
-   section is on screen; Reduce Motion shows the finished list. */
+/* "Scan your team in": a phone scans a printed staff directory (a photo
+   of the page on a desk) and the people it reads land in the company's
+   office list. Loops while the section is on screen; Reduce Motion
+   shows the finished list. */
 (function () {
   var stage = document.getElementById("sc-stage");
   if (!stage) return;
@@ -10,48 +11,57 @@
     { n: "Priya Shah", o: "Office 3201" },
     { n: "Marcus Chen", o: "Office 3202" }
   ];
-  // Illustrated headshots, not photos of real people.
+  // Stock headshots (Pexels license) of models, with made-up names.
+  // Boxes are where each photo, name and office sits on the printed page,
+  // in percent of the page: [left, top, width, height].
   var PEOPLE = [
-    { n: "Sarah Kim", o: "3204", skin: "#f3cfb0", hair: "#2b211c", style: "long", shirt: "#5b7cfa", bg: "#dfe7f5" },
-    { n: "James Carter", o: "3206", skin: "#8d5a3b", hair: "#17110d", style: "short", shirt: "#2f3b52", bg: "#e6e0d6" },
-    { n: "Nina Patel", o: "3208", skin: "#c68d63", hair: "#1d1612", style: "bun", shirt: "#e07a5f", bg: "#f1e2dc" },
-    { n: "Omar Haddad", o: "3210", skin: "#d6a07a", hair: "#2a1f18", style: "beard", shirt: "#3d8b6e", bg: "#dcebe4" },
-    { n: "Leo Martins", o: "3212", skin: "#f0c9a8", hair: "#8a5228", style: "wavy", shirt: "#8a63d2", bg: "#e7e1f3" }
+    { n: "Sarah Kim", o: "3204", img: "6962024" },
+    { n: "James Carter", o: "3206", img: "7562139" },
+    { n: "Nina Patel", o: "3208", img: "33680700" },
+    { n: "Omar Haddad", o: "3210", img: "28442318" },
+    { n: "Leo Martins", o: "3212", img: "6942776" }
   ];
+  var BOXES = [
+    { face: [8.63, 27.27, 9.73, 7.52], name: [20.39, 30.3, 13.96, 1.64], office: [70.98, 30.3, 6.27, 1.64] },
+    { face: [8.63, 39.15, 9.73, 7.52], name: [20.39, 42.18, 18.35, 1.64], office: [70.98, 42.18, 6.27, 1.64] },
+    { face: [8.63, 51.03, 9.73, 7.52], name: [20.39, 54.06, 13.8, 1.64], office: [70.98, 54.06, 6.27, 1.64] },
+    { face: [8.63, 62.91, 9.73, 7.52], name: [20.39, 65.94, 18.9, 1.64], office: [70.98, 65.94, 6.27, 1.64] },
+    { face: [8.63, 74.79, 9.73, 7.52], name: [20.39, 77.82, 16.0, 1.64], office: [70.98, 77.82, 6.27, 1.64] }
+  ];
+  var IMG = "images/scan/";
 
-  function face(p) {
-    var hair = {
-      long: '<path d="M9 21c0-8 4.6-12.4 11-12.4S31 13 31 21v11h-4.4V21.5c-1.8-2.6-4.2-4.2-6.6-4.6-2.4.4-4.8 2-6.6 4.6V32H9z" fill="' + p.hair + '"/>',
-      short: '<path d="M12.6 18.6c-.4-5.6 3-9.2 7.4-9.2s7.8 3.4 7.4 9.2c-1.6-2.8-4.4-4.2-7.4-4.2s-5.8 1.4-7.4 4.2z" fill="' + p.hair + '"/>',
-      bun: '<circle cx="20" cy="7.6" r="3.4" fill="' + p.hair + '"/><path d="M12.4 19.4c-.2-6 3.2-9.6 7.6-9.6s7.8 3.6 7.6 9.6c-1.4-3-4.4-4.8-7.6-4.8s-6.2 1.8-7.6 4.8z" fill="' + p.hair + '"/>',
-      beard: '<path d="M12.8 18.4c-.3-5.4 3-8.8 7.2-8.8s7.5 3.4 7.2 8.8c-1.6-2.4-4.2-3.6-7.2-3.6s-5.6 1.2-7.2 3.6z" fill="' + p.hair + '"/><path d="M13.4 21.6c.6 5 3.4 7.6 6.6 7.6s6-2.6 6.6-7.6c-1 1.6-2 2.4-3 2.6-1 1.4-2.2 2-3.6 2s-2.6-.6-3.6-2c-1-.2-2-1-3-2.6z" fill="' + p.hair + '"/>',
-      wavy: '<path d="M12 19.6c-1.2-6.4 2.8-10.6 8-10.6s9.2 4.2 8 10.6c-.8-1.8-1.8-3-3-3.6-.6 1-1.8 1.4-2.8.8-1 .8-2.4.8-3.4 0-1 .6-2.2.4-2.8-.6-1.6.4-3 1.6-4 3.4z" fill="' + p.hair + '"/>'
-    }[p.style];
-    return '<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="' + p.bg + '"/>' +
-      '<path d="M5 40c1.4-7 7-10.6 15-10.6S33.6 33 35 40z" fill="' + p.shirt + '"/>' +
-      '<path d="M17 25.5h6v5.4c-1 1-2 1.4-3 1.4s-2-.4-3-1.4z" fill="' + p.skin + '" opacity=".92"/>' +
-      '<ellipse cx="20" cy="19.6" rx="7" ry="8.2" fill="' + p.skin + '"/>' + hair + "</svg>";
-  }
+  function face(p) { return '<img src="' + IMG + "person-" + p.img + '.jpg" alt="" width="160" height="160" loading="lazy" decoding="async">'; }
   function initials(n) { return n.split(" ").map(function (w) { return w[0]; }).join(""); }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  // A detection box around a spot on the page, with a little breathing room for text.
+  function box(cls, r, pad) {
+    var b = el("i", "sc-box " + cls);
+    b.style.left = (r[0] - pad) + "%"; b.style.top = (r[1] - pad * 0.9) + "%";
+    b.style.width = (r[2] + pad * 2) + "%"; b.style.height = (r[3] + pad * 1.8) + "%";
+    return b;
+  }
 
   // ---------- Build the scene ----------
   var scene = el("div", "sc-scene");
-  var paper = el("div", "sc-paper");
-  paper.innerHTML =
-    '<div class="sc-p-head"><b>' + ORG + '</b><span>Staff directory · 32nd floor</span></div>' +
-    '<div class="sc-p-cols"><span>Name</span><span>Office</span></div>' +
-    PEOPLE.map(function (p) {
-      return '<div class="sc-p-row"><span class="sc-p-face">' + face(p) + '</span><span class="sc-p-name">' + p.n +
-        '</span><span class="sc-p-off">' + p.o + "</span></div>";
-    }).join("") +
-    '<div class="sc-p-foot">Updated Monday · Facilities</div>';
-  scene.appendChild(paper);
+  // A photo of the printed directory lying on a desk.
+  var desk = el("img", "sc-desk");
+  desk.src = IMG + "scan-desk.jpg"; desk.alt = ""; desk.decoding = "async"; desk.loading = "lazy";
+  scene.appendChild(desk);
 
   var phone = el("div", "sc-phone");
   var screen = el("div", "sc-screen");
   var vf = el("div", "sc-vf");
-  var view = paper.cloneNode(true); view.className = "sc-paper sc-view";
+  var view = el("div", "sc-view");
+  var page = el("img"); page.src = IMG + "scan-page.jpg"; page.alt = ""; page.decoding = "async"; page.loading = "lazy";
+  view.appendChild(page);
+  var vRows = BOXES.map(function (b) {
+    var g = el("div", "sc-hitrow");
+    g.appendChild(box("sc-b-face", b.face, 0.4));
+    g.appendChild(box("sc-b-name", b.name, 1.1));
+    g.appendChild(box("sc-b-off", b.office, 1.1));
+    view.appendChild(g);
+    return g;
+  });
   vf.appendChild(view);
   vf.appendChild(el("div", "sc-corners", "<i></i><i></i><i></i><i></i>"));
   var line = el("div", "sc-line"); vf.appendChild(line);
@@ -91,20 +101,11 @@
     '<div class="sc-db-foot">Everyone at ' + ORG + " sees the update instantly.</div>";
   stage.appendChild(db);
 
-  var vRows = view.querySelectorAll(".sc-p-row");
   var rvRows = review.querySelectorAll(".sc-rv-row");
   var dbNew = db.querySelectorAll(".sc-new");
   var addBtn = review.querySelector(".sc-add");
   var count = db.querySelector("#sc-count"), photos = db.querySelector("#sc-photos");
   var sync = db.querySelector(".sc-sync");
-
-  // The viewfinder shows the page straightened and scaled to the screen.
-  function fit() {
-    var k = (vf.clientWidth * 0.86) / paper.offsetWidth;
-    view.style.transform = "translate(-50%, -50%) scale(" + k + ")";
-  }
-  fit();
-  window.addEventListener("resize", fit);
 
   function reset() {
     stage.classList.remove("sc-done");
@@ -112,7 +113,7 @@
     vf.classList.remove("sc-off"); review.classList.remove("sc-on");
     line.className = "sc-line"; tag.textContent = "Reading the list…"; tag.classList.remove("sc-ok");
     shutter.classList.remove("sc-flash");
-    [].forEach.call(vRows, function (r) { r.classList.remove("sc-hit"); });
+    vRows.forEach(function (r) { r.classList.remove("sc-hit"); });
     [].forEach.call(rvRows, function (r) { r.classList.remove("sc-gone"); });
     [].forEach.call(dbNew, function (r) { r.classList.remove("sc-in", "sc-fresh"); });
     addBtn.classList.remove("sc-press");
@@ -171,7 +172,7 @@
       return w(1100);
     }).then(function () {
       line.classList.add("sc-sweep");                     // scan line passes each row
-      var steps = [].map.call(vRows, function (r, i) {
+      var steps = vRows.map(function (r, i) {
         return w(360 + i * 300).then(function () { r.classList.add("sc-hit"); });
       });
       return Promise.all(steps);

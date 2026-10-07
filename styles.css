@@ -633,25 +633,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 #scan .lede { margin-bottom: 0; }
 .sc-stage { position: relative; max-width: 1040px; margin: 52px auto 0; display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: stretch; transition: opacity .45s ease; }
 .sc-stage.sc-fade { opacity: 0; }
-.sc-scene { position: relative; height: 520px; border-radius: 28px; overflow: hidden;
-  background: radial-gradient(120% 90% at 30% 20%, #fbfbfd 0%, #eef0f4 55%, #e3e6ec 100%); }
+.sc-scene { position: relative; height: 520px; border-radius: 28px; overflow: hidden; background: #d9c7ad; }
+.sc-desk { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 50%; }
 .sc-scene::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(0,0,0,.04); pointer-events: none; }
-
-/* the printed page */
-.sc-paper { position: absolute; width: 300px; padding: 22px 22px 16px; background: #fff; border-radius: 6px; color: #1d1d1f;
-  font: 12px/1.3 var(--sf); text-align: left; }
-.sc-scene > .sc-paper { left: 9%; top: 50%; transform: translateY(-50%) rotate(-4deg);
-  box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 18px 40px rgba(30,40,60,.16), 0 3px 8px rgba(30,40,60,.08); }
-.sc-p-head b { display: block; font-size: 15px; letter-spacing: -.01em; }
-.sc-p-head span { display: block; color: #6e6e73; font-size: 11px; margin-top: 2px; }
-.sc-p-cols { display: grid; grid-template-columns: 1fr auto; margin: 14px 0 4px; padding-bottom: 5px; border-bottom: 1.5px solid #1d1d1f;
-  font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #424245; }
-.sc-p-row { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #ececf0; }
-.sc-p-face { position: relative; width: 40px; height: 40px; border-radius: 4px; overflow: hidden; display: block; }
-.sc-p-face svg, .sc-av svg { display: block; width: 100%; height: 100%; }
-.sc-p-name { font-size: 13px; font-weight: 600; }
-.sc-p-off { font: 600 13px/1 ui-monospace, "SF Mono", Menlo, monospace; color: #424245; }
-.sc-p-foot { margin-top: 10px; font-size: 9.5px; color: #86868b; }
 
 /* the phone */
 .sc-phone { position: absolute; width: 196px; aspect-ratio: 9 / 19.3; left: 47%; top: 50%; z-index: 2;
@@ -665,9 +649,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .sc-island { position: absolute; top: 7px; left: 50%; width: 58px; height: 17px; margin-left: -29px; background: #000; border-radius: 10px; z-index: 6; }
 
 /* camera viewfinder */
-.sc-vf { position: absolute; inset: 0; background: linear-gradient(160deg, #3b3f47, #23262c); transition: opacity .35s ease; }
+.sc-vf { position: absolute; inset: 0; overflow: hidden; background: #6b5a45; transition: opacity .35s ease; }
+/* the camera sees the desk around the page */
+.sc-vf::before { content: ""; position: absolute; inset: -12px; background: url("images/scan/scan-desk.jpg") 34% 50% / 330% auto no-repeat; filter: blur(3px) brightness(.8); }
 .sc-vf.sc-off { opacity: 0; }
-.sc-view { left: 50%; top: 48%; transform-origin: center; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.sc-view { position: absolute; left: 50%; top: 47%; width: 84%; transform: translate(-50%, -50%); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.sc-view img { display: block; width: 100%; height: auto; }
 .sc-corners i { position: absolute; width: 22px; height: 22px; border: 2.5px solid #ffd60a; }
 .sc-corners i:nth-child(1) { left: 6%; top: 12%; border-right: 0; border-bottom: 0; border-top-left-radius: 8px; }
 .sc-corners i:nth-child(2) { right: 6%; top: 12%; border-left: 0; border-bottom: 0; border-top-right-radius: 8px; }
@@ -684,13 +671,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .sc-shutter.sc-flash { animation: scFlash .4s ease-out; }
 @keyframes scFlash { 0% { opacity: .85; } 100% { opacity: 0; } }
 /* what the scanner found, boxed in the viewfinder */
-.sc-view .sc-p-name, .sc-view .sc-p-off { position: relative; }
-.sc-view .sc-p-face::after, .sc-view .sc-p-name::after, .sc-view .sc-p-off::after {
-  content: ""; position: absolute; inset: -3px -4px; border: 2.5px solid transparent; border-radius: 5px; transition: border-color .2s, background .2s; }
-.sc-view .sc-p-face::after { inset: 0; border-radius: 4px; }
-.sc-view .sc-hit .sc-p-face::after { border-color: #34c759; }
-.sc-view .sc-hit .sc-p-name::after { border-color: #0a84ff; background: rgba(10,132,255,.1); }
-.sc-view .sc-hit .sc-p-off::after { border-color: #ff9f0a; background: rgba(255,159,10,.12); }
+.sc-box { position: absolute; border: 1.5px solid transparent; border-radius: 2px; transition: border-color .2s, background .2s; }
+.sc-hit .sc-b-face { border-color: #34c759; }
+.sc-hit .sc-b-name { border-color: #0a84ff; background: rgba(10,132,255,.14); }
+.sc-hit .sc-b-off { border-color: #ff9f0a; background: rgba(255,159,10,.16); }
 
 /* the review screen, like the app's */
 .sc-rv { position: absolute; inset: 0; background: #f2f2f7; color: #1d1d1f; font: 10px/1.25 var(--sf); text-align: left;
@@ -710,7 +694,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .sc-rv-row.sc-gone { opacity: .25; transform: translateX(6px); }
 .sc-ck { width: 12px; height: 12px; border-radius: 50%; background: var(--brass); flex: none; position: relative; }
 .sc-ck::after { content: ""; position: absolute; left: 4px; top: 2px; width: 3px; height: 6px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
-.sc-av { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none; display: block; }
+.sc-av { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none; display: block; background: #e5e5ea; }
+.sc-av img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sc-rv-t b { display: block; font-size: 10px; }
 .sc-rv-t small { color: #6e6e73; font-size: 8.5px; }
 
@@ -762,10 +747,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 }
 @media (max-width: 520px) {
   .sc-scene { height: 400px; }
-  .sc-paper { width: 236px; padding: 16px 16px 12px; }
-  .sc-scene > .sc-paper { left: 5%; }
-  .sc-p-row { grid-template-columns: 32px 1fr auto; padding: 5px 0; }
-  .sc-p-face { width: 32px; height: 32px; }
   .sc-phone { width: 156px; border-radius: 28px; padding: 6px; }
   .sc-screen { border-radius: 22px; }
   .sc-db { min-height: 600px; }
