@@ -1,8 +1,9 @@
 Photos from Pexels (https://www.pexels.com/license/). People are models; the names are made up.
-scan-desk.jpg background: https://www.pexels.com/photo/1419923/
+scan-desk.jpg and scan-live.jpg background: https://www.pexels.com/photo/1419923/
+hand-phone.webp (hand and phone, cut out; screen made transparent): https://www.pexels.com/photo/9558700/
 person-6962024.jpg: https://www.pexels.com/photo/6962024/
 person-7562139.jpg: https://www.pexels.com/photo/7562139/
 person-33680700.jpg: https://www.pexels.com/photo/33680700/
 person-28442318.jpg: https://www.pexels.com/photo/28442318/
 person-6942776.jpg: https://www.pexels.com/photo/6942776/
-The printed page (scan-page.jpg, and on the desk in scan-desk.jpg) is rendered by scratch script render.py.
+The printed page (scan-page.jpg, and on the desk in scan-desk.jpg and scan-live.jpg) is rendered by scratch script render.py.

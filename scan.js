@@ -28,6 +28,8 @@
     { face: [8.63, 62.91, 9.73, 7.52], name: [20.39, 65.94, 18.9, 1.64], office: [70.98, 65.94, 6.27, 1.64] },
     { face: [8.63, 74.79, 9.73, 7.52], name: [20.39, 77.82, 16.0, 1.64], office: [70.98, 77.82, 6.27, 1.64] }
   ];
+  // The page's corners in the camera's live view, in percent.
+  var QUAD = [[9.02, 24.57], [86.46, 22.69], [92.55, 69.4], [13.54, 71.31]];
   var IMG = "images/scan/";
 
   function face(p) { return '<img src="' + IMG + "person-" + p.img + '.jpg" alt="" width="160" height="160" loading="lazy" decoding="async">'; }
@@ -42,14 +44,31 @@
   }
 
   // ---------- Build the scene ----------
+  // A photo of the printed directory lying on a desk, and a real hand
+  // holding a phone over it. The phone photo's screen is see-through; the
+  // app's screens sit underneath at a fixed design size (182 x 386) and
+  // are scaled to fit.
   var scene = el("div", "sc-scene");
-  // A photo of the printed directory lying on a desk.
   var desk = el("img", "sc-desk");
   desk.src = IMG + "scan-desk.jpg"; desk.alt = ""; desk.decoding = "async"; desk.loading = "lazy";
   scene.appendChild(desk);
 
-  var phone = el("div", "sc-phone");
+  var phone = el("div", "sc-hand");
+  var sway = el("div", "sc-sway");
   var screen = el("div", "sc-screen");
+  var ui = el("div", "sc-ui");
+
+  // The camera: live view of the page with the scanner's outline on it.
+  var live = el("div", "sc-live");
+  live.innerHTML = '<img src="' + IMG + 'scan-live.jpg" alt="" decoding="async" loading="lazy">' +
+    '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon class="sc-quad" points="' +
+    QUAD.map(function (p) { return p.join(","); }).join(" ") + '"/></svg>' +
+    '<div class="sc-cam-top"><span>Cancel</span><span>Auto</span></div>' +
+    '<div class="sc-cam-hint">Hold camera steady</div>' +
+    '<div class="sc-cam-bar"><i class="sc-thumb"></i><i class="sc-shoot"></i><span>Save</span></div>';
+  ui.appendChild(live);
+
+  // After the shot: the page straightened, and what's read from it.
   var vf = el("div", "sc-vf");
   var view = el("div", "sc-view");
   var page = el("img"); page.src = IMG + "scan-page.jpg"; page.alt = ""; page.decoding = "async"; page.loading = "lazy";
@@ -63,11 +82,10 @@
     return g;
   });
   vf.appendChild(view);
-  vf.appendChild(el("div", "sc-corners", "<i></i><i></i><i></i><i></i>"));
   var line = el("div", "sc-line"); vf.appendChild(line);
   var tag = el("div", "sc-tag", "Reading the list…"); vf.appendChild(tag);
-  var shutter = el("div", "sc-shutter"); vf.appendChild(shutter);
-  screen.appendChild(vf);
+  ui.appendChild(vf);
+  var shutter = el("div", "sc-shutter");
 
   var review = el("div", "sc-rv");
   review.innerHTML =
@@ -78,9 +96,15 @@
       return '<div class="sc-rv-row"><i class="sc-ck"></i><span class="sc-av">' + face(p) + '</span><span class="sc-rv-t"><b>' + p.n +
         "</b><small>Office " + p.o + "</small></span></div>";
     }).join("") + "</div>";
-  screen.appendChild(review);
-  screen.appendChild(el("div", "sc-island"));
-  phone.appendChild(screen);
+  ui.appendChild(review);
+  ui.appendChild(shutter);
+  screen.appendChild(ui);
+  sway.appendChild(screen);
+  var hand = el("img", "sc-handimg");
+  hand.src = IMG + "hand-phone.webp"; hand.alt = ""; hand.decoding = "async"; hand.loading = "lazy";
+  hand.width = 900; hand.height = 1311;
+  sway.appendChild(hand);
+  phone.appendChild(sway);
   scene.appendChild(phone);
   stage.appendChild(scene);
 
@@ -101,6 +125,11 @@
     '<div class="sc-db-foot">Everyone at ' + ORG + " sees the update instantly.</div>";
   stage.appendChild(db);
 
+  function fit() { ui.style.transform = "scale(" + (screen.clientWidth / 182) + ")"; }
+  fit();
+  window.addEventListener("resize", fit);
+  if ("ResizeObserver" in window) new ResizeObserver(fit).observe(screen);
+
   var rvRows = review.querySelectorAll(".sc-rv-row");
   var dbNew = db.querySelectorAll(".sc-new");
   var addBtn = review.querySelector(".sc-add");
@@ -109,8 +138,9 @@
 
   function reset() {
     stage.classList.remove("sc-done");
-    phone.className = "sc-phone";
-    vf.classList.remove("sc-off"); review.classList.remove("sc-on");
+    phone.className = "sc-hand";
+    live.className = "sc-live";
+    vf.classList.remove("sc-on"); review.classList.remove("sc-on");
     line.className = "sc-line"; tag.textContent = "Reading the list…"; tag.classList.remove("sc-ok");
     shutter.classList.remove("sc-flash");
     vRows.forEach(function (r) { r.classList.remove("sc-hit"); });
@@ -125,7 +155,7 @@
     reset();
     stage.classList.add("sc-done");
     phone.classList.add("sc-at");
-    vf.classList.add("sc-off"); review.classList.add("sc-on");
+    review.classList.add("sc-on");
     [].forEach.call(dbNew, function (r) { r.classList.add("sc-in", "sc-fresh"); });
     [].forEach.call(rvRows, function (r) { r.classList.add("sc-gone"); });
     count.textContent = EXISTING.length + PEOPLE.length; photos.textContent = PEOPLE.length;
@@ -168,22 +198,29 @@
     var w = function (ms) { return wait(ms, my); };
     reset();
     w(500).then(function () {
-      phone.classList.add("sc-at");                       // phone moves over the page
+      phone.classList.add("sc-at");                       // the hand brings the phone over the page
+      return w(1500);
+    }).then(function () {
+      live.classList.add("sc-found");                     // the scanner finds the page's edges
       return w(1100);
     }).then(function () {
-      line.classList.add("sc-sweep");                     // scan line passes each row
+      live.classList.add("sc-press");                     // shutter
+      shutter.classList.add("sc-flash");
+      return w(260);
+    }).then(function () {
+      vf.classList.add("sc-on");                          // the straightened page
+      return w(450);
+    }).then(function () {
+      line.classList.add("sc-sweep");                     // reading each row
       var steps = vRows.map(function (r, i) {
         return w(360 + i * 300).then(function () { r.classList.add("sc-hit"); });
       });
       return Promise.all(steps);
     }).then(function () { return w(500); }).then(function () {
       tag.textContent = "5 people · 5 photos"; tag.classList.add("sc-ok");
-      return w(900);
+      return w(1000);
     }).then(function () {
-      shutter.classList.add("sc-flash");
-      return w(220);
-    }).then(function () {
-      vf.classList.add("sc-off"); review.classList.add("sc-on");   // the review screen
+      review.classList.add("sc-on");                      // the review screen
       return w(1300);
     }).then(function () {
       addBtn.classList.add("sc-press");
@@ -208,7 +245,6 @@
       });
       return chain;
     }).then(function () {
-      phone.classList.add("sc-away");
       return w(3400);
     }).then(function () {
       stage.classList.add("sc-fade");
