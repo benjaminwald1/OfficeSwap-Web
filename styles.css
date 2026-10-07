@@ -331,7 +331,12 @@ footer.mr a:hover { color: var(--brass); }
 .foot-social { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; flex: none; color: var(--ink-soft); border: 1px solid var(--line); transition: color .15s, border-color .15s, background-color .15s; }
 footer.mr a.foot-social:hover { color: var(--brass); border-color: color-mix(in srgb, var(--brass) 40%, var(--line)); background: color-mix(in srgb, var(--brass) 8%, transparent); }
 @media (max-width: 640px) { .foot-grid { grid-template-columns: 1fr; gap: 28px; } }
-.appstore { display: inline-flex; align-items: center; gap: 10px; background: #111; color: #fff !important; text-decoration: none; padding: 8px 16px 8px 14px; border-radius: 10px; line-height: 1.05; box-shadow: 0 6px 18px rgba(0,0,0,.22); }
+.appstore { display: inline-flex; align-items: center; gap: 10px; background: #111; color: #fff !important; text-decoration: none; padding: 8px 16px 8px 14px; border-radius: 10px; line-height: 1.05; box-shadow: 0 6px 18px rgba(0,0,0,.22); transition: transform .15s, background .2s; }
+a.appstore:hover { background: #000; transform: translateY(-1px); }
+.appstore.lg { padding: 11px 22px 11px 18px; border-radius: 12px; }
+.appstore.lg svg { width: 26px; height: 26px; }
+.appstore.lg small { font-size: 11px; }
+.appstore.lg strong { font-size: 21px; }
 .appstore svg { width: 22px; height: 22px; flex: none; }
 .appstore small { display: block; font-size: 10px; font-weight: 500; letter-spacing: .02em; opacity: .9; }
 .appstore strong { display: block; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
