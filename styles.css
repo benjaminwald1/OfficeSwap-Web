@@ -145,7 +145,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 .iphone.lg { --w: 330px; }
 
 /* ---------- Hero ---------- */
-.hero { padding: 72px 0 0; text-align: center; overflow: hidden; }
+.hero { padding: 0; text-align: center; overflow: hidden; }
 .hero .cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
 .ghost-btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); font-size: 16px; font-weight: 600; padding: 13px 22px; border-radius: 999px; background: var(--pill); }
 .ghost-btn:hover { background: #e8e8ed; }
@@ -776,8 +776,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 }
 
 /* ---------- Hero: the app's welcome video, edge to edge ---------- */
-.phones.intro-video { position: relative; width: 100%; height: auto; aspect-ratio: 16 / 9; max-height: 86vh; min-height: 240px;
-  margin: 64px 0 0; overflow: hidden; background: #000; }
+/* the first thing on the page: fills the screen below the menu bar */
+.phones.intro-video { position: relative; width: 100%; height: calc(100vh - 62px); height: calc(100svh - 62px); min-height: 320px;
+  margin: 0; overflow: hidden; background: #000; }
 .phones.intro-video::after { content: none; }
 .intro-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .intro-still { position: absolute; inset: 0; background: #000 url("video/flow-start.jpg?v=1") center / cover; transition: opacity .4s ease; }
@@ -794,4 +795,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .intro-logo { width: clamp(64px, 7.5vw, 112px); height: clamp(64px, 7.5vw, 112px); border-radius: 22.5%;
   background: #000 url("logo.png") center / cover; box-shadow: 0 8px 22px rgba(0,0,0,.4); }
 .intro-brand b { font: 700 clamp(30px, 4vw, 60px)/1.05 ui-rounded, "SF Pro Rounded", var(--sf); letter-spacing: -.015em; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
-@media (max-width: 700px) { .phones.intro-video { aspect-ratio: 4 / 5; max-height: 78vh; margin-top: 48px; } .intro-brand { padding-top: 40px; } }
+@media (max-width: 700px) { .intro-brand { padding-top: 40px; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
