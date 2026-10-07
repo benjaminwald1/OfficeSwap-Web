@@ -780,7 +780,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   margin: 64px 0 0; overflow: hidden; background: #000; }
 .phones.intro-video::after { content: none; }
 .intro-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-.intro-still { position: absolute; inset: 0; background: #000 url("video/hd-start.jpg?v=1") center / cover; transition: opacity .4s ease; }
+.intro-still { position: absolute; inset: 0; background: #000 url("video/flow-start.jpg?v=1") center / cover; transition: opacity .4s ease; }
 .is-playing .intro-still { opacity: 0; }
 /* never show the browser's own play button or controls on the hero video */
 .intro-v::-webkit-media-controls,
