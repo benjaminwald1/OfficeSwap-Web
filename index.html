@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=41">
+<link rel="stylesheet" href="styles.css?v=42">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -123,6 +123,20 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="band" id="scan">
+  <div class="container">
+    <h2 class="h2 center reveal">Scan your team in. <em>Done.</em></h2>
+    <p class="lede reveal">Point your phone at a printed staff list or directory. OfficeSwap reads every name, office number and photo, and adds them to your company's office list for everyone.</p>
+    <div class="sc-stage reveal" id="sc-stage" role="img" aria-label="A phone scans a printed staff directory for Northwind Partners. Five names, office numbers and photos are read and added to the company's office list, each with their photo as a profile picture."></div>
+    <ul class="sc-points">
+      <li class="reveal"><b>Names and offices</b><span>Tables, lists or directory cards. Room, suite and desk numbers too.</span></li>
+      <li class="reveal"><b>Photos included</b><span>Headshots on the page become each person's profile picture.</span></li>
+      <li class="reveal"><b>You check it first</b><span>Fix a name or untick a row before anything is added.</span></li>
+      <li class="reveal"><b>Everyone sees it</b><span>The new list syncs to every phone in your company.</span></li>
+    </ul>
   </div>
 </section>
 
@@ -640,5 +654,6 @@
     document.addEventListener("click", function (e) { if (m.open && !m.contains(e.target)) m.removeAttribute("open"); });
   })();
 </script>
+<script src="scan.js?v=1" defer></script>
 </body>
 </html>
