@@ -101,7 +101,7 @@
   screen.appendChild(ui);
   sway.appendChild(screen);
   var hand = el("img", "sc-handimg");
-  hand.src = IMG + "hand-phone.webp"; hand.alt = ""; hand.decoding = "async"; hand.loading = "lazy";
+  hand.src = IMG + "hand-phone.webp?v=2"; hand.alt = ""; hand.decoding = "async"; hand.loading = "lazy";
   hand.width = 900; hand.height = 1308;
   sway.appendChild(hand);
   phone.appendChild(sway);
