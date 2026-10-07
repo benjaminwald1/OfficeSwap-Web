@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=52">
+<link rel="stylesheet" href="styles.css?v=53">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","downloadUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","installUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -64,7 +64,7 @@
     </div>
   </div>
   <div class="phones intro-video">
-    <video class="intro-v" muted playsinline webkit-playsinline autoplay loop preload="auto" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" poster="video/wide-start.jpg?v=1" aria-label="OfficeSwap's welcome video: high-rise offices and city views, with the OfficeSwap logo"><source src="video/office-intro-wide.mp4?v=1" type="video/mp4"></video>
+    <video class="intro-v" muted playsinline webkit-playsinline autoplay loop preload="auto" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" poster="video/hd-start.jpg?v=1" aria-label="OfficeSwap's welcome video: high-rise offices and city views, with the OfficeSwap logo"><source src="video/office-intro-1080.mp4?v=1" type="video/mp4"></video>
     <div class="intro-still" aria-hidden="true"></div>
     <div class="intro-brand" aria-hidden="true"><span class="intro-logo"></span><b>OfficeSwap</b></div>
   </div>
@@ -660,7 +660,7 @@
     var v = document.querySelector(".intro-v"); if (!v) return;
     v.muted = true; v.defaultMuted = true; v.loop = true;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      v.removeAttribute("autoplay"); v.pause(); v.poster = "video/wide-end.jpg?v=1"; return;
+      v.removeAttribute("autoplay"); v.pause(); v.poster = "video/hd-end.jpg?v=1"; return;
     }
     var onScreen = true;
     function play() {
