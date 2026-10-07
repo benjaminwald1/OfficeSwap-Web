@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=50">
+<link rel="stylesheet" href="styles.css?v=52">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","downloadUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","installUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -64,7 +64,8 @@
     </div>
   </div>
   <div class="phones intro-video">
-    <video class="intro-v" muted playsinline autoplay loop preload="auto" poster="video/wide-start.jpg?v=1" aria-label="OfficeSwap's welcome video: high-rise offices and city views, with the OfficeSwap logo"><source src="video/office-intro-wide.mp4?v=1" type="video/mp4"></video>
+    <video class="intro-v" muted playsinline webkit-playsinline autoplay loop preload="auto" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" poster="video/wide-start.jpg?v=1" aria-label="OfficeSwap's welcome video: high-rise offices and city views, with the OfficeSwap logo"><source src="video/office-intro-wide.mp4?v=1" type="video/mp4"></video>
+    <div class="intro-still" aria-hidden="true"></div>
     <div class="intro-brand" aria-hidden="true"><span class="intro-logo"></span><b>OfficeSwap</b></div>
   </div>
 </section>
@@ -651,18 +652,38 @@
 </script>
 <script>
   // The hero plays the app's welcome video on a loop, paused while it's
-  // off screen. With Reduce Motion it stays on a still frame.
+  // off screen. Browsers that hold back autoplay (Safari in Low Power Mode,
+  // for one) are asked again whenever the video is ready and on the first
+  // tap, scroll or key press; until then the first frame shows, with no
+  // play button. With Reduce Motion it stays on a still frame.
   (function () {
     var v = document.querySelector(".intro-v"); if (!v) return;
+    v.muted = true; v.defaultMuted = true; v.loop = true;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       v.removeAttribute("autoplay"); v.pause(); v.poster = "video/wide-end.jpg?v=1"; return;
     }
-    function play() { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    var onScreen = true;
+    function play() {
+      if (!onScreen || document.hidden || !v.paused) return;
+      var p = v.play(); if (p && p.catch) p.catch(function () {});
+    }
+    ["loadedmetadata", "canplay"].forEach(function (e) { v.addEventListener(e, play); });
+    // A still of the first frame covers the video until it's really playing,
+    // so a browser's own play button never shows.
+    var box = v.parentNode;
+    v.addEventListener("playing", function () { box.classList.add("is-playing"); });
+    v.addEventListener("pause", function () { box.classList.remove("is-playing"); });
+    // Some browsers stop at the end despite loop; start it again.
+    v.addEventListener("ended", function () { v.currentTime = 0; play(); });
+    // a first interaction anywhere counts as permission to play
+    var nudge = function () { play(); if (!v.paused) ["pointerdown", "touchstart", "keydown", "scroll"].forEach(function (e) { removeEventListener(e, nudge, true); }); };
+    ["pointerdown", "touchstart", "keydown", "scroll"].forEach(function (e) { addEventListener(e, nudge, { capture: true, passive: true }); });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) play(); else v.pause(); });
+        es.forEach(function (e) { onScreen = e.isIntersecting; if (onScreen) play(); else v.pause(); });
       }).observe(v);
     }
+    document.addEventListener("visibilitychange", function () { if (document.hidden) v.pause(); else play(); });
     play();
   })();
 </script>
