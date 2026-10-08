@@ -6,7 +6,7 @@
 //   STRIPE_SECRET_KEY          secret   sk_live_… (or sk_test_… to try it out)
 //   STRIPE_WEBHOOK_SECRET      secret   whsec_… from the webhook endpoint
 //   STRIPE_PRICE_STARTER       price_…  $299 / month, 1–19 offices
-//   STRIPE_PRICE_GROWTH        price_…  $799 / month, 20–99 offices
+//   STRIPE_PRICE_GROWTH        price_…  $699 / month, 20–99 offices
 //   STRIPE_PRICE_ENTERPRISE    price_…  $1,099 / month, 100+ offices
 //   STRIPE_PORTAL_LOGIN_URL    the customer portal's login link (billing.stripe.com/p/login/…)
 //   FIREBASE_SERVICE_ACCOUNT   secret   the service account JSON from Firebase
