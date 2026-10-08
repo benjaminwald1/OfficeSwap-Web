@@ -699,3 +699,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .st-steps li { margin-bottom: 10px; color: var(--ink-soft); }
 @media (max-width: 680px) { .st-plans { grid-template-columns: 1fr; } }
 .st-open { display: inline-flex; margin: 6px 0 4px; color: #fff !important; text-decoration: none !important; }
+
+/* "Try it" hint under the interactive phone */
+.try-hint { display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 9px 16px; border-radius: 999px; background: #fff;
+  color: var(--ink-soft); font-size: 14.5px; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.06); text-align: center; }
+.try-dot { width: 8px; height: 8px; border-radius: 50%; background: #0a84ff; flex: none; animation: tryPulse 1.8s ease-out infinite; }
+@keyframes tryPulse { 0% { box-shadow: 0 0 0 0 rgba(10,132,255,.5); } 100% { box-shadow: 0 0 0 9px rgba(10,132,255,0); } }
+@media (prefers-reduced-motion: reduce) { .try-dot { animation: none; } }
