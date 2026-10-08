@@ -27,8 +27,8 @@ export const PLANS = {
 // Stripe price IDs (not secret). A Cloudflare setting of the same plan wins.
 export const PRICE_IDS = {
   starter: "price_1UO8rIIWSF4jElIrY5hhu0T5",
-  growth: "",
-  enterprise: "",
+  growth: "price_1UO8ujIWSF4jElIrlAYf0ynE",
+  enterprise: "price_1UO8vcIWSF4jElIr7f2GXOaN",
 };
 
 export function priceFor(env, plan) {
