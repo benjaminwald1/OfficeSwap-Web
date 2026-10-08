@@ -716,6 +716,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .stage .try-hint { margin-top: -12px; }
 
 /* free trial popup (home page) */
+.trial-pop[hidden] { display: none !important; }
 .trial-pop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px;
   background: rgba(0,0,0,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s ease; }
 .trial-pop.in { opacity: 1; }
