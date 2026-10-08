@@ -821,6 +821,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .st-plan em { font-style: normal; font-size: 28px; font-weight: 650; letter-spacing: -.02em; color: var(--ink); }
 .st-plan em small { display: inline; margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
 .st-plan i { font-style: normal; font-weight: 400; font-size: 14px; color: var(--muted); }
+.st-trial { align-self: flex-start; margin-top: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #1f8f3e; background: rgba(52,199,89,.14); }
 .st-plan input:checked + span { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink), 0 10px 26px rgba(0,0,0,.08); }
 .st-plan input:focus-visible + span { box-shadow: 0 0 0 3px rgba(10,132,255,.35); }
 .st-note { grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; margin: 2px 0 0; }
