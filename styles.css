@@ -781,8 +781,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   margin: 0; overflow: hidden; background: #000; }
 .phones.intro-video::after { content: none; }
 .intro-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-.intro-still { position: absolute; inset: 0; background: #000 url("video/flow-start.jpg?v=1") center / cover; transition: opacity .4s ease; }
-.is-playing .intro-still { opacity: 0; }
 /* never show the browser's own play button or controls on the hero video */
 .intro-v::-webkit-media-controls,
 .intro-v::-webkit-media-controls-panel,
@@ -798,3 +796,40 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 @media (max-width: 700px) { .intro-brand { padding-top: 40px; } }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- Sign-up (start/) ---------- */
+.st-wrap { max-width: 860px; }
+.st-form { margin-top: 28px; }
+.st-form fieldset { border: 0; padding: 0; margin: 0 0 30px; }
+.st-form legend { font-size: 19px; font-weight: 600; letter-spacing: -.01em; margin-bottom: 14px; }
+.st-form label { display: block; font-size: 14px; font-weight: 600; color: var(--ink-soft); margin-bottom: 14px; }
+.st-form input:not([type="radio"]) { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 12px 14px; font: 16px/1.3 var(--sf);
+  color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 12px; transition: border-color .15s, box-shadow .15s; }
+.st-form input:focus { outline: none; border-color: #0a84ff; box-shadow: 0 0 0 3px rgba(10,132,255,.15); }
+.st-form label small { display: block; margin-top: 6px; font-weight: 400; color: var(--muted); font-size: 13px; }
+.st-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 14px; }
+.st-hint { color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+.st-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.st-plans legend { grid-column: 1 / -1; }
+.st-plan { margin: 0 !important; cursor: pointer; }
+.st-plan input { position: absolute; opacity: 0; pointer-events: none; }
+.st-plan span { display: flex; flex-direction: column; gap: 6px; height: 100%; box-sizing: border-box; padding: 18px; border: 1.5px solid var(--line); border-radius: 18px;
+  background: #fff; transition: border-color .15s, box-shadow .15s; }
+.st-plan b { font-size: 16px; color: var(--ink); }
+.st-plan em { font-style: normal; font-size: 28px; font-weight: 650; letter-spacing: -.02em; color: var(--ink); }
+.st-plan em small { display: inline; margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+.st-plan i { font-style: normal; font-weight: 400; font-size: 14px; color: var(--muted); }
+.st-plan input:checked + span { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink), 0 10px 26px rgba(0,0,0,.08); }
+.st-plan input:focus-visible + span { box-shadow: 0 0 0 3px rgba(10,132,255,.35); }
+.st-note { grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; margin: 2px 0 0; }
+.st-error { color: #c4251c; background: rgba(255,59,48,.08); border-radius: 12px; padding: 12px 14px; font-size: 15px; }
+.st-go { border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: 17px; padding: 15px 30px; }
+.st-go:disabled { opacity: .6; cursor: default; transform: none; }
+.st-fine { color: var(--muted); font-size: 13.5px; margin-top: 16px; }
+.st-code-box { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 28px 0; padding: 24px; border-radius: 20px; background: var(--bg-2); }
+.st-code-box small { color: var(--muted); font-size: 14px; }
+.st-code { font: 700 44px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em; }
+.st-code-box .ghost-btn { border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: 15px; padding: 10px 18px; }
+.st-steps { padding-left: 20px; margin: 0 0 28px; }
+.st-steps li { margin-bottom: 10px; color: var(--ink-soft); }
+@media (max-width: 680px) { .st-plans { grid-template-columns: 1fr; } }
