@@ -637,6 +637,30 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .foot-founder { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
 .foot-founder:hover { text-decoration-color: currentColor; }
 
+/* ---------- Hero: the app's welcome video, edge to edge ---------- */
+/* the first thing on the page: fills the screen below the menu bar */
+.phones.intro-video { position: relative; width: 100%; height: calc(100vh - 62px); height: calc(100svh - 62px); min-height: 320px;
+  margin: 0; overflow: hidden; background: #000; }
+.phones.intro-video::after { content: none; }
+.intro-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; pointer-events: none; }
+/* never show the browser's own play button or controls on the hero video */
+.intro-v::-webkit-media-controls,
+.intro-v::-webkit-media-controls-panel,
+.intro-v::-webkit-media-controls-play-button,
+.intro-v::-webkit-media-controls-start-playback-button,
+.intro-v::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; opacity: 0 !important; }
+/* The logo and name over the photo. Sized from the photo's shown height
+   (--u is 1% of it; the photo is anchored to the top), so they always end
+   above the glass wall's top edge, which sits at 26% of the photo. */
+.phones.intro-video { --u: max(0.714vw, calc((100svh - 62px) / 100)); }
+.intro-brand { position: absolute; left: 0; right: 0; top: 0; height: 34%; padding-top: calc(var(--u) * 4); display: flex; flex-direction: column;
+  align-items: center; gap: calc(var(--u) * 1.2); color: #1d1d1f; background: linear-gradient(rgba(255,255,255,.82), rgba(255,255,255,0)); pointer-events: none; }
+.intro-logo { width: min(calc(var(--u) * 9), 120px); height: min(calc(var(--u) * 9), 120px); border-radius: 22.5%;
+  background: #000 url("logo.png") center / cover; box-shadow: 0 8px 22px rgba(0,0,0,.16); flex: none; }
+.intro-brand b { font: 700 min(calc(var(--u) * 6.2), 80px)/1.05 ui-rounded, "SF Pro Rounded", var(--sf); letter-spacing: -.015em; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
 /* ---------- Sign-up (start/) ---------- */
 .st-wrap { max-width: 860px; }
 .st-form { margin-top: 28px; }
