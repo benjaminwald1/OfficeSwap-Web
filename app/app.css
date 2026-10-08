@@ -38,6 +38,12 @@ a { color: var(--brass); }
 .gate .go:disabled { opacity: .35; cursor: default; }
 .gate .err { color: #ff6b62; }
 .gate .fine { font-size: 13px; color: rgba(255,255,255,.5); }
+.gate .or { width: 100%; display: flex; align-items: center; gap: 10px; }
+.gate .or span { flex: 1; height: 1px; background: rgba(255,255,255,.12); }
+.gate .or small { font-size: 12px; color: rgba(255,255,255,.4); }
+.gate .reg { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.25); color: #fff; text-decoration: none;
+  font: 600 17px var(--round); transition: background .2s; }
+.gate .reg:hover { background: rgba(255,255,255,.06); }
 .gate .fine a { color: rgba(255,255,255,.8); }
 
 /* ---------- Top bar and tabs ---------- */

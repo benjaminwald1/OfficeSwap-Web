@@ -142,7 +142,8 @@ function showGate(error = "") {
     <input id="code" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Code" aria-label="Access code">
     <p class="err" id="err" ${error ? "" : "hidden"}>${esc(error)}</p>
     <button class="go" id="go" disabled>Continue</button>
-    <p class="fine">New to OfficeSwap? <a href="../start/">Set up your organization</a></p>
+    <div class="or"><span></span><small>or</small><span></span></div>
+    <a class="reg" href="../start/">Register an organization</a>
     <p class="fine">By continuing, you agree to the <a href="../terms/">Terms of Service</a> and <a href="../privacy/">Privacy Policy</a>.</p>
   </form></div>`;
   const input = root.querySelector("#code"), go = root.querySelector("#go");
