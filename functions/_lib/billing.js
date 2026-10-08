@@ -5,9 +5,9 @@
 // encrypted secrets where marked):
 //   STRIPE_SECRET_KEY          secret   sk_live_… (or sk_test_… to try it out)
 //   STRIPE_WEBHOOK_SECRET      secret   whsec_… from the webhook endpoint
-//   STRIPE_PRICE_STARTER       price_…  $299 / month, 1–19 offices
-//   STRIPE_PRICE_GROWTH        price_…  $699 / month, 20–99 offices
-//   STRIPE_PRICE_ENTERPRISE    price_…  $1,099 / month, 100+ offices
+//   STRIPE_PRICE_STARTER       price_…  $299 / month, 1–19 offices     (optional: see PRICE_IDS)
+//   STRIPE_PRICE_GROWTH        price_…  $699 / month, 20–99 offices    (optional: see PRICE_IDS)
+//   STRIPE_PRICE_ENTERPRISE    price_…  $1,099 / month, 100+ offices   (optional: see PRICE_IDS)
 //   STRIPE_PORTAL_LOGIN_URL    the customer portal's login link (billing.stripe.com/p/login/…)
 //   FIREBASE_SERVICE_ACCOUNT   secret   the service account JSON from Firebase
 //
@@ -24,8 +24,19 @@ export const PLANS = {
   enterprise: { name: "Enterprise", limit: null, env: "STRIPE_PRICE_ENTERPRISE" },
 };
 
+// Stripe price IDs (not secret). A Cloudflare setting of the same plan wins.
+export const PRICE_IDS = {
+  starter: "",
+  growth: "price_1UO8rIIWSF4jElIrY5hhu0T5",
+  enterprise: "",
+};
+
+export function priceFor(env, plan) {
+  return (PLANS[plan] && env[PLANS[plan].env]) || PRICE_IDS[plan] || "";
+}
+
 export function planForPrice(env, priceId) {
-  for (const [key, p] of Object.entries(PLANS)) if (env[p.env] && env[p.env] === priceId) return key;
+  for (const key of Object.keys(PLANS)) if (priceId && priceFor(env, key) === priceId) return key;
   return null;
 }
 

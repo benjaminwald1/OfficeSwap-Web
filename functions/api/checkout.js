@@ -4,13 +4,12 @@
 // to create it once Stripe confirms (see org.js). The master code arrives
 // already hashed by the browser; the code itself never leaves the page.
 
-import { PLANS, SITE, TRIAL_DAYS, json, missing, stripe } from "../_lib/billing.js";
+import { PLANS, SITE, TRIAL_DAYS, json, missing, priceFor, stripe } from "../_lib/billing.js";
 
 const b64 = /^[A-Za-z0-9+/]{16,100}={0,2}$/;
 
 export async function onRequestPost({ request, env }) {
-  const need = missing(env, ["STRIPE_SECRET_KEY", "STRIPE_PRICE_STARTER", "STRIPE_PRICE_GROWTH", "STRIPE_PRICE_ENTERPRISE"]);
-  if (need.length) return json({ error: "Sign-up isn't open yet. Please try again soon." }, 503);
+  if (missing(env, ["STRIPE_SECRET_KEY"]).length) return json({ error: "Sign-up isn't open yet. Please try again soon." }, 503);
 
   let b;
   try { b = await request.json(); } catch { return json({ error: "Something went wrong. Please try again." }, 400); }
@@ -22,6 +21,7 @@ export async function onRequestPost({ request, env }) {
   const masterHash = s(b.masterHash, 100), masterSalt = s(b.masterSalt, 100);
 
   if (!PLANS[plan]) return json({ error: "Choose a plan." }, 400);
+  if (!priceFor(env, plan)) return json({ error: `The ${PLANS[plan].name} plan isn't open for sign-up yet. Please choose another plan or try again soon.` }, 503);
   if (!name) return json({ error: "Enter your organization's name." }, 400);
   if (!street || !city || !state || !/^\d{5}(-\d{4})?$/.test(zip)) return json({ error: "Enter the full office address, with a 5-digit ZIP code." }, 400);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Enter a valid email address." }, 400);
@@ -29,7 +29,7 @@ export async function onRequestPost({ request, env }) {
 
   const session = await stripe(env, "POST", "checkout/sessions", {
     mode: "subscription",
-    line_items: { 0: { price: env[PLANS[plan].env], quantity: 1 } },
+    line_items: { 0: { price: priceFor(env, plan), quantity: 1 } },
     customer_email: email,
     payment_method_collection: "always",
     allow_promotion_codes: "true",
