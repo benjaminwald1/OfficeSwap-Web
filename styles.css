@@ -706,3 +706,32 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 @keyframes tryPulse { 0% { box-shadow: 0 0 0 0 rgba(142,142,147,.5); } 100% { box-shadow: 0 0 0 7px rgba(142,142,147,0); } }
 @media (prefers-reduced-motion: reduce) { .try-dot { animation: none; } }
 .bento-mid { margin-bottom: 16px; }
+
+/* dots under the interactive phone */
+.demo-dots { display: flex; gap: 10px; justify-content: center; }
+.demo-dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: #c7c7cc; cursor: pointer; transition: width .25s ease, background .25s ease; }
+.demo-dots button:hover { background: #8e8e93; }
+.demo-dots button[aria-selected="true"] { width: 22px; background: #1d1d1f; }
+.demo-dots button:focus-visible { outline: 2px solid #1d1d1f; outline-offset: 3px; }
+.stage .try-hint { margin-top: -12px; }
+
+/* free trial popup (home page) */
+.trial-pop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s ease; }
+.trial-pop.in { opacity: 1; }
+.trial-card { position: relative; width: 100%; max-width: 400px; background: #fff; border-radius: 26px; padding: 26px 26px 18px; text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,.3); transform: translateY(14px) scale(.97); transition: transform .3s cubic-bezier(.22,.9,.28,1); }
+.trial-pop.in .trial-card { transform: none; }
+.trial-x { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--pill); color: var(--muted); font-size: 14px; cursor: pointer; }
+.trial-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
+.trial-brand img { width: 30px; height: 30px; border-radius: 8px; }
+.trial-phones { position: relative; height: 230px; margin: 16px 0 6px; }
+.trial-phones .iphone { --w: 108px; position: absolute; top: 0; left: 50%; }
+.trial-a { transform: translateX(-92%) rotate(-6deg); }
+.trial-b { transform: translateX(-8%) translateY(10px) rotate(5deg); }
+.trial-card h2 { margin: 10px 0 8px; font-size: 24px; letter-spacing: -.02em; line-height: 1.15; }
+.trial-card p { margin: 0 0 18px; color: var(--muted); font-size: 15px; }
+.trial-go { display: block; padding: 15px; border-radius: 999px; background: #1d1d1f; color: #fff !important; text-decoration: none; font-weight: 600; font-size: 16px; }
+.trial-go:hover { background: #000; }
+.trial-later { margin-top: 8px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; padding: 8px; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .trial-pop, .trial-card { transition: none; } }

@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="styles.css?v=69">
+<link rel="stylesheet" href="styles.css?v=70">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Office owners offer their office on the days they're away, and OfficeSwap assigns it automatically to someone who needs one, first come, first served.","url":"https://officeswap.co/","downloadUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","installUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -116,6 +116,7 @@
           <div class="ov" id="ov-result" hidden></div>
         </div>
       </div>
+      <div class="demo-dots" id="demo-dots" role="tablist" aria-label="App screens"></div>
       <p class="try-hint"><span class="try-dot" aria-hidden="true"></span>Tap to try it</p>
     </div>
   </div>
@@ -433,7 +434,24 @@
     cur = i;
     buildHots(i);
     renderOverlays(i);
+    markDot(i);
   }
+  // Dots under the phone, one per stop on the tour.
+  var DOTS = [[0, "Board"], [5, "Request an office"], [6, "Office assigned"], [7, "Offer your office"], [1, "Waitlist"], [2, "Plans"], [3, "Export"], [4, "Settings"]];
+  var DOT_OF = { 8: 7, 9: 1 };
+  var dotsEl = document.getElementById("demo-dots");
+  if (dotsEl) DOTS.forEach(function (d) {
+    var b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-label", d[1]); b.title = d[1]; b.dataset.screen = d[0];
+    b.addEventListener("click", function () { stopAuto(); show(d[0]); });
+    dotsEl.appendChild(b);
+  });
+  function markDot(i) {
+    if (!dotsEl) return;
+    var target = DOT_OF[i] != null ? DOT_OF[i] : i;
+    [].forEach.call(dotsEl.children, function (b) { b.setAttribute("aria-selected", String(+b.dataset.screen === target)); });
+  }
+  markDot(0);
   function stopAuto() { clearInterval(timer); timer = null; }
   // Stop the tour the moment someone reaches for the phone, so focus and taps aren't swept away.
   var screenEl = document.getElementById("screen");
@@ -644,6 +662,39 @@
     var m = document.querySelector(".mnav"); if (!m) return;
     m.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", function () { m.removeAttribute("open"); }); });
     document.addEventListener("click", function (e) { if (m.open && !m.contains(e.target)) m.removeAttribute("open"); });
+  })();
+</script>
+<div class="trial-pop" id="trial-pop" hidden>
+  <div class="trial-card" role="dialog" aria-modal="true" aria-labelledby="trial-h">
+    <button class="trial-x" type="button" aria-label="Close">&#x2715;</button>
+    <div class="trial-brand"><img src="logo.png" alt=""> OfficeSwap</div>
+    <div class="trial-phones" aria-hidden="true">
+      <div class="iphone sm trial-a"><img src="images/board.jpg?v=4" alt="" width="720" height="1565"></div>
+      <div class="iphone sm trial-b"><img src="images/plans.jpg?v=4" alt="" width="720" height="1565"></div>
+    </div>
+    <h2 id="trial-h">Start your 30-day free trial</h2>
+    <p>Register your organization and give everyone one access code. No commitment. Cancel anytime.</p>
+    <a class="trial-go" href="start/">Register my organization</a>
+    <button class="trial-later" type="button">Maybe later</button>
+  </div>
+</div>
+<script>
+  // Offered once per visitor, 3 seconds after the home page opens.
+  (function () {
+    var pop = document.getElementById("trial-pop"); if (!pop) return;
+    var KEY = "officeswap.trialPopup";
+    try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+    function close() { pop.classList.remove("in"); setTimeout(function () { pop.hidden = true; }, 250); document.removeEventListener("keydown", esc); }
+    function esc(e) { if (e.key === "Escape") close(); }
+    setTimeout(function () {
+      try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+      pop.hidden = false; requestAnimationFrame(function () { pop.classList.add("in"); });
+      pop.querySelector(".trial-go").focus({ preventScroll: true });
+      document.addEventListener("keydown", esc);
+    }, 3000);
+    pop.addEventListener("click", function (e) { if (e.target === pop) close(); });
+    pop.querySelector(".trial-x").onclick = close;
+    pop.querySelector(".trial-later").onclick = close;
   })();
 </script>
 </body>
