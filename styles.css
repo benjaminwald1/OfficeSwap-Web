@@ -789,10 +789,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .intro-v::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; opacity: 0 !important; }
 /* the app's logo and name over the top of the video */
 .intro-brand { position: absolute; left: 0; right: 0; top: 0; height: 55%; padding-top: clamp(28px, 7%, 96px); display: flex; flex-direction: column;
-  align-items: center; gap: clamp(10px, 1.4vw, 20px); color: #fff; background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,0)); pointer-events: none; }
+  align-items: center; gap: clamp(10px, 1.4vw, 20px); color: #1d1d1f; background: linear-gradient(rgba(255,255,255,.82), rgba(255,255,255,0)); pointer-events: none; }
 .intro-logo { width: clamp(64px, 7.5vw, 112px); height: clamp(64px, 7.5vw, 112px); border-radius: 22.5%;
-  background: #000 url("logo.png") center / cover; box-shadow: 0 8px 22px rgba(0,0,0,.4); }
-.intro-brand b { font: 700 clamp(30px, 4vw, 60px)/1.05 ui-rounded, "SF Pro Rounded", var(--sf); letter-spacing: -.015em; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+  background: #000 url("logo.png") center / cover; box-shadow: 0 8px 22px rgba(0,0,0,.16); }
+.intro-brand b { font: 700 clamp(30px, 4vw, 60px)/1.05 ui-rounded, "SF Pro Rounded", var(--sf); letter-spacing: -.015em; }
 @media (max-width: 700px) { .intro-brand { padding-top: 40px; } }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

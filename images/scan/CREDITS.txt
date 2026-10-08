@@ -7,4 +7,4 @@ person-33680700.jpg: https://www.pexels.com/photo/33680700/
 person-28442318.jpg: https://www.pexels.com/photo/28442318/
 person-6942776.jpg: https://www.pexels.com/photo/6942776/
 The printed page (scan-page.jpg, and on the desk in scan-desk.jpg and scan-live.jpg) is rendered by scratch script render.py.
-images/office-hero.jpg (home page hero): https://www.pexels.com/photo/5444180/ (Pexels license)
+images/office-hero.jpg (home page hero): https://www.pexels.com/photo/34823909/ (Pexels license)
