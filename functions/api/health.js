@@ -14,6 +14,6 @@ export async function onRequestGet({ env }) {
     firebaseKey: has("FIREBASE_SERVICE_ACCOUNT"),
     firebaseWorks: firebase,
     webhookSecret: has("STRIPE_WEBHOOK_SECRET"),
-    portalLink: has("STRIPE_PORTAL_LOGIN_URL"),
+    portalLink: true,
   });
 }
