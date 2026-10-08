@@ -56,7 +56,13 @@ function avatar(name, cls = "") {
 
 const billing = () => (S.org && S.org.plan ? { plan: S.org.plan, limit: S.org.officeLimit ?? null, status: S.org.billingStatus || "active" } : null);
 const planName = (p) => ({ starter: "Starter", growth: "Growth", enterprise: "Enterprise" }[p] || p);
-const isActive = (b) => !b || ["trialing", "active", "past_due", "incomplete"].includes(b.status);
+const isActive = (b) => !b || ["trialing", "active"].includes(b.status);
+const paymentFailed = (b) => !!b && ["past_due", "unpaid", "incomplete", "incomplete_expired"].includes(b.status);
+function blockedMessage(b, name) {
+  return paymentFailed(b)
+    ? `The card on file for ${name} was declined, so its OfficeSwap subscription is on hold. Whoever set up OfficeSwap for ${name} needs to update the payment method at officeswap.co/account. You'll be able to continue as soon as the payment goes through.`
+    : `${name}'s OfficeSwap subscription has ended. Its offices and schedule are kept safe. Whoever set it up can renew at officeswap.co/account.`;
+}
 
 // ---------- master code (same PBKDF2 as the app) ----------
 
@@ -157,6 +163,8 @@ function showGate(error = "") {
     try {
       const org = await getOrg(code);
       if (!org) return showGate("Invalid access code");
+      const b = org.plan ? { plan: org.plan, status: org.billingStatus || "active" } : null;
+      if (!isActive(b)) return showGate(blockedMessage(b, org.name));
       ls.set(SESSION, code);
       open(code, org);
     } catch (x) { showGate(x.message); }
@@ -363,9 +371,9 @@ function render() {
   const tabs = [["board", "Board"], ["waitlist", "Waitlist"], ["plans", "Plans"], ["export", "Export"], ["settings", "Settings"]];
   let body;
   if (!isActive(b)) {
-    body = `<div class="paused"><div style="font-size:52px">⏸</div><h2 style="margin:0;font:700 24px var(--round)">${esc(S.org.name)} is paused</h2>
-      <p class="muted" style="max-width:420px;margin:0">This organization's subscription has ended. Its offices and schedule are kept safe. Whoever set it up can renew to pick up where everyone left off.</p>
-      <a class="primary" style="width:auto;padding:14px 28px;text-decoration:none" href="../account">Renew subscription</a>
+    body = `<div class="paused"><div style="font-size:52px">${paymentFailed(b) ? "💳" : "⏸"}</div><h2 style="margin:0;font:700 24px var(--round)">${paymentFailed(b) ? "Payment declined" : `${esc(S.org.name)} is paused`}</h2>
+      <p class="muted" style="max-width:440px;margin:0">${esc(blockedMessage(b, S.org.name))}</p>
+      <a class="primary" style="width:auto;padding:14px 28px;text-decoration:none" href="../account">${paymentFailed(b) ? "Update payment method" : "Renew subscription"}</a>
       <button class="link-btn" style="color:var(--brass)" id="sw">Use a different organization</button></div>`;
   } else body = { board, waitlist: waitlistTab, plans, export: exportTab, settings }[S.tab]();
   root.innerHTML = `

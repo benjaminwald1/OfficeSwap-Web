@@ -36,7 +36,7 @@ a { color: var(--brass); }
 .gate input:focus { border-color: rgba(255,255,255,.45); }
 .gate .go { width: 100%; padding: 15px; border: 0; border-radius: 14px; background: #fff; color: #000; font: 600 17px var(--round); }
 .gate .go:disabled { opacity: .35; cursor: default; }
-.gate .err { color: #ff6b62; }
+.gate .err { color: #ff6b62; font-size: 13.5px; line-height: 1.45; }
 .gate .fine { font-size: 13px; color: rgba(255,255,255,.5); }
 .gate .or { width: 100%; display: flex; align-items: center; gap: 10px; }
 .gate .or span { flex: 1; height: 1px; background: rgba(255,255,255,.12); }
