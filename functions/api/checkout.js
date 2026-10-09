@@ -2,8 +2,7 @@
 // the chosen plan, a 30-day free trial, and a card collected up front.
 // With { ui: "elements" } the card form appears on officeswap.co itself
 // (Checkout Sessions with Stripe Elements) and this returns its client
-// secret; otherwise it returns a link to Stripe's hosted page. Cards only:
-// no bank debits, pay-later apps or "save my info" prompts.
+// secret; otherwise it returns a link to Stripe's hosted page (cards only).
 // The organization's details ride along on the subscription and are used
 // to create it once Stripe confirms (see org.js). The master code arrives
 // already hashed by the browser; the code itself never leaves the page.
@@ -37,7 +36,6 @@ export async function onRequestPost({ request, env }) {
     mode: "subscription",
     line_items: { 0: { price: priceFor(env, plan), quantity: 1 } },
     customer_email: email,
-    payment_method_types: { 0: "card" },
     payment_method_collection: "always",
     allow_promotion_codes: "true",
     billing_address_collection: "auto",
@@ -49,12 +47,14 @@ export async function onRequestPost({ request, env }) {
   };
   try {
     if (onPage) {
+      // On this API version the payment methods offered are the ones turned on
+      // in Stripe's dashboard (Settings > Payment methods).
       const session = await stripe(env, "POST", "checkout/sessions",
         { ...params, ui_mode: "elements", return_url: done }, CHECKOUT_API_VERSION);
       return json({ clientSecret: session.client_secret });
     }
     const session = await stripe(env, "POST", "checkout/sessions",
-      { ...params, success_url: done, cancel_url: `${SITE}/start/?plan=${plan}` });
+      { ...params, payment_method_types: { 0: "card" }, success_url: done, cancel_url: `${SITE}/start/?plan=${plan}` });
     return json({ url: session.url });
   } catch (e) {
     return json({ error: "Checkout couldn't start. Please try again in a moment.", detail: String(e && e.message || e) }, 503);
