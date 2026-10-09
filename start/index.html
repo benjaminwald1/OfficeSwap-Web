@@ -22,7 +22,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
-<link rel="stylesheet" href="../styles.css?v=71">
+<link rel="stylesheet" href="../styles.css?v=79">
+<!-- Stripe's publishable key (public by design). Empty: card details go on Stripe's hosted page instead. -->
+<meta name="stripe-pk" content="">
 </head>
 <body>
 <header class="topnav">
@@ -37,7 +39,7 @@
     </nav>
     <details class="mnav">
       <summary aria-label="Menu"><span></span><span></span></summary>
-      <nav class="mnav-panel" aria-label="Menu"><a href="../#how">How it works</a><a href="../#made-for">Made for you</a><a href="../faq/">FAQ</a><a href="../support/">Support</a>None<a href="../app/">Log in</a><a href="../privacy/">Privacy Policy</a><a href="../terms/">Terms of Service</a><a class="pill-btn" href="https://apps.apple.com/us/app/officeswap/id6816776136" target="_blank" rel="noopener">Get the app</a></nav>
+      <nav class="mnav-panel" aria-label="Menu"><a href="../#how">How it works</a><a href="../#made-for">Made for you</a><a href="../faq/">FAQ</a><a href="../support/">Support</a><a href="../app/">Log in</a><a href="../privacy/">Privacy Policy</a><a href="../terms/">Terms of Service</a><a class="pill-btn" href="https://apps.apple.com/us/app/officeswap/id6816776136" target="_blank" rel="noopener">Get the app</a></nav>
     </details>
     <a class="pill-btn" href="https://apps.apple.com/us/app/officeswap/id6816776136" target="_blank" rel="noopener">Get the app</a>
   </div>
@@ -79,8 +81,32 @@
 
   <p class="st-error" id="st-error" role="alert" hidden></p>
   <button class="pill-btn lg st-go" type="submit" id="st-go">Start 30-day free trial</button>
-  <p class="st-fine">You'll enter your card on Stripe's secure checkout. Plans renew monthly until you cancel. By continuing you agree to the <a href="../terms/">Terms of Service</a> and <a href="../privacy/">Privacy Policy</a>.</p>
+  <p class="st-fine">Next you'll add a card for when the trial ends. Plans renew monthly until you cancel. By continuing you agree to the <a href="../terms/">Terms of Service</a> and <a href="../privacy/">Privacy Policy</a>.</p>
 </form>
+
+<!-- Step 4, on this page: Stripe's card form (Checkout Sessions with Elements). -->
+<section class="st-pay" id="st-pay" aria-labelledby="st-pay-h" hidden>
+  <button type="button" class="st-back" id="st-back"><svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2L2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit details</button>
+  <h2 class="st-pay-h" id="st-pay-h">4. Card for after the trial</h2>
+  <div class="st-sum">
+    <div class="st-sum-top"><b id="st-sum-plan">OfficeSwap</b><span class="st-trial">30 days free</span></div>
+    <div class="st-sum-row st-sum-today"><span>Due today</span><b>$0.00</b></div>
+    <div class="st-sum-row"><span id="st-sum-then"></span></div>
+    <div class="st-sum-row st-sum-promo" id="st-sum-promo" hidden><span id="st-sum-promo-name">Promotion</span><b id="st-sum-promo-amt"></b></div>
+  </div>
+  <div class="st-card" id="st-card"><div class="st-loading" id="st-loading">Loading secure card form…</div></div>
+  <details class="st-promo" id="st-promo-box">
+    <summary>Have a promotion code?</summary>
+    <div class="st-promo-row">
+      <input id="st-promo" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Code" aria-label="Promotion code">
+      <button type="button" class="ghost-btn" id="st-promo-go">Apply</button>
+    </div>
+    <p class="st-promo-msg" id="st-promo-msg" hidden></p>
+  </details>
+  <p class="st-error" id="st-pay-error" role="alert" hidden></p>
+  <button class="pill-btn lg st-go" type="button" id="st-pay-go" disabled>Start free trial</button>
+  <p class="st-fine st-pay-fine"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span>You won't be charged until <b id="st-charge-date"></b>. Cancel anytime before then. Card details go straight to Stripe and never touch our servers.</span></p>
+</section>
 </main>
 </div>
 
@@ -145,15 +171,128 @@
       var master = String(f.get("master") || "").replace(/^[ \t]+|[ \t]+$/g, "");
       if (master.length < 6) return fail("Use at least 6 characters for the master code.");
       if (master !== String(f.get("master2") || "").replace(/^[ \t]+|[ \t]+$/g, "")) return fail("The two master codes don't match.");
-      go.disabled = true; go.textContent = "Opening secure checkout…";
+      go.disabled = true; go.textContent = "One moment…";
       try {
         var h = await hashMaster(master);
-        var res = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ plan: v("plan"), name: v("name"), street: v("street"), city: v("city"), state: v("state"), zip: v("zip"), email: v("email"), masterHash: h.hash, masterSalt: h.salt }) });
+        var details = { plan: v("plan"), name: v("name"), street: v("street"), city: v("city"), state: v("state"), zip: v("zip"), email: v("email"), masterHash: h.hash, masterSalt: h.salt };
+        if (stripeKey()) return await payHere(details);
+        var res = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(details) });
         var j = await res.json().catch(function () { return {}; });
         if (!res.ok || !j.url) return fail(j.error || "Something went wrong. Please try again.");
         location.href = j.url;
       } catch (x) { fail("Something went wrong. Please try again."); }
+    });
+
+    // ---- Step 4 on this page: Stripe's card form, styled like the site ----
+    // Back to the top of the steps, clear of the menu bar.
+    function toTop() { window.scrollTo({ top: document.querySelector(".st-wrap").getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" }); }
+    function stripeKey() { return (document.querySelector('meta[name="stripe-pk"]') || {}).content || ""; }
+    var pay = document.getElementById("st-pay"), card = document.getElementById("st-card"), payGo = document.getElementById("st-pay-go");
+    var payErr = document.getElementById("st-pay-error"), loading = document.getElementById("st-loading");
+    var promoIn = document.getElementById("st-promo"), promoGo = document.getElementById("st-promo-go"), promoMsg = document.getElementById("st-promo-msg");
+    var actions = null, element = null, ready = false;
+    var money = function (n) { return "$" + n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+
+    function loadStripe() {
+      if (window.Stripe) return Promise.resolve();
+      return new Promise(function (ok, no) {
+        var t = document.createElement("script");
+        t.src = "https://js.stripe.com/endive/stripe.js"; t.onload = ok; t.onerror = no;
+        document.head.appendChild(t);
+      });
+    }
+    function payFail(msg) { payErr.textContent = msg; payErr.hidden = false; payGo.disabled = !ready; payGo.textContent = "Start free trial"; }
+
+    async function payHere(details) {
+      var res = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify(Object.assign({ ui: "elements" }, details)) });
+      var j = await res.json().catch(function () { return {}; });
+      if (!res.ok || !j.clientSecret) return fail(j.error || "Something went wrong. Please try again.");
+      // The plan summary, from the plan picked above.
+      var picked = form.querySelector('input[name="plan"]:checked').closest("label");
+      var price = Number((picked.querySelector("em").firstChild.textContent || "").replace(/[^0-9.]/g, ""));
+      var ends = new Date(); ends.setDate(ends.getDate() + 30);
+      var endText = ends.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      document.getElementById("st-sum-plan").textContent = "OfficeSwap " + picked.querySelector("b").textContent;
+      document.getElementById("st-sum-then").textContent = "Then " + money(price) + " a month from " + endText;
+      document.getElementById("st-charge-date").textContent = ends.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+      form.hidden = true; pay.hidden = false; payErr.hidden = true; loading.hidden = false;
+      toTop();
+      go.disabled = false; go.textContent = "Start 30-day free trial";
+      try { await loadStripe(); } catch (x) { return payFail("The card form couldn't load. Check your connection and try again."); }
+      var checkout = window.Stripe(stripeKey()).initCheckoutElementsSdk({
+        clientSecret: Promise.resolve(j.clientSecret),
+        elementsOptions: {
+          fonts: [{ cssSrc: "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" }],
+          appearance: {
+            theme: "stripe",
+            variables: {
+              fontFamily: '"Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+              fontSizeBase: "16px", colorPrimary: "#1d1d1f", colorText: "#1d1d1f", colorTextSecondary: "#6e6e73",
+              colorDanger: "#c4251c", colorBackground: "#ffffff", borderRadius: "12px", spacingUnit: "4px"
+            },
+            rules: {
+              ".Input": { border: "1px solid #d2d2d7", boxShadow: "none", padding: "12px 14px" },
+              ".Input:focus": { borderColor: "#0a84ff", boxShadow: "0 0 0 3px rgba(10,132,255,.15)" },
+              ".Label": { fontWeight: "600", color: "#3a3a3c", fontSize: "14px" },
+              ".Tab": { border: "1px solid #d2d2d7", boxShadow: "none" },
+              ".Tab--selected": { borderColor: "#1d1d1f", boxShadow: "0 0 0 1px #1d1d1f" }
+            }
+          }
+        }
+      });
+      checkout.on("change", function (session) {
+        ready = !!session.canConfirm;
+        if (payGo.textContent === "Start free trial") payGo.disabled = !ready;
+        // A promotion code, once applied, shows in the summary.
+        var d = (session.discountAmounts || [])[0];
+        var promo = document.getElementById("st-sum-promo");
+        promo.hidden = !d;
+        if (d) {
+          document.getElementById("st-sum-promo-name").textContent = d.displayName || (d.promotionCode ? "Code " + d.promotionCode : "Promotion");
+          document.getElementById("st-sum-promo-amt").textContent = d.amount ? "−" + String(d.amount).replace(/^-/, "") : "Applied";
+        }
+      });
+      card.querySelectorAll(".st-element").forEach(function (n) { n.remove(); });
+      var mount = document.createElement("div"); mount.className = "st-element"; card.appendChild(mount);
+      element = checkout.createPaymentElement({ layout: "tabs" });
+      element.on && element.on("ready", function () { loading.hidden = true; });
+      element.mount(mount);
+      var loaded = await checkout.loadActions();
+      if (!loaded || loaded.type !== "success") return payFail("The card form couldn't load. Please try again.");
+      actions = loaded.actions;
+    }
+
+    payGo.addEventListener("click", async function () {
+      if (!actions) return;
+      payErr.hidden = true; payGo.disabled = true; payGo.textContent = "Starting your trial…";
+      try {
+        // Saves the card and starts the trial; Stripe then returns here, to /start/done/.
+        var r = await actions.confirm();
+        if (r && r.type === "error") payFail(r.error && r.error.message ? r.error.message : "That didn't go through. Please check your card and try again.");
+      } catch (x) { payFail("That didn't go through. Please try again."); }
+    });
+
+    promoGo.addEventListener("click", async function () {
+      var code = promoIn.value.trim();
+      if (!actions || !code) return;
+      promoGo.disabled = true; promoMsg.hidden = true;
+      try {
+        var r = await actions.applyPromotionCode(code);
+        var bad = r && r.type === "error";
+        promoMsg.textContent = bad ? ((r.error && r.error.message) || "That code isn't valid.") : "Code applied.";
+        promoMsg.className = "st-promo-msg " + (bad ? "bad" : "ok");
+      } catch (x) { promoMsg.textContent = "That code couldn't be applied."; promoMsg.className = "st-promo-msg bad"; }
+      promoMsg.hidden = false; promoGo.disabled = false;
+    });
+    promoIn.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); promoGo.click(); } });
+
+    // Back to the details: the card form starts fresh next time.
+    document.getElementById("st-back").addEventListener("click", function () {
+      if (element) { try { element.destroy ? element.destroy() : element.unmount(); } catch (x) {} }
+      element = null; actions = null; ready = false;
+      pay.hidden = true; form.hidden = false; payGo.disabled = true; payGo.textContent = "Start free trial";
+      toTop();
     });
   })();
 </script>

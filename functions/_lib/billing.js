@@ -63,10 +63,15 @@ function form(params, prefix = "", out = new URLSearchParams()) {
   return out;
 }
 
-export async function stripe(env, method, path, params) {
+// Most calls use the API version the site was built on. Checkout on the page
+// itself (ui_mode "elements") needs a newer one, matching Stripe.js "endive".
+export const API_VERSION = "2024-06-20";
+export const CHECKOUT_API_VERSION = "2026-09-30.endive";
+
+export async function stripe(env, method, path, params, version = API_VERSION) {
   const init = {
     method,
-    headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": "2024-06-20" },
+    headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, "stripe-version": version },
   };
   let url = `https://api.stripe.com/v1/${path}`;
   if (params && method === "GET") url += "?" + form(params).toString();

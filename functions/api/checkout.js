@@ -1,10 +1,14 @@
 // POST /api/checkout — starts a Stripe Checkout for a new organization:
 // the chosen plan, a 30-day free trial, and a card collected up front.
+// With { ui: "elements" } the card form appears on officeswap.co itself
+// (Checkout Sessions with Stripe Elements) and this returns its client
+// secret; otherwise it returns a link to Stripe's hosted page. Cards only:
+// no bank debits, pay-later apps or "save my info" prompts.
 // The organization's details ride along on the subscription and are used
 // to create it once Stripe confirms (see org.js). The master code arrives
 // already hashed by the browser; the code itself never leaves the page.
 
-import { PLANS, SITE, TRIAL_DAYS, json, missing, priceFor, stripe } from "../_lib/billing.js";
+import { CHECKOUT_API_VERSION, PLANS, SITE, TRIAL_DAYS, json, missing, priceFor, stripe } from "../_lib/billing.js";
 
 const b64 = /^[A-Za-z0-9+/]{16,100}={0,2}$/;
 
@@ -27,10 +31,13 @@ export async function onRequestPost({ request, env }) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Enter a valid email address." }, 400);
   if (!b64.test(masterHash) || !b64.test(masterSalt)) return json({ error: "Choose a master code." }, 400);
 
-  const session = await stripe(env, "POST", "checkout/sessions", {
+  const onPage = b.ui === "elements";
+  const done = `${SITE}/start/done/?session_id={CHECKOUT_SESSION_ID}`;
+  const params = {
     mode: "subscription",
     line_items: { 0: { price: priceFor(env, plan), quantity: 1 } },
     customer_email: email,
+    payment_method_types: { 0: "card" },
     payment_method_collection: "always",
     allow_promotion_codes: "true",
     billing_address_collection: "auto",
@@ -39,8 +46,17 @@ export async function onRequestPost({ request, env }) {
       description: `OfficeSwap ${PLANS[plan].name} for ${name}`,
       metadata: { plan, org_name: name, street, city, state, zip, owner_email: email, master_hash: masterHash, master_salt: masterSalt },
     },
-    success_url: `${SITE}/start/done/?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${SITE}/start/?plan=${plan}`,
-  });
-  return json({ url: session.url });
+  };
+  try {
+    if (onPage) {
+      const session = await stripe(env, "POST", "checkout/sessions",
+        { ...params, ui_mode: "elements", return_url: done }, CHECKOUT_API_VERSION);
+      return json({ clientSecret: session.client_secret });
+    }
+    const session = await stripe(env, "POST", "checkout/sessions",
+      { ...params, success_url: done, cancel_url: `${SITE}/start/?plan=${plan}` });
+    return json({ url: session.url });
+  } catch (e) {
+    return json({ error: "Checkout couldn't start. Please try again in a moment." }, 502);
+  }
 }
