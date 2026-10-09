@@ -128,8 +128,8 @@ a { color: var(--accent); }
 .tag svg { width: 12px; height: 12px; }
 .group { width: 100%; display: flex; align-items: center; gap: 8px; margin: 22px 0 10px; padding: 0 4px; border: 0; background: transparent; color: var(--ink); font: 600 18px var(--round); text-align: left; }
 .group .tag { font-size: 12px; }
-.group .chev { width: 13px; height: 13px; margin-left: auto; color: var(--faint); transition: transform .2s; }
-.group.shut .chev { transform: rotate(-90deg); }
+.group > svg { width: 14px; height: 14px; margin-left: auto; color: var(--faint); transition: transform .2s; }
+.group.shut > svg { transform: rotate(-90deg); }
 .nothing { display: flex; gap: 12px; align-items: center; padding: 12px; margin: 16px 0 10px; }
 .nothing .ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--orange); background: rgba(255,149,0,.14); }
 .nothing b { display: block; font-size: 14.5px; }
@@ -211,3 +211,5 @@ textarea.field { min-height: 240px; font: 14px/1.5 ui-monospace, "SF Mono", Menl
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1d1d1f; color: #fff; padding: 10px 16px; border-radius: 999px;
   font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 50; }
 @media (max-width: 420px) { .tabs button { padding: 7px 9px; font-size: 13.5px; } }
+.setting b { display: block; font-weight: 600; }
+.setting .grow .small { display: block; margin-top: 2px; line-height: 1.4; }
