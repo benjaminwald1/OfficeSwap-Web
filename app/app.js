@@ -2,8 +2,9 @@
 // Settings in a browser, signed in with the organization's access code.
 // Changes go into the same shared schedule every phone uses.
 
-import { Store, Days, officeCount, trimmed } from "./engine.js?v=2";
-import { getOrg, getState, putState, getPhotos, deleteOrg } from "./cloud.js";
+import { Store, Days, officeCount } from "./engine.js?v=3";
+import { getOrg, getPhotos, deleteOrg } from "./cloud.js?v=2";
+import { Remote } from "./sync.js?v=1";
 
 const root = document.getElementById("root");
 const sheet = document.getElementById("sheet");
@@ -96,14 +97,14 @@ function askMaster(title, message, then) {
 async function refresh() {
   if (!S.store) return;
   try {
-    const { state, version } = await getState(S.code);
-    if (version !== S.version || !S.loaded) {
-      S.version = version; S.loaded = true;
-      S.store.adopt(state);
+    if (await S.remote.refresh()) {
       if (S.store.pending.length) return push();
       render();
     }
-  } catch { /* offline: try again next tick */ }
+  } catch (e) {
+    // Offline: try again next tick. Only say something if the data itself is the problem.
+    if (e.message && e.message.startsWith("This organization")) toast(e.message);
+  }
 }
 async function refreshOrg() {
   try {
@@ -120,17 +121,7 @@ async function push() {
   if (S.pushing) { S.pushAgain = true; return; }
   S.pushing = true;
   try {
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const { state, version } = await getState(S.code);
-      S.store.adopt(state);
-      const sent = S.store.pending.length;
-      if (!sent) break;
-      if (await putState(S.code, trimmed(S.store.snapshot()), version)) {
-        S.store.pending.splice(0, sent); S.version = null;
-        if (!S.store.pending.length && !S.pushAgain) break;
-        S.pushAgain = false;
-      }
-    }
+    do { S.pushAgain = false; await S.remote.push(); } while (S.pushAgain && S.store.pending.length);
     if (S.store.pending.length) toast("Couldn't save yet. Retrying…");
   } catch (e) { toast(e.message); }
   finally { S.pushing = false; render(); if (S.store.pending.length) setTimeout(push, 4000); }
@@ -175,6 +166,7 @@ async function open(code, org) {
   S.code = code; S.org = org || (await getOrg(code));
   if (!S.org) { ls.set(SESSION, null); return showGate(); }
   S.store = new Store(code, S.org.name, S.org.address || null);
+  S.remote = new Remote(code, S.store);
   S.loaded = false; S.version = null; S.tab = "board"; S.weekOffset = 0; S.picked = null;
   S.location = ls.get(locKey(code));
   root.innerHTML = `<div class="paused"><p class="muted">Loading ${esc(S.org.name)}…</p></div>`;

@@ -2,11 +2,19 @@
 // sign-in (like the app's) and Firestore's REST API, under the same
 // security rules every phone uses.
 
-const PROJECT = "officeswap-uw3il";
+// For tests, globalThis.OFFICESWAP_EMULATOR = "127.0.0.1" points everything
+// at the local Firebase emulator instead.
+import { META, documentIDs } from "./shards.js?v=1";
+
+const EMU = globalThis.OFFICESWAP_EMULATOR;
+const PROJECT = EMU ? "demo-officeswap" : "officeswap-uw3il";
 // Firebase's web API key identifies the project; it isn't a secret (the
 // same key ships inside the iOS app). Access is decided by the rules.
 const API_KEY = "AIzaSyBfpw5r8T2dMftpEPbaectPYpSRK_sG2tI";
-const DOCS = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+const FIRESTORE = EMU ? `http://${EMU}:8080` : "https://firestore.googleapis.com";
+const IDENTITY = EMU ? `http://${EMU}:9099/identitytoolkit.googleapis.com` : "https://identitytoolkit.googleapis.com";
+const SECURETOKEN = EMU ? `http://${EMU}:9099/securetoken.googleapis.com` : "https://securetoken.googleapis.com";
+const DOCS = `${FIRESTORE}/v1/projects/${PROJECT}/databases/(default)/documents`;
 const TOKEN_KEY = "officeswap.auth";
 
 let auth = null;
@@ -19,7 +27,7 @@ async function token() {
   if (auth && auth.exp > Date.now() + 60000) return auth.id;
   let res;
   if (auth && auth.refresh) {
-    res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${API_KEY}`, {
+    res = await fetch(`${SECURETOKEN}/v1/token?key=${API_KEY}`, {
       method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: auth.refresh }),
     });
@@ -29,7 +37,7 @@ async function token() {
       return auth.id;
     }
   }
-  res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, {
+  res = await fetch(`${IDENTITY}/v1/accounts:signUp?key=${API_KEY}`, {
     method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ returnSecureToken: true }),
   });
   if (!res.ok) throw new Error("Couldn't connect. Check your internet connection.");
@@ -82,7 +90,7 @@ export async function getState(code) {
 // someone did (read again, merge, and retry).
 export async function putState(code, state, version) {
   const name = `projects/${PROJECT}/databases/(default)/documents/orgs/${code}/state/current`;
-  const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents:commit`, {
+  const res = await fetch(`${DOCS}:commit`, {
     method: "POST",
     headers: { authorization: `Bearer ${await token()}`, "content-type": "application/json" },
     body: JSON.stringify({ writes: [{
@@ -96,6 +104,57 @@ export async function putState(code, state, version) {
   const e = await res.json().catch(() => ({}));
   const status = e.error && e.error.status;
   if (status === "FAILED_PRECONDITION" || status === "ABORTED" || status === "ALREADY_EXISTS" || res.status === 409) return false;
+  throw new Error(status === "PERMISSION_DENIED" ? "This organization can't be changed right now." : "Couldn't save. Check your connection and try again.");
+}
+
+// ----- the split schedule (see shards.js) -----
+
+const docName = (code, id) => `projects/${PROJECT}/databases/(default)/documents/orgs/${code}/state/${id}`;
+
+// Reads schedule documents by ID: {id: {json, updateTime} | null}. With
+// `timesOnly`, only when each last changed (json stays undefined), which is
+// a quick way to see what needs fetching.
+export async function getDocs(code, ids, timesOnly = false) {
+  const out = {};
+  for (let i = 0; i < ids.length; i += 100) {
+    const body = { documents: ids.slice(i, i + 100).map((id) => docName(code, id)) };
+    if (timesOnly) body.mask = { fieldPaths: ["updatedAt"] };
+    const res = await fetch(`${DOCS}:batchGet`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${await token()}`, "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Couldn't load the schedule.");
+    for (const r of await res.json()) {
+      if (r.found) {
+        const id = r.found.name.split("/").pop();
+        out[id] = { updateTime: r.found.updateTime, json: timesOnly ? undefined : r.found.fields?.json?.stringValue ?? null };
+      } else if (r.missing) {
+        out[r.missing.split("/").pop()] = null;
+      }
+    }
+  }
+  return out;
+}
+
+// Writes schedule documents ([{id, json, updateTime}]) together, each only if
+// unchanged since it was read (updateTime null: only if it doesn't exist).
+// False if someone else wrote one first (read again, merge, and retry).
+export async function putDocs(code, writes) {
+  const res = await fetch(`${DOCS}:commit`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${await token()}`, "content-type": "application/json" },
+    body: JSON.stringify({ writes: writes.map((w) => ({
+      update: { name: docName(code, w.id), fields: { json: { stringValue: w.json } } },
+      updateMask: { fieldPaths: ["json"] },
+      updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }],
+      currentDocument: w.updateTime ? { updateTime: w.updateTime } : { exists: false },
+    })) }),
+  });
+  if (res.ok) return true;
+  const e = await res.json().catch(() => ({}));
+  const status = e.error && e.error.status;
+  if (status === "FAILED_PRECONDITION" || status === "ABORTED" || status === "ALREADY_EXISTS" || status === "NOT_FOUND" || res.status === 409) return false;
   throw new Error(status === "PERMISSION_DENIED" ? "This organization can't be changed right now." : "Couldn't save. Check your connection and try again.");
 }
 
@@ -125,7 +184,13 @@ export async function deleteOrg(code) {
     for (const d of (r.data && r.data.documents) || []) await call("DELETE", `orgs/${code}/photos/${d.name.split("/").pop()}`);
     pageToken = (r.data && r.data.nextPageToken) || "";
   } while (pageToken);
+  // Every document of the schedule, old weeks included, then its layout.
+  const meta = (await getDocs(code, [META]))[META];
+  if (meta && meta.json) {
+    try { for (const id of documentIDs(JSON.parse(meta.json), false)) await call("DELETE", `orgs/${code}/state/${id}`); } catch {}
+  }
   await call("DELETE", `orgs/${code}/state/current`);
+  await call("DELETE", `orgs/${code}/state/${META}`);
   const r = await call("DELETE", `orgs/${code}`);
   if (r.status !== 200) throw new Error("Couldn't delete the organization. Try again.");
 }

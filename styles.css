@@ -530,10 +530,10 @@ a.appstore:hover { background: #000; transform: translateY(-1px); }
 .ov .day { display: grid; place-items: center; font-size: calc(var(--pt) * 17); border-radius: calc(var(--pt) * 10); cursor: pointer; color: #000; font-variant-numeric: tabular-nums; transition: background-color .12s; }
 .ov .day::before { content: none; }
 .ov .day:hover:not(.off):not(.on) { background: #f2f2f5; }
-.ov .day.today { color: #9c6e21; font-weight: 600; }
+.ov .day.today { color: #000; font-weight: 700; }
 .ov .day.off { color: #e5e5e7; cursor: default; }
 .ov .day.other { color: #ededee; }
-.ov .day.on { background: #1c294a; color: #fff; font-weight: 600; }
+.ov .day.on { background: #141414; color: #fff; font-weight: 600; }
 .cal-divider { position: absolute; left: calc(var(--pt) * 16); right: calc(var(--pt) * 16); top: calc(var(--pt) * 316); height: 1px; background: #c6c6c8; }
 .cal-sel { position: absolute; left: calc(var(--pt) * 16); right: calc(var(--pt) * 16); top: calc(var(--pt) * 330); display: flex; justify-content: space-between; font-size: calc(var(--pt) * 15); }
 .cal-sel b { font-weight: 600; } .cal-sel span { color: #8a8a8e; }
@@ -544,7 +544,7 @@ a.appstore:hover { background: #000; transform: translateY(-1px); }
 .chip-day i { font-style: normal; font-size: calc(var(--pt) * 12); color: #8a8a8e; }
 .ov .chip-day button { display: grid; place-items: center; color: #8a8a8e; cursor: pointer; width: calc(var(--pt) * 16); height: calc(var(--pt) * 16); }
 .chip-day button svg { width: calc(var(--pt) * 11); height: calc(var(--pt) * 11); }
-.cal-submit { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * 788); height: calc(var(--pt) * 52); border-radius: calc(var(--pt) * 26) !important; background: #fff !important; color: #9c6e21 !important; font-size: calc(var(--pt) * 17) !important; font-weight: 600 !important; cursor: pointer; }
+.cal-submit { position: absolute; pointer-events: auto; left: calc(var(--pt) * 16); width: calc(var(--pt) * 370); top: calc(var(--pt) * 788); height: calc(var(--pt) * 52); border-radius: calc(var(--pt) * 26) !important; background: #fff !important; color: #000 !important; font-size: calc(var(--pt) * 17) !important; font-weight: 600 !important; cursor: pointer; }
 .cal-submit:disabled { color: #b6b6bb !important; cursor: default; }
 .cal-submit:active:not(:disabled) { background: #f1f1f4 !important; }
 #ov-result { top: calc(100cqw / 402 * 150); background: #f2f2f7; overflow: auto; pointer-events: auto; }

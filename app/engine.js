@@ -54,6 +54,9 @@ export class Store {
     this.orgName = orgName;
     this.orgAddress = orgAddress; // {street, city, state, zip} or null
     this.offices = []; this.away = []; this.visits = []; this.knownVisitors = [];
+    // Lookups rebuilt by recompute(), so thousands of offices stay quick:
+    // offers by day and office, and who holds each office on each day.
+    this.awayByDay = new Map(); this.holderByDay = new Map();
     this.extra = {}; // fields of the shared JSON this version doesn't use (kept as they are)
     this.pending = [];
     this.lastCreated = 0;
@@ -106,7 +109,7 @@ export class Store {
         break;
       case "cancelVisit": this.visits = this.visits.filter((v) => v.id !== c.id); break;
       case "cancelAway": this.away = this.away.filter((a) => a.id !== c.id); break;
-      case "setOffices": this.applyOffices(c.text); break;
+      case "setOffices": this.applyOffices(c.text, c.newIDs || {}); break;
       case "addPerson": if (!this.peopleDirectory().includes(c.name)) this.knownVisitors.push(c.name); break;
       case "replaceAll": this.load(c.state); break;
     }
@@ -119,7 +122,14 @@ export class Store {
   peopleDirectory() {
     return [...new Set([...this.offices.map((o) => o.owner).filter(Boolean), ...this.knownVisitors, ...this.visits.map((v) => v.name)])].sort(cmp);
   }
-  office(id) { return this.offices.find((o) => o.id === id); }
+  // Offices by ID (and list position), rebuilt whenever the list is replaced.
+  get offices() { return this._offices; }
+  set offices(list) {
+    this._offices = list;
+    this.officeByID = new Map(list.map((o) => [o.id, o]));
+    this.officePos = new Map(list.map((o, i) => [o.id, i]));
+  }
+  office(id) { return this.officeByID.get(id); }
   locations() { return [...new Set(this.offices.map((o) => o.location))].sort(cmp); }
 
   requestableNames(location) {
@@ -136,46 +146,86 @@ export class Store {
     return this.offices.filter((o) => o.owner && !busy.has(o.id));
   }
 
-  isOpen(o, d) { return !o.owner || this.away.some((a) => a.officeID === o.id && hasDay(a.days, d)); }
-  holder(officeID, d, except) { return this.visits.find((v) => v.id !== except && v.seats.get(Days.key(d)) === officeID); }
+  isOpen(o, d) { return !o.owner || !!this.awayByDay.get(Days.key(d))?.has(o.id); }
+  offer(officeID, d) { return this.awayByDay.get(Days.key(d))?.get(officeID); }
+  holder(officeID, d, except) { const v = this.holderByDay.get(Days.key(d))?.get(officeID); return v && v.id !== except ? v : undefined; }
   isFree(o, d, except) { return this.isOpen(o, d) && !this.holder(o.id, d, except); }
   waiting(v) { const t = Days.today(); return v.days.filter((d) => !v.seats.has(Days.key(d)) && d >= t); }
   waitlist() { return this.visits.filter((v) => this.waiting(v).length).sort((a, b) => a.created - b.created); }
 
-  // First come, first served. Valid seats never move; visitors are kept in as few offices as possible.
+  // First come, first served. Valid seats never move; visitors are kept in as
+  // few offices as possible. The same steps, order and tie-breaks as
+  // Store.recompute() in the app, so every phone and browser agrees.
   recompute() {
-    for (const v of this.visits) {
-      for (const d of v.days) {
-        const oid = v.seats.get(Days.key(d));
-        if (oid == null) continue;
+    const byDay = new Map();
+    for (const a of this.away) {
+      const o = this.office(a.officeID);
+      if (!o || !o.owner) continue;
+      for (const d of a.days) { const k = Days.key(d); if (!byDay.has(k)) byDay.set(k, new Map()); byDay.get(k).set(a.officeID, a); }
+    }
+    this.awayByDay = byDay;
+    // Oldest request first; ties go by ID.
+    const order = [...this.visits].sort((a, b) => a.created - b.created || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    // 1. Keep each seat whose office is still open and not already held
+    //    (the earlier request keeps an office given away twice).
+    const held = new Map();
+    const heldAt = (k) => { if (!held.has(k)) held.set(k, new Map()); return held.get(k); };
+    for (const v of order) {
+      for (const [k, oid] of [...v.seats]) {
         const o = this.office(oid);
-        if (o && this.isOpen(o, d)) continue;
-        v.seats.delete(Days.key(d));
+        if (o && this.isOpen(o, new Date(k)) && !held.get(k)?.has(oid) && v.days.some((d) => Days.key(d) === k)) heldAt(k).set(oid, v);
+        else v.seats.delete(k);
       }
     }
+    // 2. Seat everyone still waiting, oldest first, preferring the office free
+    //    on the most of their days, then one they already have.
     const today = Days.today();
-    const order = [...this.visits].sort((a, b) => a.created - b.created);
+    const guests = this.offices.filter((o) => !o.owner).map((o) => o.id);
+    // What's still free each day (anywhere, and in each location), kept
+    // current as seats are given out.
+    const free = new Map();
+    const freeOn = (k, place) => {
+      const key = place == null ? `${k}` : `${k}|${place}`;
+      if (!free.has(key)) {
+        let f;
+        if (place != null) f = new Set([...freeOn(k, null)].filter((id) => this.office(id)?.location === place));
+        else {
+          f = new Set(guests);
+          for (const id of byDay.get(k)?.keys() || []) f.add(id);
+          for (const id of held.get(k)?.keys() || []) f.delete(id);
+        }
+        free.set(key, f);
+      }
+      return free.get(key);
+    };
     for (const v of order) {
       let need = v.days.filter((d) => !v.seats.has(Days.key(d)) && d >= today);
       while (need.length) {
         const used = new Set(v.seats.values());
-        let best = null, bestN = 0;
-        for (const o of this.offices) {
-          if (v.location != null && o.location !== v.location) continue;
-          const n = need.filter((d) => this.isFree(o, d, v.id)).length;
-          const bestUsed = best ? used.has(best.id) : false;
-          if (n > bestN || (n === bestN && n > 0 && used.has(o.id) && !bestUsed)) { best = o; bestN = n; }
+        const count = new Map();
+        for (const d of need) {
+          for (const id of freeOn(Days.key(d), v.location ?? null)) count.set(id, (count.get(id) || 0) + 1);
         }
-        if (!best) break;
-        for (const d of need) if (this.isFree(best, d, v.id)) v.seats.set(Days.key(d), best.id);
+        let top = 0; for (const n of count.values()) top = Math.max(top, n);
+        if (!top) break;
+        const tied = [...count].filter(([, n]) => n === top).map(([id]) => id);
+        const first = (ids) => ids.reduce((m, id) => (m == null || this.officePos.get(id) < this.officePos.get(m) ? id : m), null);
+        const b = first(tied.filter((id) => used.has(id))) ?? first(tied);
+        const office = this.office(b);
+        if (!office) break;
+        for (const d of need) {
+          const k = Days.key(d);
+          if (this.isOpen(office, d) && !held.get(k)?.has(b)) { v.seats.set(k, b); heldAt(k).set(b, v); free.get(`${k}`)?.delete(b); free.get(`${k}|${office.location}`)?.delete(b); }
+        }
         need = need.filter((d) => !v.seats.has(Days.key(d)));
       }
     }
+    this.holderByDay = held;
   }
 
   rows(day, location) {
     return this.offices.filter((o) => location == null || o.location === location).map((o) => {
-      const rawNote = (this.away.find((a) => a.officeID === o.id && hasDay(a.days, day)) || {}).note || "";
+      const rawNote = (this.offer(o.id, day) || {}).note || "";
       const note = rawNote || null;
       const sub = o.owner ? `${o.owner} is away` : "Guest desk";
       const h = this.holder(o.id, day);
@@ -234,12 +284,23 @@ export class Store {
   setOffices(text) {
     const e = this.validateOffices(text);
     if (e) return e;
-    this.record({ type: "setOffices", text });
+    // IDs for offices this list adds, picked once (so replaying the change
+    // on newer shared data gives them the same IDs).
+    const known = new Set(this.offices.map((o) => o.name.toLowerCase()));
+    const newIDs = {};
+    for (const raw of text.split("\n")) {
+      const key = splitMax(raw, ",", 1)[0].trim().toLowerCase();
+      if (key && !known.has(key)) newIDs[key] = uuid();
+    }
+    this.record({ type: "setOffices", text, newIDs });
     return null;
   }
 
-  applyOffices(text) {
+  applyOffices(text, newIDs = {}) {
     const seen = new Set(); const next = [];
+    // Offices keep their IDs by name (a lookup, so long lists stay quick).
+    const existingID = new Map();
+    for (const o of this.offices) if (!existingID.has(o.name.toLowerCase())) existingID.set(o.name.toLowerCase(), o.id);
     const a = this.orgAddress;
     const city = a ? a.city : "New York";
     const formatted = a ? `${a.street}, ${a.city}, ${a.state} ${a.zip}` : "";
@@ -255,8 +316,7 @@ export class Store {
       const key = name.toLowerCase();
       if (seen.has(key)) return;
       seen.add(key);
-      const existing = this.offices.find((o) => o.name.toLowerCase() === key);
-      next.push({ id: existing ? existing.id : uuid(), name, owner, location, address });
+      next.push({ id: existingID.get(key) || newIDs[key] || uuid(), name, owner, location, address });
     }
     this.offices = next;
     this.away = this.away.filter((w) => { const o = this.office(w.officeID); return o && o.owner; });
@@ -312,5 +372,4 @@ function splitMax(s, sep, max) {
   return out;
 }
 function uniqDays(days) { const m = new Map(); for (const d of days) m.set(Days.key(d), d); return [...m.values()]; }
-function hasDay(days, d) { return days.some((x) => x.getTime() === d.getTime()); }
 function cmp(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
