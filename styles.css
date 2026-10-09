@@ -145,7 +145,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 .iphone.lg { --w: 330px; }
 
 /* ---------- Hero ---------- */
-.hero { padding: 0; text-align: center; overflow: hidden; }
+.hero { padding: 72px 0 0; text-align: center; overflow: hidden; }
 .hero .cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
 .ghost-btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); font-size: 16px; font-weight: 600; padding: 13px 22px; border-radius: 999px; background: var(--pill); }
 .ghost-btn:hover { background: #e8e8ed; }
