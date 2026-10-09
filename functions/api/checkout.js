@@ -57,6 +57,6 @@ export async function onRequestPost({ request, env }) {
       { ...params, success_url: done, cancel_url: `${SITE}/start/?plan=${plan}` });
     return json({ url: session.url });
   } catch (e) {
-    return json({ error: "Checkout couldn't start. Please try again in a moment." }, 502);
+    return json({ error: "Checkout couldn't start. Please try again in a moment.", detail: String(e && e.message || e) }, 503);
   }
 }
