@@ -283,6 +283,24 @@ export class Store {
 }
 
 // Office lines are counted the way plans count them: one per line with a name.
+// What's saved for everyone (a snapshot, in the shared JSON's format):
+// offers and requests whose days are all over are kept for 30 days, then
+// dropped, so an organization's shared data (one Firestore document, at most
+// 1 MB) never fills up. If it's still near the limit, everything in the past
+// goes. Upcoming days are always kept. Same as SharedState.trimmed() in the app.
+export function trimmed(state, today = Days.today()) {
+  const t = Days.toSwift(today), month = Days.toSwift(Days.add(today, -30));
+  const current = (days, since) => !days.length || days.some((d) => d >= since);
+  const s = { ...state };
+  s.away = (state.away || []).filter((a) => current(a.days, month));
+  s.visits = (state.visits || []).filter((v) => current(v.days, month));
+  if (new TextEncoder().encode(JSON.stringify(s)).length > 900000) {
+    s.away = s.away.filter((a) => current(a.days, t));
+    s.visits = s.visits.filter((v) => current(v.days, t));
+  }
+  return s;
+}
+
 export function officeCount(text) {
   return text.split("\n").filter((l) => splitMax(l, ",", 1)[0].trim()).length;
 }

@@ -2,7 +2,7 @@
 // Settings in a browser, signed in with the organization's access code.
 // Changes go into the same shared schedule every phone uses.
 
-import { Store, Days, officeCount } from "./engine.js";
+import { Store, Days, officeCount, trimmed } from "./engine.js?v=2";
 import { getOrg, getState, putState, getPhotos, deleteOrg } from "./cloud.js";
 
 const root = document.getElementById("root");
@@ -125,7 +125,7 @@ async function push() {
       S.store.adopt(state);
       const sent = S.store.pending.length;
       if (!sent) break;
-      if (await putState(S.code, S.store.snapshot(), version)) {
+      if (await putState(S.code, trimmed(S.store.snapshot()), version)) {
         S.store.pending.splice(0, sent); S.version = null;
         if (!S.store.pending.length && !S.pushAgain) break;
         S.pushAgain = false;
