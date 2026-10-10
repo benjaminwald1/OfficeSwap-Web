@@ -59,7 +59,8 @@ function toast(msg) {
   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
   setTimeout(() => t.remove(), 2600);
 }
-const myName = () => { const n = (ls.get(nameKey(S.code)) || "").trim(); return n || null; };
+const myName = () => { const n = (S.code === "DEMO" ? S.demoName || "" : ls.get(nameKey(S.code)) || "").trim(); return n || null; };
+const saveMyName = (n) => { if (S.code === "DEMO") S.demoName = n; else ls.set(nameKey(S.code), n); };
 
 function officePhoto(id) {
   if (S.photos[id]) return S.photos[id];
@@ -126,6 +127,38 @@ function askMaster(title, message, then) {
   });
 }
 
+// ---------- the demo organization ----------
+// Northwind Partners, code DEMO: anyone can try OfficeSwap with it. It lives
+// only in this page: nothing is saved or shared, and closing the page (or
+// leaving it for a while) signs out and throws away whatever was changed.
+
+const DEMO = "DEMO";
+const DEMO_ORG = { name: "Northwind Partners", address: { street: "100 Park Avenue", city: "New York", state: "NY", zip: "10017" } };
+const isDemo = () => S.code === DEMO;
+function demoStore() {
+  const st = new Store(DEMO, DEMO_ORG.name, DEMO_ORG.address);
+  const owners = ["Priya Shah", "Marcus Chen", "Elena Rossi", "David Okafor", "Sarah Kim", "Tom Becker", "Aisha Rahman", "Luis Ortega", "Hannah Weiss", "James Carter"];
+  st.setOffices(owners.map((o, i) => `${o}'s office, ${o}, New York, 100 Park Avenue, Floor ${10 + i}, New York, NY 10017`).join("\n"));
+  for (const v of ["Nina Patel", "Ben Adler", "Chloe Martin", "Omar Haddad", "Grace Liu", "Jordan Lee", "Maya Singh"]) st.addPerson(v);
+  const d = Days.upcoming(5), id = (o) => st.offices.find((x) => x.owner === o).id;
+  st.addAway(id("Priya Shah"), d.slice(0, 3), "At the Boston conference");
+  st.addAway(id("Marcus Chen"), d.slice(0, 3), "");
+  st.addAway(id("Elena Rossi"), d.slice(0, 2), "Working from home");
+  st.addAway(id("Sarah Kim"), [d[0]], "");
+  st.addAway(id("David Okafor"), [d[0], d[1]], "");
+  for (const [n, days] of [["Nina Patel", [d[0], d[1]]], ["Ben Adler", [d[0], d[1], d[2]]], ["Chloe Martin", [d[0]]], ["Omar Haddad", [d[0], d[1]]], ["Grace Liu", [d[3], d[4]]]]) st.addVisit(n, days, null);
+  st.pending.length = 0;
+  return st;
+}
+// Stands in for the cloud: changes stay on the page.
+const localRemote = (store) => ({ refresh: async () => false, push: async () => { store.pending.length = 0; return true; } });
+let demoHiddenAt = 0;
+document.addEventListener("visibilitychange", () => {
+  if (!isDemo()) return;
+  if (document.hidden) demoHiddenAt = Date.now();
+  else if (demoHiddenAt && Date.now() - demoHiddenAt > 5 * 60 * 1000) { toast("The demo was reset."); signOut(); }
+});
+
 // ---------- sync ----------
 
 async function refresh() {
@@ -141,6 +174,7 @@ async function refresh() {
   }
 }
 async function refreshOrg() {
+  if (isDemo()) return;
   try {
     const org = await getOrg(S.code);
     if (!org) { toast(`${S.org.name} was deleted.`); return signOut(); }
@@ -184,6 +218,7 @@ function showGate(error = "") {
     e.preventDefault();
     const code = input.value.trim().toUpperCase();
     if (!/^[A-Z0-9]{1,12}$/.test(code)) return showGate("Invalid access code");
+    if (code === DEMO) return open(DEMO, DEMO_ORG);
     go.disabled = true; go.textContent = "Checking…";
     try {
       const org = await getOrg(code);
@@ -197,6 +232,11 @@ function showGate(error = "") {
 }
 
 async function open(code, org) {
+  if (code === DEMO) {
+    S.code = DEMO; S.org = DEMO_ORG; S.store = demoStore(); S.remote = localRemote(S.store); S.photos = {};
+    S.loaded = true; S.version = null; S.tab = "board"; S.weekOffset = 0; S.picked = null; S.shut = {}; S.expanded = new Set(); S.banner = null; S.myWaiting = null;
+    S.location = null; stopTimers(); demoHiddenAt = 0; render(); return;
+  }
   S.code = code; S.org = org || (await getOrg(code));
   if (!S.org) { ls.set(SESSION, null); return showGate(); }
   S.store = new Store(code, S.org.name, S.org.address || null);
@@ -213,7 +253,7 @@ async function open(code, org) {
   if (!myName()) askName(true);
 }
 function stopTimers() { clearInterval(S.timer); clearInterval(S.orgTimer); }
-function signOut() { stopTimers(); ls.set(SESSION, null); S.store = null; S.code = null; closeSheet(); showGate(); }
+function signOut() { stopTimers(); ls.set(SESSION, null); S.store = null; S.code = null; S.demoName = null; closeSheet(); showGate(); }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && S.store) refresh(); });
 
 // ---------- "What's your name?" ----------
@@ -241,7 +281,7 @@ function askName(first) {
       const existing = S.store.peopleDirectory().find((p) => p.toLowerCase() === n.toLowerCase());
       const final = existing || n;
       if (!existing) { S.store.addPerson(final); push(); }
-      ls.set(nameKey(S.code), final); closeSheet(); render();
+      saveMyName(final); closeSheet(); render();
     };
     go.onclick = save; input.onkeydown = (e) => { if (e.key === "Enter") save(); };
     const skip = sheet.querySelector("#nm-skip"); if (skip) skip.onclick = closeSheet;
@@ -437,7 +477,7 @@ function board() {
     return `<button class="group ${shut ? "shut" : ""}" data-group="${key}">${title} <span class="tag ${cls}">${g.length}</span>${I.chevD}</button>${shut ? "" : g.map(roomRow).join("")}`;
   };
   const weekday = day.toLocaleDateString(undefined, { weekday: "long" });
-  return `
+  return `${isDemo() ? `<div class="demo-banner">${I.board}<div><b>You're trying the demo</b><span>Try anything. Nothing is saved, and you're signed out when you close this page.</span></div></div>` : ""}
     <section class="card org"><img class="ph" src="${esc(orgPhoto)}" alt=""><div><h2>${esc(S.org.name)}</h2>
       ${locs.length ? `<select id="loc" aria-label="Location">${locs.map((l) => `<option ${l === S.location ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>` : ""}</div></section>
     <div class="actions">
@@ -514,7 +554,7 @@ function exportCard() {
 
 function settings() {
   const b = billing(), n = myName();
-  const jpm = S.code === "JPM";
+  const jpm = S.code === "JPM" || isDemo();
   return `<div class="section-title">Settings</div>
     <div class="card list">
       <button class="setting" id="st-name">${I.person}<span class="grow">Your name</span><span class="val">${esc(n || "Not set")}</span></button>
@@ -523,7 +563,7 @@ function settings() {
       ${jpm ? "" : `<button class="setting" id="st-reset">${I.reset}<span class="grow">Reset data</span></button>`}
       <button class="setting danger" id="st-switch">${I.door}<span class="grow">Switch organization</span></button>
     </div>
-    <p class="foot">Access code: <b>${esc(S.code)}</b>. Changes here show up on everyone's phones within a few seconds. Photos can be changed in the iPhone app.</p>
+    <p class="foot">${isDemo() ? "This is the demo organization. Nothing you change is saved, and closing this page starts it over." : `Access code: <b>${esc(S.code)}</b>. Changes here show up on everyone's phones within a few seconds. Photos can be changed in the iPhone app.`}</p>
     <div class="section-title" style="margin-top:34px;font-size:15px;color:var(--muted)">Support &amp; Legal</div>
     <div class="card list">${[
       [I.megaphone, "Request a Feature", "mailto:support@officeswap.co?subject=Feature%20request"],
