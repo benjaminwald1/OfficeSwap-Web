@@ -2,24 +2,33 @@
 // Kim's office for Thu, Oct 15"), sent through Firebase Cloud Messaging with
 // the project's service account (FIREBASE_SERVICE_ACCOUNT, see billing.js).
 //
-//   { action: "register", token, code, name }   this phone belongs to `name` in `code`
+//   { action: "register", token, code, name, lang? }   this phone belongs to `name` in `code`
 //   { action: "unregister", token }             signed out: stop sending to this phone
-//   { action: "notify", code, token?, seats: [{ visit, day, name, office, label }] }
+//   { action: "notify", code, token?, seats: [{ visit, day, name, office, label, officeName?, date? }] }
 //        a phone saw these waiting requests get an office; tells each person,
 //        except on the phone that reported it (`token`). visit and office
-//        are IDs, day is the app's day number (Shards.dayNumber), label is the text shown
+//        are IDs, day is the app's day number (Shards.dayNumber), label is the
+//        English text (used when officeName and date, YYYY-MM-DD, aren't sent)
+//   { action: "message", code, chat, id, token? }
+//        a message was sent (orgs/{code}/chats/{chat}/messages/{id}); it's read
+//        from the database and sent to the other person, or to everyone in the
+//        organization but the sender (Firebase topics the app joins:
+//        o_{code} for the organization, p_{code}_{name hash} for the person)
 //
 // Matching runs on every phone, so several may report the same office:
-//   pushTokens/{token}                              code, name, updatedAt
+//   pushTokens/{token}                              code, name, lang, updatedAt
 //   pushSent/{code}_{visit}_{day}_{office}          sentAt (created once)
+//   pushSent/msg_{code}_{chat}_{id}                 sentAt
 // make each one go out once. Neither collection is open to the app (the
 // rules don't mention them), only to this service account.
 
-import { accessToken, firestore, json, missing, toFields } from "../_lib/billing.js";
+import { accessToken, firestore, getOrg, json, missing, toFields } from "../_lib/billing.js";
 
 const tokenRE = /^[A-Za-z0-9_:\-]{20,400}$/;
 const codeRE = /^[A-Za-z0-9]{3,32}$/;
 const idRE = /^[A-Za-z0-9\-]{1,64}$/;
+const chatRE = /^(all|dm-[0-9a-f]{20})$/;
+const msgRE = /^[A-Za-z0-9]{10,40}$/;
 const DEMO = "DEMO";
 
 export async function onRequestPost({ request, env }) {
@@ -32,8 +41,9 @@ export async function onRequestPost({ request, env }) {
   try {
     if (b.action === "register") {
       const name = s(b.name, 100);
+      const lang = s(b.lang, 5) === "es" ? "es" : "en";
       if (!tokenRE.test(token) || !codeRE.test(code) || code === DEMO || !name) return json({ error: "Bad request." }, 400);
-      const r = await firestore(env, "PATCH", `pushTokens/${token}`, { fields: toFields({ code, name, updatedAt: new Date() }) });
+      const r = await firestore(env, "PATCH", `pushTokens/${token}`, { fields: toFields({ code, name, lang, updatedAt: new Date() }) });
       return r.status === 200 ? json({ ok: true }) : json({ error: "Couldn't save." }, 502);
     }
 
@@ -48,7 +58,7 @@ export async function onRequestPost({ request, env }) {
       const sent = [];
       for (const seat of b.seats.slice(0, 20)) {
         const visit = s(seat.visit, 64), office = s(seat.office, 64), name = s(seat.name, 100);
-        const label = s(seat.label, 120);
+        const label = s(seat.label, 120), officeName = s(seat.officeName, 100), date = s(seat.date, 10);
         const day = Number(seat.day);
         if (!idRE.test(visit) || !idRE.test(office) || !name || !label || !Number.isInteger(day)) continue;
         // Skip days already past (the app counts days from 2001, at noon UTC).
@@ -59,12 +69,57 @@ export async function onRequestPost({ request, env }) {
         const tokens = await tokensFor(env, code, name);
         let n = 0;
         for (const t of tokens) {
-          if (t === token) continue;
-          if (await send(env, t, "You got an office", label, { code })) n++;
+          if (t.token === token) continue;
+          const text = officeText(t.lang, officeName, date, label);
+          if (await send(env, { token: t.token }, text.title, text.body, { code })) n++;
         }
         sent.push({ key, phones: n });
       }
       return json({ ok: true, sent });
+    }
+
+    if (b.action === "message") {
+      const chat = s(b.chat, 30), id = s(b.id, 40);
+      if (!codeRE.test(code) || code === DEMO || !chatRE.test(chat) || !msgRE.test(id)) return json({ error: "Bad request." }, 400);
+      const path = `orgs/${code}/chats/${chat}`;
+      const msg = await firestore(env, "GET", `${path}/messages/${id}`);
+      if (msg.status !== 200) return json({ error: "No such message." }, 404);
+      const f = msg.data.fields || {};
+      const from = (f.from && f.from.stringValue) || "", text = (f.text && f.text.stringValue) || "";
+      const at = Date.parse((f.at && f.at.timestampValue) || "");
+      // Only new messages, and each one once.
+      if (!from || !text || !(Date.now() - at < 10 * 60 * 1000)) return json({ ok: true, sent: 0 });
+      const created = await firestore(env, "POST", `pushSent?documentId=${encodeURIComponent(`msg_${code}_${chat}_${id}`)}`, { fields: toFields({ sentAt: new Date() }) });
+      if (created.status !== 200) return json({ ok: true, sent: 0 });
+      const body = text.length > 180 ? `${text.slice(0, 179)}…` : text;
+      const data = { code, chat };
+
+      if (chat === "all") {
+        const org = await getOrg(env, code);
+        const orgName = (org && org.fields && org.fields.name && org.fields.name.stringValue) || "";
+        const title = orgName ? `${from} · ${orgName}` : from;
+        const condition = `'${topic("o", code)}' in topics && !('${await personTopic(code, from)}' in topics)`;
+        if (await send(env, { condition }, title, body, data, chat)) return json({ ok: true, sent: "topic" });
+        // Topic sends unavailable: phone by phone, as many as one request allows.
+        let n = 0;
+        for (const t of (await tokensFor(env, code, null)).filter((t) => t.name !== from && t.token !== token).slice(0, 40)) {
+          if (await send(env, { token: t.token }, title, body, data, chat)) n++;
+        }
+        return json({ ok: true, sent: n });
+      }
+
+      const chatDoc = await firestore(env, "GET", path);
+      const members = (((chatDoc.data.fields || {}).members || {}).arrayValue || {}).values || [];
+      const names = members.map((v) => v.stringValue);
+      if (!names.includes(from)) return json({ ok: true, sent: 0 });
+      let n = 0;
+      for (const name of names.filter((x) => x !== from)) {
+        for (const t of await tokensFor(env, code, name)) {
+          if (t.token === token) continue;
+          if (await send(env, { token: t.token }, from, body, data, chat)) n++;
+        }
+      }
+      return json({ ok: true, sent: n });
     }
   } catch (e) {
     return json({ error: "Something went wrong." }, 500);
@@ -72,37 +127,54 @@ export async function onRequestPost({ request, env }) {
   return json({ error: "Bad request." }, 400);
 }
 
-// The phones registered to this person in this organization.
+// The phones registered to this person (or, with no name, anyone) in this organization.
 async function tokensFor(env, code, name) {
   const eq = (field, value) => ({ fieldFilter: { field: { fieldPath: field }, op: "EQUAL", value: { stringValue: value } } });
+  const filters = name == null ? [eq("code", code)] : [eq("code", code), eq("name", name)];
   const r = await firestore(env, "POST", ":runQuery", {
     structuredQuery: {
       from: [{ collectionId: "pushTokens" }],
-      where: { compositeFilter: { op: "AND", filters: [eq("code", code), eq("name", name)] } },
-      limit: 20,
+      where: { compositeFilter: { op: "AND", filters } },
+      limit: name == null ? 200 : 20,
     },
   });
   if (r.status !== 200 || !Array.isArray(r.data)) return [];
-  return r.data.filter((row) => row.document).map((row) => row.document.name.split("/").pop());
+  return r.data.filter((row) => row.document).map((row) => {
+    const f = row.document.fields || {};
+    return { token: row.document.name.split("/").pop(), name: f.name && f.name.stringValue, lang: (f.lang && f.lang.stringValue) || "en" };
+  });
 }
 
-// One notification to one phone; a token Firebase no longer knows is removed.
-async function send(env, token, title, body, data) {
+// "You got an office" in the person's language.
+export function officeText(lang, officeName, date, label) {
+  const es = lang === "es";
+  const title = es ? "Tienes una oficina" : "You got an office";
+  if (!officeName || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { title, body: label };
+  const day = new Date(`${date}T12:00:00Z`).toLocaleDateString(es ? "es-ES" : "en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+  return { title, body: es ? `${officeName}, el ${day}` : `${officeName} for ${day}` };
+}
+
+// Firebase topic names (letters, digits, -_.~% only).
+function topic(kind, code) { return `${kind}_${code}`; }
+async function personTopic(code, name) {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(name));
+  const hex = [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 20);
+  return `p_${code}_${hex}`;
+}
+
+// One notification to one phone ({ token }) or to a topic condition ({ condition });
+// a token Firebase no longer knows is removed. Messages of one chat group together.
+async function send(env, target, title, body, data, thread) {
   const project = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT).project_id;
+  const aps = { sound: "default" };
+  if (thread) aps["thread-id"] = thread;
   const res = await fetch(`https://fcm.googleapis.com/v1/projects/${project}/messages:send`, {
     method: "POST",
     headers: { authorization: `Bearer ${await accessToken(env)}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      message: {
-        token,
-        notification: { title, body },
-        data,
-        apns: { payload: { aps: { sound: "default" } } },
-      },
-    }),
+    body: JSON.stringify({ message: { ...target, notification: { title, body }, data, apns: { payload: { aps } } } }),
   });
   if (res.ok) return true;
   // 404 UNREGISTERED: the app was deleted or the token replaced.
-  if (res.status === 404) await firestore(env, "DELETE", `pushTokens/${token}`);
+  if (res.status === 404 && target.token) await firestore(env, "DELETE", `pushTokens/${target.token}`);
   return false;
 }
