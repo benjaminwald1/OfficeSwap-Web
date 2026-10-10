@@ -916,3 +916,4 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 }
 
 
+.ic.logo img[src$="uber.svg"], .ic.logo img[src$="lyft.svg"] { width: 22px; }

@@ -1,4 +1,5 @@
 Brand logos (Google Sheets, Excel, Messages, Google Drive, Slack, Teams) from theSVG (thesvg.org), MIT license, via Iconify.
 Gmail, Dropbox, OneDrive, WhatsApp, Notion, Box, Telegram, Discord and Signal from SVG Logos (gilbarbara/logos, CC0) and Outlook from VS Code Icons (MIT), via Iconify.
+Google Calendar, Google Meet, Asana and Airtable from SVG Logos (CC0); Uber, Lyft, DoorDash and Starbucks from Simple Icons (CC0), via Iconify.
 Mail, Numbers, AirDrop and Files icons drawn for this site.
 All product names and logos are trademarks of their respective owners; shown only to indicate compatibility.
