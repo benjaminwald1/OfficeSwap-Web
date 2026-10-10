@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
 <link rel="preload" as="image" href="images/board.jpg?v=5" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=96">
+<link rel="stylesheet" href="styles.css?v=97">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OfficeSwap","operatingSystem":"iOS","applicationCategory":"BusinessApplication","description":"Colleagues at the same organization share offices: office holders offer theirs on the days they're away, and OfficeSwap assigns it automatically to a coworker who needs one.","url":"https://officeswap.co/","downloadUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","installUrl":"https://apps.apple.com/us/app/officeswap/id6816776136","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://officeswap.co/images/og.jpg?v=2"}
 </script>
@@ -109,6 +109,7 @@
       <a class="pill-btn lg reveal" data-a="cta" href="#download">Get the app</a>
     </div>
     <div class="stage reveal" data-a="slide">
+      <p class="try-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 013 0V10m0-.5V4.5a1.5 1.5 0 013 0V10m0-1a1.5 1.5 0 013 0v4.5a6.5 6.5 0 01-6.5 6.5h-.6a6 6 0 01-4.6-2.2L4.6 15a1.6 1.6 0 012.5-2l1.9 2.1V11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Try it: tap the screen</p>
       <div class="iphone lg">
         <div class="screen" id="screen">
           <img decoding="async" class="on" src="images/board.jpg?v=5" alt="Board tab" width="720" height="1565">
@@ -127,7 +128,7 @@
         </div>
       </div>
       <div class="demo-dots" id="demo-dots" role="tablist" aria-label="App screens"></div>
-      <p class="try-hint"><span class="try-dot" aria-hidden="true"></span>Tap to try it</p>
+      <p class="try-hint"><span class="try-dot" aria-hidden="true"></span>Tap the screen, the dots or the list to explore the app</p>
     </div>
   </div>
 </section>
@@ -439,7 +440,7 @@
     return TABS.map(function (t, i) { return { r: [0.079 + i * 0.2105, 0.895, 0.2105, 0.08], go: t[1], label: "Show the " + t[0] + " tab" }; });
   }
   var boardCards = [
-    { r: [0.04, 0.25, 0.445, 0.12], go: 5, label: "Request an office" },
+    { r: [0.04, 0.25, 0.445, 0.12], go: 5, label: "Request an office", pulse: true },
     { r: [0.517, 0.25, 0.44, 0.12], go: 7, label: "Offer my office" }
   ];
   var MAP = {
@@ -448,11 +449,13 @@
     2: tabs(), 4: tabs(),
     9: tabs().concat([{ r: [0.04, 0.193, 0.92, 0.172], go: 1, label: "Hide Grace Liu's request details" }]),
     5: [{ r: [0.74, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
-    6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done" }],
+    6: [{ r: [0.76, 0.085, 0.2, 0.06], go: 0, label: "Done", pulse: true }],
     7: [{ r: [0.03, 0.085, 0.22, 0.06], go: 0, label: "Cancel" }],
     8: tabs().concat(boardCards)
   };
-  var cur = 0, timer = null, prevTimer = null;
+  var cur = 0, timer = null, prevTimer = null, touched = false;
+  var stageEl = document.querySelector("#how .stage");
+  function touch() { touched = true; if (stageEl) stageEl.classList.add("touched"); }
   function buildHots(i) {
     hots.innerHTML = "";
     (MAP[i] || []).forEach(function (h) {
@@ -461,7 +464,9 @@
       b.style.left = h.r[0] * 100 + "%"; b.style.top = h.r[1] * 100 + "%";
       b.style.width = h.r[2] * 100 + "%"; b.style.height = h.r[3] * 100 + "%";
       if (h.go >= 5 && (i === 0 || i === 8)) b.className = "card-hot";
-      b.addEventListener("click", function () { stopAuto(); show(h.go); });
+      // Until someone taps, a pulsing ring shows where to tap next.
+      if (h.pulse && !touched) b.classList.add("pulse");
+      b.addEventListener("click", function () { stopAuto(); touch(); show(h.go); });
       hots.appendChild(b);
     });
   }
