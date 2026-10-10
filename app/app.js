@@ -41,6 +41,13 @@ const I = {
   trash: svg('<path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/>'),
   reset: svg('<path d="M4.5 12a7.5 7.5 0 102.2-5.3M4.5 4v4h4"/>'),
   card: svg('<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h3"/>'),
+  megaphone: svg('<path d="M4 10v4a1 1 0 001 1h2.5l7.5 4.5V4.5L7.5 9H5a1 1 0 00-1 1zM7.5 15l1.2 4.5h2.3L10.2 15.6M18 9.5a3.5 3.5 0 010 5"/>'),
+  envelope: svg('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.8 6.5l8.2 6.5 8.2-6.5"/>'),
+  question: svg('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.5a2.5 2.5 0 114.2 1.8c-.9.7-1.8 1.2-1.8 2.4"/><circle cx="12" cy="16.9" r=".6" fill="currentColor"/>'),
+  people: svg('<circle cx="9" cy="8.5" r="3.2"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5M15.5 14.2c2.6-.3 4.8 1.2 5.5 4.3"/>'),
+  doc: svg('<path d="M6 3.5h8l4.5 4.5v12a1 1 0 01-1 1H6a1 1 0 01-1-1v-15.5a1 1 0 011-1z"/><path d="M14 3.5V8h4.5M8.5 12.5h7M8.5 16h7"/>'),
+  shield: svg('<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.3-4.4"/>'),
+  instagram: svg('<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor"/>'),
 };
 
 const S = { code: null, org: null, store: null, version: null, photos: {}, tab: "board", location: null, weekOffset: 0, picked: null, timer: null, orgTimer: null, pushing: false, shut: {}, expanded: new Set(), banner: null, myWaiting: null };
@@ -517,8 +524,25 @@ function settings() {
       <button class="setting danger" id="st-switch">${I.door}<span class="grow">Switch organization</span></button>
     </div>
     <p class="foot">Access code: <b>${esc(S.code)}</b>. Changes here show up on everyone's phones within a few seconds. Photos can be changed in the iPhone app.</p>
+    <div class="section-title" style="margin-top:34px;font-size:15px;color:var(--muted)">Support &amp; Legal</div>
+    <div class="card list">${[
+      [I.megaphone, "Request a Feature", "mailto:support@officeswap.co?subject=Feature%20request"],
+      [I.envelope, "Support Email", "mailto:support@officeswap.co"],
+      [I.question, "FAQ", "../faq/"],
+      [I.people, "Community Guidelines", "../community-guidelines/"],
+      [I.doc, "Terms of Service", "../terms/"],
+      [I.shield, "Privacy Policy", "../privacy/"],
+    ].map(linkRow).join("")}</div>
+    <div class="section-title" style="margin-top:28px;font-size:15px;color:var(--muted)">Follow Us</div>
+    <div class="card list">${linkRow([I.instagram, "Instagram", "https://www.instagram.com/officeswap/"])}</div>
     ${jpm ? "" : `<div class="section-title" style="margin-top:34px"></div><div class="card list"><button class="setting danger" id="st-delete">${I.trash}<span class="grow">Delete organization</span></button></div>
     <p class="foot">Permanently deletes ${esc(S.org.name)} for everyone who uses its access code: offices, schedule, waitlist and photos.${S.org.masterHash ? " Needs the master code." : ""}</p>`}`;
+}
+
+// A Settings row that opens a link: icon, title and a chevron, like the app.
+function linkRow([icon, title, href]) {
+  const external = href.startsWith("http");
+  return `<a class="setting link" href="${href}"${external ? ' target="_blank" rel="noopener"' : ""}>${icon}<span class="grow">${esc(title)}</span><span class="chev">${I.chevR}</span></a>`;
 }
 
 const wire = {

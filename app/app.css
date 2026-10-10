@@ -213,3 +213,7 @@ textarea.field { min-height: 240px; font: 14px/1.5 ui-monospace, "SF Mono", Menl
 @media (max-width: 420px) { .tabs button { padding: 7px 9px; font-size: 13.5px; } }
 .setting b { display: block; font-weight: 600; }
 .setting .grow .small { display: block; margin-top: 2px; line-height: 1.4; }
+.setting.link svg { color: var(--ink); }
+.setting.link .chev { width: 14px; height: 14px; color: var(--faint); display: grid; }
+.setting.link .chev svg { width: 14px; height: 14px; color: var(--faint); }
+.setting.link:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
