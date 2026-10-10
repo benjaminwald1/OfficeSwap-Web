@@ -3,7 +3,7 @@
 // iPhone app (1.2): black-and-white accent, Export inside Plans.
 // Changes go into the same shared schedule every phone uses.
 
-import { Store, Days, officeCount } from "./engine.js?v=3";
+import { Store, Days, officeCount } from "./engine.js?v=4";
 import { getOrg, getPhotos, deleteOrg } from "./cloud.js?v=2";
 import { Remote } from "./sync.js?v=1";
 
@@ -135,6 +135,20 @@ function askMaster(title, message, then) {
 const DEMO = "DEMO";
 const DEMO_ORG = { name: "Northwind Partners", address: { street: "100 Park Avenue", city: "New York", state: "NY", zip: "10017" } };
 const isDemo = () => S.code === DEMO;
+
+// Someone's waiting request just got an office: officeswap.co sends their
+// iPhones a notification (once, however many phones and browsers report it).
+function reportSeats(code, seats) {
+  const short = (d) => d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const body = seats.slice(0, 20).map(({ visit, day, office }) => {
+    const o = S.store && S.store.office(office);
+    // The app's day number: days since 2001, counted at noon UTC.
+    const n = Math.floor((day.getTime() / 1000 - 978307200 + 43200) / 86400);
+    return o && { visit: visit.id, day: n, office, name: visit.name, label: `${o.name} for ${short(day)}` };
+  }).filter(Boolean);
+  if (!body.length) return;
+  fetch("/api/push", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "notify", code, seats: body }) }).catch(() => {});
+}
 function demoStore() {
   const st = new Store(DEMO, DEMO_ORG.name, DEMO_ORG.address);
   const owners = ["Priya Shah", "Marcus Chen", "Elena Rossi", "David Okafor", "Sarah Kim", "Tom Becker", "Aisha Rahman", "Luis Ortega", "Hannah Weiss", "James Carter"];
@@ -240,6 +254,7 @@ async function open(code, org) {
   S.code = code; S.org = org || (await getOrg(code));
   if (!S.org) { ls.set(SESSION, null); return showGate(); }
   S.store = new Store(code, S.org.name, S.org.address || null);
+  S.store.onNewSeats = (seats) => reportSeats(code, seats);
   S.remote = new Remote(code, S.store);
   S.loaded = false; S.version = null; S.tab = "board"; S.weekOffset = 0; S.picked = null; S.shut = {}; S.expanded = new Set(); S.banner = null; S.myWaiting = null;
   S.location = ls.get(locKey(code));

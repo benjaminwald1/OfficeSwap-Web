@@ -60,6 +60,10 @@ export class Store {
     this.extra = {}; // fields of the shared JSON this version doesn't use (kept as they are)
     this.pending = [];
     this.lastCreated = 0;
+    // Each request's waiting days as of the last matching run, and who to
+    // tell when one of them gets an office: onNewSeats([{ visit, day, office }]).
+    this.lastWaiting = null;
+    this.onNewSeats = null;
   }
 
   // ----- shared JSON <-> model -----
@@ -221,6 +225,17 @@ export class Store {
       }
     }
     this.holderByDay = held;
+    // Days that were waiting last time and have an office now.
+    const fresh = [];
+    if (this.lastWaiting) {
+      for (const v of this.visits) {
+        for (const k of this.lastWaiting.get(v.id) || []) {
+          if (k >= today.getTime() && v.seats.has(k)) fresh.push({ visit: v, day: new Date(k), office: v.seats.get(k) });
+        }
+      }
+    }
+    this.lastWaiting = new Map(this.visits.map((v) => [v.id, v.days.map(Days.key).filter((k) => !v.seats.has(k))]));
+    if (fresh.length && this.onNewSeats) this.onNewSeats(fresh);
   }
 
   rows(day, location) {

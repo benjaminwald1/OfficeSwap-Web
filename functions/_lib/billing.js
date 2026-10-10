@@ -125,14 +125,14 @@ function b64url(bytes) {
 
 let cachedToken = null;
 
-async function accessToken(env) {
+export async function accessToken(env) {
   if (cachedToken && cachedToken.exp > Date.now() + 60000) return cachedToken.token;
   const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(enc.encode(JSON.stringify({ alg: "RS256", typ: "JWT" })));
   const claims = b64url(enc.encode(JSON.stringify({
     iss: sa.client_email, sub: sa.client_email, aud: "https://oauth2.googleapis.com/token",
-    scope: "https://www.googleapis.com/auth/datastore", iat: now, exp: now + 3600,
+    scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/firebase.messaging", iat: now, exp: now + 3600,
   })));
   const pem = sa.private_key.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
   const der = Uint8Array.from(atob(pem), (c) => c.charCodeAt(0));
@@ -169,8 +169,9 @@ function toValue(v) {
   return { stringValue: String(v) };
 }
 
-async function firestore(env, method, path, body) {
-  const res = await fetch(`${docsURL(env)}/${path}`, {
+export async function firestore(env, method, path, body) {
+  // ":runQuery" and the like attach straight to the documents root.
+  const res = await fetch(`${docsURL(env)}${path.startsWith(":") ? "" : "/"}${path}`, {
     method,
     headers: { authorization: `Bearer ${await accessToken(env)}`, "content-type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,

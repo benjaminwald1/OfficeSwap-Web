@@ -7,7 +7,7 @@
 // yet still use the single state/current document; the web app never moves
 // one itself, so older app versions keep working until 1.2 opens it.
 
-import { Days, trimmed } from "./engine.js?v=3";
+import { Days, trimmed } from "./engine.js?v=4";
 import { getState, putState, getDocs, putDocs } from "./cloud.js?v=2";
 import { META, MOVED, documentIDs, split, merge, canonical, empty } from "./shards.js?v=1";
 
