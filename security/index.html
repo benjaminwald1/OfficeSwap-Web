@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Support · OfficeSwap</title>
-<meta name="description" content="Get help with OfficeSwap. Email us with any question, problem or feedback about the app, and find answers to common questions in the FAQ.">
-<link rel="canonical" href="https://officeswap.co/support/">
+<title>Security · OfficeSwap</title>
+<meta name="description" content="How OfficeSwap protects your organization's data: where it's stored, who can see it, how access codes and the master code work, and how payments are handled.">
+<link rel="canonical" href="https://officeswap.co/security/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="OfficeSwap">
-<meta property="og:title" content="Support · OfficeSwap">
-<meta property="og:description" content="Get help with OfficeSwap. Email us with any question, problem or feedback about the app, and find answers to common questions in the FAQ.">
-<meta property="og:url" content="https://officeswap.co/support/">
+<meta property="og:title" content="Security · OfficeSwap">
+<meta property="og:description" content="How OfficeSwap protects your organization's data: where it's stored, who can see it, how access codes and the master code work, and how payments are handled.">
+<meta property="og:url" content="https://officeswap.co/security/">
 <meta property="og:image" content="https://officeswap.co/images/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@600&display=swap">
 <link rel="stylesheet" href="../styles.css?v=96">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"OfficeSwap","item":"https://officeswap.co/"},{"@type":"ListItem","position":2,"name":"Support","item":"https://officeswap.co/support/"}]}
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"OfficeSwap","item":"https://officeswap.co/"},{"@type":"ListItem","position":2,"name":"Security","item":"https://officeswap.co/security/"}]}
 </script>
 </head>
 <body>
@@ -35,6 +35,8 @@
       <a href="../#how">How it works</a>
       <a href="../#pricing">Pricing</a>
       <a href="../faq/">FAQ</a>
+      <a href="../blog/">Blog</a>
+      <a href="../support/">Contact</a>
       <a href="../app/">Log in</a>
     </nav>
     <details class="mnav">
@@ -46,25 +48,42 @@
 </header>
 <div class="wrap">
 <main>
-<h1>Support</h1>
-<p class="meta">We're here to help with OfficeSwap.</p>
+<h1>Security</h1>
+<p class="meta">For IT and facilities teams · Updated October 9, 2026</p>
 
-<div class="summary">
-  <p><strong>Contact us</strong></p>
-  <p>Email <a href="mailto:support@officeswap.co">support@officeswap.co</a> with any question, problem or feedback. We aim to reply within a few business days.</p>
-</div>
+<p>OfficeSwap is built to know as little as possible. It holds your office schedule and nothing else, and only people in your organization can see it. Here's how it works, for anyone reviewing it. Our <a href="../privacy/">Privacy Policy</a> has the full details.</p>
 
-<h2>What to include</h2>
+<h2>1. What we store</h2>
+<p>Only what your team enters: people's names, office names, locations and addresses, the days people request or offer an office, optional notes, and any office or people photos someone adds. There are no user accounts, so we never hold email addresses or passwords for your team. The person who sets up a paid organization gives a billing email, which Stripe keeps with the subscription.</p>
+
+<h2>2. Where it's stored</h2>
+<p>Schedules are stored in Google Cloud Firestore, part of Google's Firebase platform. Data is encrypted in transit (HTTPS) between every phone or browser and Google, and encrypted at rest by Google. Our website is served by Cloudflare over HTTPS.</p>
+
+<h2>3. Who can see it</h2>
 <ul>
-  <li>Your organization's name. Please don't send your access code.</li>
-  <li>What you were trying to do, and what happened instead.</li>
-  <li>A screenshot, if something looks wrong.</li>
+  <li><b>One organization, one schedule.</b> Each organization has its own access code and its own schedule. Offices are only ever shared among people in that organization.</li>
+  <li><b>Access codes.</b> Anyone with your organization's access code can see and change its schedule, so share it only with your colleagues, as you would a door code.</li>
+  <li><b>Master code.</b> An administrator can set a master code. Once set, it's needed to remove offices or people, reset the schedule, or delete the organization. We only store a salted hash of it (PBKDF2 with SHA-256), never the code itself.</li>
 </ul>
 
-<h2>Common questions</h2>
-<p>Many questions are answered in the <a href="../faq/">FAQ</a>, including how matching works, why someone might still be on the waitlist, and how to cancel.</p>
+<h2>4. Payments</h2>
+<p>Subscriptions are handled by <a href="https://stripe.com/docs/security" target="_blank" rel="noopener">Stripe</a>. Card details go straight from the sign-up page to Stripe and never touch our servers.</p>
+
+<h2>5. What the app doesn't do</h2>
+<ul>
+  <li>No ads, and nothing is ever sold.</li>
+  <li>No analytics or tracking inside the app.</li>
+  <li>No access to your contacts, location or calendar. The camera and photo library are used only when someone chooses to scan a staff list or add a photo.</li>
+</ul>
+
+<h2>6. Getting your data out, or deleting it</h2>
+<p>Anyone can export the schedule as a CSV spreadsheet from the Plans tab. People can cancel their own requests and offers anytime. An administrator can delete the whole organization in Settings, which removes its offices, schedule, waitlist and photos for everyone. You can also email us to have it deleted.</p>
+
+<h2>7. Reporting a problem</h2>
+<p>If you think you've found a security issue, email <a href="mailto:support@officeswap.co">support@officeswap.co</a>. We'll look into it right away.</p>
 </main>
 </div>
+
 <footer class="mr">
   <div class="mr-wrap foot-grid">
     <div class="foot-brand">
