@@ -269,7 +269,7 @@ section.band.gray { background: linear-gradient(180deg, var(--bg-2), var(--bg));
 
 /* ---------- Made for (card rail) ---------- */
 .rail-wrap { position: relative; margin-top: 48px; }
-.rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(24px, calc(50% - 566px)) 8px; scroll-padding-inline: max(24px, calc(50% - 566px)); scrollbar-width: none; }
+.rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(24px, calc(50% - 566px)) 8px 0; scroll-padding-inline: 0 max(24px, calc(50% - 566px)); scrollbar-width: none; }
 .rail::-webkit-scrollbar { display: none; }
 .card {
   flex: none; width: 272px; height: 400px; border-radius: 22px; position: relative; overflow: hidden;
